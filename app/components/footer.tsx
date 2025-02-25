@@ -6,7 +6,7 @@ import FriedEggs from '../assets/Fried Eggs.png';
 const footer = () => {
   return (
       <div className='mx-16 mt-16 mb-32 px-3  '>
-          <h1 className='py-7 text-brand-logo_green font-semibold'>Nourish box</h1>
+          <h1 className='py-7 text-brand-logo_green font-semibold text-2xl'>Nourish box</h1>
           <div className='flex  justify-between '>
               <ul>
               <li className='text-xl font-semibold mb-4'>Menu</li>

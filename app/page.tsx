@@ -101,10 +101,10 @@ export default function Home() {
           </div>
         </div>
         <div className="flex justify-center">
-          <div className="flex justify-between py-10 md:w-[80%] ">
+          <div className="flex justify-between py-10 md:w-[85%] ">
             <div className="">
               <h2 className="font-semibold text-5xl mb-[5px]">Discover, Create, Share</h2>
-              <p className="font-extralight text-brand-sub_gray">Check out our recipes for the week</p>
+              <p className="font-sans font-light text-brand-sub_gray text-2xl">Check out our recipes for the week</p>
             </div>
             <div className="flex items-center"> <button className=" capitalize bg-brand-btn_orange text-xl rounded-[20px] text-white py-[10px] px-[25px]">See All</button></div>
           </div>
@@ -117,7 +117,7 @@ export default function Home() {
         </div>
         <AboutUs />
         <div className="flex justify-center my-24 font-sans ">
-          <h1 className="text-5xl text-semibold">From Our Community</h1>
+          <h1 className="font-sans text-5xl font-semibold">From Our Community</h1>
         </div>
         <CommunityList />
         <div className='flex justify-center bg-brand-logo_green p-10 rounded-3xl w-[92%] mx-16 my-7  '>

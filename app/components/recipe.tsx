@@ -28,11 +28,13 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
          <p className="flex  items-center mx-1"><Image className="w-[12px] h-[12px] mx-1" src={user_green} alt="user " />{recipe.servings}</p> 
          <p className="flex  items-center mx-1"><Image src={graph} alt="graph" className="w-[12px] h-[12px] mx-1 " /> {recipe.difficulty}</p>
          </div>
-        <h3 className="text-lg font-semibold mt-2">{recipe.name}</h3>
+        <div className="font-sans my-8 mb-4">
+          <h3 className="text-lg font-semibold mt-2">{recipe.name}</h3>
 
-        <a href={recipe.link} className="text-orange-500 hover:underline text-sm mt-2 inline-block">
-          View Recipe
-        </a>
+          <a href={recipe.link} className="text-orange-500 hover:underline text-sm mt-2 inline-block">
+            View Recipe
+          </a>
+       </div>
       </div>
     </div>
   );
