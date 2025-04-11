@@ -8,7 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)'],
+          custom: ['ibrand', 'sans-serif'],
+          inter: ['var(--font-inter)'],
       },
       colors:{
        brand:{
@@ -31,6 +32,7 @@ module.exports = {
         float: 'floating 3s ease-in-out infinite',
         spinSlow: 'spinning 5s linear infinite',
       },
+     
     },
   },
   plugins: [],

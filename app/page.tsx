@@ -1,93 +1,101 @@
-
-import Nav from "../app/components/nav";
+'use client'
+import Nav from "./components/nav";
 import Image from "next/image";
-import hero from "../app/assets/hero.png";
-import hover_img_one from '../app/assets/Frame 464.png'
-import hover_img_two from '../app/assets/Frame 466.png'
-import broccoli from "../app/assets/Broccoli.png";
-import tomato from '../app/assets/Tomato.png'
+import hero from "./assets/hero.png";
+import hover_img_one from './assets/Frame 464.png'
+import hover_img_two from './assets/Frame 466.png'
+import broccoli from "./assets/Broccoli.png";
+import tomato from './assets/Tomato.png'
 import RecipeCard from "./components/recipe";
-import salad from '../app/assets/salad.avif'
-import soup from '../app/assets/soup.avif'
-import spag from '../app/assets/spag.avif'
-import pie from '../app/assets/pie.avif'
-import pie_one from '../app/assets/pie-1.avif'
-import pancake from '../app/assets/pancake.avif'
-import AboutUs from '../app/components/about_us';
+import prawnfriedrice from './assets/praw fried rice.webp'
+import turkeyfriedrice from './assets/realturkeyfriedrice.webp'
+import plantainporridge from './assets/shrimpand plantain porridge.webp'
+// import chickenteriyaki from './assets/chicken teriyaki.webp'
+import { useRouter } from 'next/navigation'
+
+import gizdodo from './assets/gizdodo.webp';
+import AboutUs from './components/about_us';
 import CommunityList from "./components/community";
 import Banner from "./components/banner";
+
 import Footer from "./components/footer";
 export default function Home() {
   const recipeCards = [
     {
       id: 1,
-      name: "Creamy Salad",
-      image: salad,
+      name: "Prawn fried rice",
+      image: prawnfriedrice,
       time: "10 Mins",
       servings: "2 Serving",
       difficulty: "Easy",
-      link: "/recipes/creamy-salad"
+      link: 'https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu'
     },
     {
       id: 2,
-      name: "Tofu Tomatoes Soup",
-      image: soup,
-      time: "15 Mins",
-      servings: "3 Serving",
-      difficulty: "Easy",
-      link: "/recipes/tofu-tomatoes-soup"
-    },
-    {
-      id: 3,
-      name: "Spagetti Bolognese",
-      image: spag,
-      time: "10 Mins",
-      servings: "2 Serving",
-      difficulty: "Easy",
-      link: "/recipes/crunchy-potatoes"
-    },
-    {
-      id: 4,
-      name: "Apple Pie",
-      image: pie,
+      name: 'Turkey fried rice',
+      image: turkeyfriedrice,
       time: "25 Mins",
       servings: "2 Serving",
       difficulty: "Medium",
-      link: "/recipes/mushroom-soup"
+      link: "https://paystack.shop/nourish-box?product=turkey-fried-rice-meal-kit-xtehel"
+    },
+    {
+      id: 3,
+      name: "Shrimp and plaintain pottage",
+      image: plantainporridge,
+      time: "10 Mins",
+      servings: "2 Serving",
+      difficulty: "Easy",
+      link: "https://paystack.shop/nourish-box?product=shrimp-and-plantain-porridge-meal-kit-oirbiq"
+    },
+    {
+      id: 4,
+      name: 'Gizdodo',
+      image: gizdodo,
+      time: "25 Mins",
+      servings: "2 Serving",
+      difficulty: "Medium",
+      link: "https://paystack.shop/nourish-box?product=gizdodo-xyoogt"
     },
     {
       id: 5,
-      name: "Raspberry Pie",
-      image: pie_one,
+      name: "Prawn fried rice",
+      image: prawnfriedrice,
       time: "30 Mins",
       servings: "1 Serving",
       difficulty: "Easy",
-      link: "/recipes/raspberry-pancake"
+      link: "https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu"
     },
     {
       id: 6,
-      name: "Beef Teriyaki",
-      image: pancake,
-      time: "20 Mins",
-      servings: "1 Serving",
+      name: 'Turkey fried rice',
+      image: turkeyfriedrice,
+      time: "25 Mins",
+      servings: "2 Serving",
       difficulty: "Medium",
-      link: "/recipes/beef-teriyaki"
+      link: "https://paystack.shop/nourish-box?product=turkey-fried-rice-meal-kit-xtehel"
     }
   ];
-  
+  const router = useRouter()
+
   return (
     <div>
-      <div className="flex md:hidden h-screen w-screen  justify-center items-center">
+      <div className=" hidden h-screen w-screen  justify-center items-center">
         This page is not available for small screen sizes
       </div>
-      <div className="hidden md:block">
+      <div className=" block">
         <Nav />
-        <div className="flex justify-center ">
-          <div className="flex justify-between items-center w-10/12 py-20 ">
-            <div className="w-1/2"><h1 className="text-6xl font-sans font-bold leading-tight">Cooking Made Fun and Easy: Unleash Your Inner Chef</h1>
-              <p className="pt-[37px] font-sans font-extralight text-lg text-brand-sub_gray mb-4">Discover more than <span className="text-brand-btn_orange">10,000 recipes</span> in your hand with the best recipe. Help you to find the easiest way to cook.</p>
-              <button className=" capitalize bg-brand-btn_orange font-semibold text-xl rounded-[20px] text-white py-[20px] px-[30px] my-12 mt-4">Explore recipes</button></div>
-            <div className="flex items-center justify-center w-1/2 relative">
+        <div className="flex flex-col lg:flex-row justify-center ">
+          <div className="flex flex-col lg:flex-row  justify-between items-center  lg:w-full py-10 lg:py-20 md:flex-col ">
+            <div className="lg:w-1/2 flex flex-col  items-center p-4  text-center lg:items-start lg:p-10 lg:text-left"><h1 className="text-5xl lg:text-6xl font-custom font-medium ">Cooking Made Fun and Easy: Unleash Your Inner Chef</h1>
+              <p className="pt-[37px] font-sans font-extralight text-lg text-brand-sub_gray mb-4">Nourish Box removes the hassle of meal prep by
+                delivering pre-measured, pre-cut ingredients
+                along with guided recipes. We ensure every meal is
+                made with carefully sourced ingredients,
+                delivering farm-to-table goodness in every box.</p>
+              <a href="https://l.instagram.com/?u=https%3A%2F%2Fpaystack.shop%2Fnourish-box%3Ffbclid%3DPAZXh0bgNhZW0CMTEAAadtGBs7PXoH7bl0Q_Q3-h86Ubt9ydzkY01mrRw0kHF7CbGk5yLa7Hox1vS3BA_aem_CVe_2rzSDyuZDGIHNXMEhg&e=AT01o97t6DhSd0Ph0fiFIl4a3GZv79KNc2lQBhy6Z1qF7sJnMTtMWHxHH1t48IxKXLbW0hB0tyYnWxcAJ1qxkeTyuwrV7CocoD_iD6F0Ee3XNSUEUEpCX3o"> <button className=" capitalize bg-brand-btn_orange font-inter lg:font-semibold text-xl rounded-xl text-white py-3 px-2 lg:py-[20px] lg:px-[30px] my-12 mt-4">Order now</button></a>
+            </div>
+            <div className="flex items-center justify-center lg:w-1/2 relative">
               <Image src={hero} height={600} width={658} className="" alt="jollof" />
 
               <Image src={hover_img_one} height={210} width={221} alt="hovering_img" className="absolute left-0 bottom-[2px]" />
@@ -100,13 +108,14 @@ export default function Home() {
 
           </div>
         </div>
+
         <div className="flex justify-center">
-          <div className="flex justify-between py-10 md:w-[85%] ">
+          <div className="flex flex-col lg:flex-col items-center lg:justify-between py-5 lg:py-10 md:w-[85%] ">
             <div className="">
-              <h2 className="font-semibold text-5xl mb-[5px]">Discover, Create, Share</h2>
-              <p className="font-sans font-light text-brand-sub_gray text-2xl">Check out our recipes for the week</p>
+              <h2 className="font-medium font-custom text-3xl lg:text-5xl mb-[5px]">Discover, Create, Share</h2>
+              <p className="font-inter text-lg lg:pb-5 font-light text-brand-sub_gray lg:text-2xl">Check out our recipes for the week</p>
             </div>
-            <div className="flex items-center"> <button className=" capitalize bg-brand-btn_orange text-xl rounded-[20px] text-white py-[10px] px-[25px]">See All</button></div>
+           
           </div>
         </div>
         <div className="flex flex-wrap gap-6 justify-center p-10 pt-0">
@@ -115,17 +124,19 @@ export default function Home() {
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
+        <div className="flex justify-center items-center"> <button  className=" capitalize bg-brand-btn_orange text-lg font-inter rounded-xl text-white py-[10px] px-[25px]" onClick={()=>router.push('/receipes')}>See All</button></div>
         <AboutUs />
         <div className="flex justify-center my-24 font-sans ">
-          <h1 className="font-sans text-5xl font-semibold">From Our Community</h1>
+          <h1 className=" text-5xl text-center font-custom font-medium">From Our Community</h1>
         </div>
         <CommunityList />
-        <div className='flex justify-center bg-brand-logo_green p-10 rounded-3xl w-[92%] mx-16 my-7  '>
+        <div className='flex justify-center items-center bg-brand-logo_green p-8 lg:p-10 lg
+        :rounded-3xl lg:w-[92%] lg:mx-16 my-7  '>
           <Banner />
 
         </div>
         <Footer />
       </div>
-  </div>
+    </div>
   );
 }

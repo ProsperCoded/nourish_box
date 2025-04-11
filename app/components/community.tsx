@@ -1,10 +1,10 @@
 import Image, { StaticImageData } from "next/image";
 import like from '../assets/icons8-thumbs-up-50.png';
 import share from "../assets/icons8-share-48.png";
-import img_one from '../assets/image_14.png';
-import img_two from '../assets/image_15.png';
-import img_three from '../assets/image_16.png';
-import img_four from '../assets/image_13.png';
+import prawnfriedrice from '../assets/praw fried rice.webp'
+import turkeyfriedrice from '../assets/realturkeyfriedrice.webp'
+import plantainporridge from '../assets/shrimpand plantain porridge.webp'
+import chickenteriyaki from '../assets/chicken teriyaki.webp'
 import user_one from '../assets/frame_451.png';
 import user_two from '../assets/frame_452.png';
 import user_three from '../assets/frame_453.png';
@@ -25,10 +25,10 @@ type Community = {
 const communities: Community[] = [
   {
     id: 1,
-    name: "Tofu Tomatoes Soup",
+    name: "Prawn fried rice",
     sub: 'Lady rudgy',
     user_image: user_one,
-    image: img_one,
+    image: prawnfriedrice,
     text: "I have to say, your Spaghetti Bolognese recipe is nothing short of amazing! I've always been a fan of Italian cuisine, but I was a bit intimidated by the idea of making this classic at home.",
     likes: "15 Mins",
     ratings: "3 ",
@@ -37,10 +37,10 @@ const communities: Community[] = [
   },
   {
     id: 2,
-    name: "Crunchy Potatoes",
+    name: "Turkey fried rice",
     sub: 'Lady rudgy',
     user_image: user_two,
-    image: img_two,
+    image: turkeyfriedrice,
     likes: "10 Mins",
     ratings: "2 ",
     text: "I've always been a bit hesitant to roast a whole chicken, fearing it might be too complicated, but your recipe changed that for me. The instructions were so clear and easy to follow",
@@ -49,9 +49,9 @@ const communities: Community[] = [
   },
   {
     id: 3,
-    name: "Vegetable Pot Pie",
+    name: "Shrimp plantain pottage",
     sub: 'Lady rudgy',
-    image: img_three,
+    image: plantainporridge,
     user_image: user_three,
     likes: "10 Mins",
     ratings: "2 ",
@@ -61,9 +61,9 @@ const communities: Community[] = [
   },
   {
     id: 4,
-    name: "Spaghetti Bolognese ",
+    name: "Chicken teriyaki",
     sub: 'Emily rose',
-    image: img_four,
+    image: chickenteriyaki,
     user_image: user_four,
     likes: "10 Mins",
     ratings: "2 ",
@@ -75,27 +75,26 @@ const communities: Community[] = [
 
 export default function CommunityList() {
   return (
-    <div className="grid grid-cols-2 gap-20 m-10 mx-16 font-sans">
+    <div className="grid grid-rows-2 lg:grid-cols-2 gap-6 lg:gap-20 m-5 lg:m-10  lg:mx-16 font-sans">
 
       {communities.map((i) => (
-        <div key={i.id} className="p-7 bg-white rounded-lg shadow-lg ">
+        <div key={i.id} className="p-7 cursor-pointer bg-white rounded-lg shadow-lg ">
 
           <div className="flex items-center mb-3">
             <div>
               <Image src={i.user_image} alt="img" width={50} height={50} className="mx-4 ml-2" />
             </div>
             <div className="flex flex-col justify-center">
-              <h1 className="font-semibold text-2xl">{i.name}</h1>
+              <h1 className="font-custom text-2xl">{i.name}</h1>
               <h3 className="font-light text-base text-brand-sub_gray">{i.sub}</h3>
             </div>
           </div>
           {/* <Image src="" alt="img" className="stars" /> */}
-          <p className="my-5 text-base font-light leading-6 ">{i.text}</p>
+          <p className="my-5 text-base font-light leading-6  ">{i.text}</p>
           <Image
             src={i.image}
             alt={i.name}
-
-            className="rounded-lg"
+            className="object-cover h-64 w-full rounded"
           />
           <div className="flex items-center my-4">
             <Image src={like} alt="thumbs" width={20} height={20} className="mr-2" />
