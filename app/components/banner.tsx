@@ -7,8 +7,8 @@ const banner = () => {
     return (
         <div className='flex flex-col lg:flex-row items-center  lg:w-11/12 '>
             <div  className='lg:w-3/4  '>
-                <h3 className='text-white font-inter font-medium text-xl lg:text-4xl leading-snug lg:w-[90%] text-center mb-8 '>Embrace the joy of cooking with get it on your iPhone or Android Your kitchen adventure begins now!</h3>
-                <div className='my-8 lg:my-4 flex justify-center' >
+                <h3 className='text-white font-inter font-medium text-xl lg:text-4xl leading-snug lg:w-[90%] text-center lg:text-start mb-8 '>Embrace the joy of cooking with get it on your iPhone or Android Your kitchen adventure begins now!</h3>
+                <div className='my-8 lg:my-4 flex lg:justify-start justify-center ' >
                     <button ><Image src={app_store} alt='app store button' width={100} className='mr-4' /></button><button ><Image src={google_store} alt='app store button' width={100} className='mr-4' /></button>
                 </div>
             </div>

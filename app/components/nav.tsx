@@ -6,12 +6,13 @@ import Logo from '../assets/nourish_box_folder/Logo files/Logomark.svg'
 const nav = () => {
   return (
     <div>
-      <div className='flex justify-between p-6 items-center lg:hidden'>
+      <div className='flex  justify-between p-6 items-center lg:hidden'>
         <Image src={Logo} alt='Logo' className='w-[150px]' />
         <button>=</button>
 
       </div>
-      <div className=' hidden lg:flex justify-between items-center p-12 pb-0 md:w-100 text-black font-sans'>
+      <div className="flex justify-center">
+      <div className=' hidden lg:w-10/12 lg:flex justify-between items-center p-12 pb-0 md:w-100 text-black font-sans'>
         <Image src={Logo} alt='Logo' className='w-[150px]' />
         <ul className='flex py-0 w-1/2 font-inter'>
           <li className='px-4  font-medium text-xl'>Home</li>
@@ -25,6 +26,7 @@ const nav = () => {
           <Image src={search} alt='search icon' width={30} height={30.11} className='mx-4' />
           <Image src={user} alt='user icon' width={30} height={30.11} />
         </div>
+      </div>
       </div>
 
     </div>
