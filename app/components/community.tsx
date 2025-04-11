@@ -75,7 +75,7 @@ const communities: Community[] = [
 
 export default function CommunityList() {
   return (
-    <div className="grid grid-rows-2 lg:grid-cols-2 gap-6 lg:gap-20 m-5 lg:m-10  lg:mx-16 font-sans">
+    <div className="grid grid-rows-2 lg:grid-cols-2 gap-6 lg:gap-20 m-6 lg:m-10  lg:mx-16 font-sans">
 
       {communities.map((i) => (
         <div key={i.id} className="p-7 cursor-pointer bg-white rounded-lg shadow-lg ">

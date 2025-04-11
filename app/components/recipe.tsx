@@ -14,17 +14,17 @@ interface Recipe {
 
 const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-2 w-72">
+    <div className="bg-white rounded-lg shadow-md p-2 w-full lg:w-72">
 
      <a href={recipe.link}> <div className="relative ">
         <Image
           src={recipe.image}
           alt={recipe.name}
-          width={300}
-          height={100}
+          width={400}
+          height={400}
           className="rounded-md"
         />
-        <div className="text-sm flex  items-center absolute z-50 bottom-[70px] bg-white/20 backdrop-blur-lg w-full p-2 pb-3 text-brand-logo_green"> <p className="flex  items-center mx-1"><Image className="w-[12px] h-[12px] mx-1" src={clock_green} alt="green user" /> {recipe.time} </p>
+        <div className="text-sm flex  items-center absolute z-50 bottom-[70px] bg-white/20 backdrop-blur-lg w-full  p-2 pb-3 text-brand-logo_green"> <p className="flex  items-center mx-1"><Image className="w-[12px] h-[12px] mx-1" src={clock_green} alt="green user" /> {recipe.time} </p>
          <p className="flex  items-center mx-1"><Image className="w-[12px] h-[12px] mx-1" src={user_green} alt="user " />{recipe.servings}</p> 
          <p className="flex  items-center mx-1"><Image src={graph} alt="graph" className="w-[12px] h-[12px] mx-1 " /> {recipe.difficulty}</p>
          </div>

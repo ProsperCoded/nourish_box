@@ -95,7 +95,7 @@ export default function Home() {
                 delivering farm-to-table goodness in every box.</p>
               <a href="https://l.instagram.com/?u=https%3A%2F%2Fpaystack.shop%2Fnourish-box%3Ffbclid%3DPAZXh0bgNhZW0CMTEAAadtGBs7PXoH7bl0Q_Q3-h86Ubt9ydzkY01mrRw0kHF7CbGk5yLa7Hox1vS3BA_aem_CVe_2rzSDyuZDGIHNXMEhg&e=AT01o97t6DhSd0Ph0fiFIl4a3GZv79KNc2lQBhy6Z1qF7sJnMTtMWHxHH1t48IxKXLbW0hB0tyYnWxcAJ1qxkeTyuwrV7CocoD_iD6F0Ee3XNSUEUEpCX3o"> <button className=" capitalize bg-brand-btn_orange font-inter lg:font-semibold text-xl rounded-xl text-white py-3 px-2 lg:py-[20px] lg:px-[30px] my-12 mt-4">Order now</button></a>
             </div>
-            <div className="flex items-center justify-center lg:w-1/2 relative">
+            <div className="flex items-center justify-center lg:w-1/2 m-6 lg:m-0 relative">
               <Image src={hero} height={600} width={658} className="" alt="jollof" />
 
               <Image src={hover_img_one} height={210} width={221} alt="hovering_img" className="absolute left-0 bottom-[2px]" />
@@ -118,7 +118,7 @@ export default function Home() {
            
           </div>
         </div>
-        <div className="flex flex-wrap gap-6 justify-center p-10 pt-0">
+        <div className="flex flex-wrap gap-6 justify-center p-6 lg:p-10 pt-0">
 
           {recipeCards.map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
