@@ -130,8 +130,7 @@ export default function Home() {
           <h1 className=" text-5xl text-center font-custom font-medium">From Our Community</h1>
         </div>
         <CommunityList />
-        <div className='flex justify-center items-center bg-brand-logo_green p-8 lg:p-10 lg
-        :rounded-3xl lg:w-[92%] lg:mx-16 my-7  '>
+        <div className='flex justify-center items-center bg-brand-logo_green p-8 lg:p-10 lg:rounded-3xl lg:w-[92%] lg:mx-16 my-7  '>
           <Banner />
 
         </div>
