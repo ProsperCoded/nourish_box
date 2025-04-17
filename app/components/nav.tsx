@@ -12,7 +12,7 @@ const nav = () => {
 
       </div>
       <div className="flex justify-center">
-      <div className=' hidden lg:w-11/12 lg:flex justify-between items-center p-10 pb-0 md:w-100 text-black font-sans'>
+      <div className=' hidden lg:w-11/12 lg:flex justify-between items-center p-10 pb-0 md:w-100 text-black font-inter'>
         <Image src={Logo} alt='Logo' className='w-[150px]' />
         <ul className='flex py-0 w-1/2 font-inter'>
           <Link href="/"  className='px-4  font-medium text-xl'>Home</Link>

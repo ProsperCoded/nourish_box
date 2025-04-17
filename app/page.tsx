@@ -88,7 +88,7 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row justify-center ">
           <div className="flex flex-col lg:flex-row  justify-between items-center  lg:w-10/12 py-10 lg:py-20 md:flex-col ">
             <div className="lg:w-1/2 flex flex-col  items-center p-4  text-center lg:items-start lg:p-10 lg:text-left"><h1 className="text-5xl lg:text-6xl font-custom font-medium ">Cooking Made Fun and Easy: Unleash Your Inner Chef</h1>
-              <p className="pt-[37px] font-sans font-extralight text-lg text-brand-sub_gray mb-4">Nourish Box removes the hassle of meal prep by
+              <p className="pt-[37px] font-inter font-extralight text-lg text-brand-sub_gray mb-4">Nourish Box removes the hassle of meal prep by
                 delivering pre-measured, pre-cut ingredients
                 along with guided recipes. We ensure every meal is
                 made with carefully sourced ingredients,
@@ -126,7 +126,7 @@ export default function Home() {
         </div>
         <div className="flex justify-center items-center"> <button  className=" capitalize bg-brand-btn_orange text-lg font-inter rounded-xl text-white py-[10px] px-[25px]" onClick={()=>router.push('/receipes')}>See All</button></div>
         <AboutUs />
-        <div className="flex justify-center my-24 font-sans ">
+        <div className="flex justify-center my-24 font-inter ">
           <h1 className=" text-5xl text-center font-custom font-medium">From Our Community</h1>
         </div>
         <CommunityList />
