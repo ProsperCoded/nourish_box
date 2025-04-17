@@ -12,6 +12,7 @@ import RecipeCard from '../components/recipe';
 // import user from '../assets/icons8-user-48.png'
 // import chickenteriyaki from './assets/chicken teriyaki.webp'
 import gizdodo from '../assets/gizdodo.webp';
+import Link from 'next/link';
 const recipeCards = [
     {
         id: 1,
@@ -114,8 +115,8 @@ const Page = () => {
     return (
         <div className='flex flex-col items-center'>
             <div className='flex  flex-row w-11/12  justify-between lg:px-8 py-5'>
-                <Image src={logo} alt='nourish box logo' className='w-[150px] hidden lg:block' />
-                <Image src={icon} alt='icon' className='block w-[70px]  lg:hidden'/>
+              <Link href="/" >
+                <Image src={icon} alt='icon' className='block w-[70px]  lg:hidden'/>   <Image src={logo} alt='nourish box logo' className='w-[150px] hidden lg:block' /></Link>
                 <div className='flex items-center px-2 border-[1px] border-gray-400 rounded-xl justify-end sm:w-8/12 lg:w-1/4'>
                     <input type="text"
                         placeholder="Search recipes..."
