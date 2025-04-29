@@ -6,5 +6,3 @@ export async function runSeed() {
   await seedRecipesToFirebase(seedRecipes);
   console.log("Seeding completed!");
 }
-
-runSeed().catch(console.error);
