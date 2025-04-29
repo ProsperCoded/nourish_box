@@ -10,7 +10,7 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
       <a href={recipe.link}>
         {" "}
         <div className="relative">
-          <Image
+          <img
             src={recipe.image}
             alt={recipe.name}
             width={400}
