@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import passwordView from "../assets/icons8-eye-48.png";
 import Image from 'next/image'
+import google_logo from '../assets/icons8-google-48.png'
 import Link from "next/link";
 import jollof_rice from '../assets/shrimpand plantain porridge.webp';
 import { useRouter } from "next/navigation"
@@ -94,8 +95,8 @@ const SignUp = () => {
                             <Image src={Sidebar} alt='side bar' />
                         </div> */}
 
-                        <div className='flex flex-col items-center justify-center w-100 w-11/12 md:w-2/3  '>
-                            <form className="flex flex-col modal h-1/2 w-full md:w-1/2  " onSubmit={handleSignUp}>
+                        <div className='flex flex-col items-center justify-center w-100 w-10/12  '>
+                            <form className="flex flex-col modal h-1/2 w-full   " onSubmit={handleSignUp}>
                                 <h1 className='my-4 font-bold text-3xl text-black '>Sign In</h1>
                                 <label className=' text-sm text-brand-text_gray'>Name</label>
                                 <input width='w-full' value={name} type='text' className='my-4 mt-1 text-black border-[1px] border-gray-400 rounded-md p-3' onChange={(e) => setName(e.target.value)} />
@@ -109,7 +110,14 @@ const SignUp = () => {
                                 <p className="text-xs flex justify-end text-brand-text_gray"><i className="not-italic">Password must be at least 8 characters</i></p>
                                 <button type='submit' className='my-4 text-white flex justify-center  bg-blac' >Create Account</button>
                             </form>
-                            <button type='button' onClick={handleGoogleSignIn}>Sign in with Google</button>
+                           <div className='flex w-full'>
+                           <p className='border-black border-2 w-full'></p>
+                            <p>Or</p>
+                            <hr />
+                           </div>
+                            <button type='button' className='flex bg-gray-200 text-gray-500 py-3 px-8 rounded-xl items-center' onClick={handleGoogleSignIn} > 
+                                <Image src={google_logo} alt='google logo' className='mx-2' width={20} height={20}/>
+                                 <p>Sign in with Google</p></button>
                             <p className='mt-4 flex justify-center items-center text-brand-text_gray'>You have an account?  <Link className="ml-1 text-brand-brand_black font-semibold" href="/login">  Login</Link></p>
                             {error && <p>{error}</p>}
                         </div>
