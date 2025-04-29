@@ -17,7 +17,7 @@ const nav = () => {
             <Link href="/" className="px-4 font-medium text-xl">
               Home
             </Link>
-            <Link href="/receipes" className="px-4 font-medium text-xl">
+            <Link href="/recipes" className="px-4 font-medium text-xl">
               Recipe{" "}
             </Link>
             <Link href="/about_us" className="px-4 font-medium text-xl">
