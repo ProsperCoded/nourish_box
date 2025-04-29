@@ -16,6 +16,7 @@ import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
+import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -36,7 +37,11 @@ export default function Home() {
 
     loadRecipes();
   }, []);
-
+  // Seeding
+  // useEffect(() => {
+  //   // console.log("seeding into database...");
+  //   runSeed().catch(console.error);
+  // }, []);
   return (
     <div>
       <div className="hidden justify-center items-center w-screen h-screen">

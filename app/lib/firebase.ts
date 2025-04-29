@@ -16,6 +16,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-import { runSeed } from "@/app/utils/seed/seed-script";
-console.log("seeding into database...");
-runSeed().catch(console.error);
+// import { runSeed } from "@/app/utils/seed/seed-script";
+// console.log("seeding into database...");
+// runSeed().catch(console.error);
