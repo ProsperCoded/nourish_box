@@ -3,6 +3,8 @@ import Image from "next/image";
 import Eggplant from '../assets/Eggplant.png'
 import Salad from '../assets/Salad.png';
 import FriedEggs from '../assets/Fried Eggs.png';
+
+import Link from 'next/link';
 import logo from '../assets/nourish_box_folder/Logo files/Logomark.svg';
 const footer = () => {
     return (
@@ -25,10 +27,10 @@ const footer = () => {
                 </ul>
                 <ul className='font-inter mb-5 lg:mb-0'>
                     <li className='text-xl font-semibold mb-4'>Socials</li>
-                    <li className='text-base font-light'>Instagram</li>
-                    <li className='text-base font-light'>Twitter</li>
-                    <li className='text-base font-light'>Youtube</li>
-                    <li className='text-base font-light'>Facebook</li>
+                    <li className='text-base font-light'><Link href="https://www.instagram.com/nourishbox.co/">Instagram</Link></li>
+                    <li className='text-base font-light'><Link href="https://x.com/">Twitter</Link></li>
+                    <li className='text-base font-light'> <Link href="https://paystack.shop/nourish-box">PayStack</Link></li>
+                   
                 </ul>
                 <div className='hidden lg:block relative w-[12%]'>
                     <Image src={Eggplant} alt='egg plant' className='absolute top-0 left-0' width={35} height={35} />

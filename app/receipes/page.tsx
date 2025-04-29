@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import logo from '../assets/nourish_box_folder/Logo files/Logomark.svg';
 import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
-
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 import search from '../assets/icons8-search-48.png'
 import prawnfriedrice from '../assets/praw fried rice.webp'
 import turkeyfriedrice from '../assets/realturkeyfriedrice.webp'
@@ -139,7 +140,11 @@ const Page = () => {
             <div className="flex flex-wrap gap-6 justify-center p-6 lg:p-10 pt-0">
 
             {(showSearch ? searchResult : recipeCards).map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
+        <Popup trigger={
+<RecipeCard key={recipe.id} recipe={recipe} />
+        } modal={true} nested={true} key={recipe.id}> 
+            {<div>jii</div> }
+             </Popup>
         ))}
             </div>
            

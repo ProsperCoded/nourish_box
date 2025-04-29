@@ -22,9 +22,7 @@ const nav = () => {
 
         </ul>
         <div className='flex items-center justify-end w-1/12'>
-
-        
-          <Image src={user} alt='user icon' width={30} height={30.11} />
+          <Link href='/login'><Image src={user} alt='user icon' width={30} height={30.11} /></Link>
         </div>
       </div>
       </div>
