@@ -6,4 +6,5 @@ export type Recipe = {
   time: string;
   servings: string;
   difficulty: string;
+  link: any;
 };
