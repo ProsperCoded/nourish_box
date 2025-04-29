@@ -3,15 +3,17 @@ import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
 import graph from "../assets/icons8-graph-24.png";
 import { Recipe } from "@/app/utils/types/recipe.type";
-
+import friedRiceImage from "../assets/praw fried rice.webp";
 const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   return (
     <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72">
       <a href={recipe.link}>
         {" "}
         <div className="relative">
-          <img
-            src={recipe.image}
+          <Image
+            // src={recipe.image}
+            // ! temp
+            src={friedRiceImage}
             alt={recipe.name}
             width={400}
             height={400}

@@ -9,7 +9,7 @@ import search from "../assets/icons8-search-48.png";
 import prawnfriedrice from "../assets/praw fried rice.webp";
 import turkeyfriedrice from "../assets/realturkeyfriedrice.webp";
 import plantainporridge from "../assets/shrimpand plantain porridge.webp";
-import RecipeCard from "../components/recipe";
+import RecipeCard from "../components/RecipeCard";
 // import user from '../assets/icons8-user-48.png'
 // import chickenteriyaki from './assets/chicken teriyaki.webp'
 import gizdodo from "../assets/gizdodo.webp";
