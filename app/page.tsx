@@ -16,6 +16,7 @@ import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
+import Link from "next/link";
 // import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {
@@ -61,12 +62,13 @@ export default function Home() {
                 ensure every meal is made with carefully sourced ingredients,
                 delivering farm-to-table goodness in every box.
               </p>
-              <a href="https://l.instagram.com/?u=https%3A%2F%2Fpaystack.shop%2Fnourish-box%3Ffbclid%3DPAZXh0bgNhZW0CMTEAAadtGBs7PXoH7bl0Q_Q3-h86Ubt9ydzkY01mrRw0kHF7CbGk5yLa7Hox1vS3BA_aem_CVe_2rzSDyuZDGIHNXMEhg&e=AT01o97t6DhSd0Ph0fiFIl4a3GZv79KNc2lQBhy6Z1qF7sJnMTtMWHxHH1t48IxKXLbW0hB0tyYnWxcAJ1qxkeTyuwrV7CocoD_iD6F0Ee3XNSUEUEpCX3o">
+              
                 {" "}
+                <Link href="/recipes">
                 <button className="bg-brand-btn_orange my-12 mt-4 px-2 lg:px-[30px] py-3 lg:py-[20px] rounded-xl font-inter lg:font-semibold text-white text-xl capitalize">
-                  Order now
+                 Order Now
                 </button>
-              </a>
+                </Link>
             </div>
             <div className="relative flex justify-center items-center m-6 lg:m-0 lg:w-1/2">
               <Image

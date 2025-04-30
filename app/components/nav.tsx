@@ -7,7 +7,7 @@ const nav = () => {
   return (
     <div>
       <div className="lg:hidden flex justify-between items-center p-6">
-        <Image src={Logo} alt="Logo" className="w-[150px]" />
+        <Link href="/"><Image src={Logo} alt="Logo" className="w-[150px]" /></Link>
         <button>=</button>
       </div>
       <div className="flex justify-center">
