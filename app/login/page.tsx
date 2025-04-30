@@ -27,7 +27,7 @@ const SignUp = () => {
             setLoading(true)
             await signInWithEmailAndPassword(auth, email, password,)
             await new Promise((resolve) => setTimeout(resolve, 2000))
-            router.push('/Overview')
+            router.push('/')
         }
         catch (err: unknown) {
             console.error('Login failed', error)
