@@ -2,15 +2,9 @@ import Image from "next/image";
 import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
 import graph from "../assets/icons8-graph-24.png";
-<<<<<<< HEAD:app/components/recipe.tsx
-// import { Recipe } from "../utils/types/recipe.type";
-
-const RecipeCard: React.FC<{ recipe:Recipe }> = ({ recipe }) => {
-=======
 import { Recipe } from "@/app/utils/types/recipe.type";
 import friedRiceImage from "../assets/praw fried rice.webp";
 const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
->>>>>>> 7e1cb967623c8ee471e2ac9bc865197d202c2c39:app/components/RecipeCard.tsx
   return (
     <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72">
       <a href={recipe.link}>
