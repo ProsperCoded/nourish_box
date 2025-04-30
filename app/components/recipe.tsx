@@ -1,10 +1,10 @@
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
 import graph from "../assets/icons8-graph-24.png";
-import { Recipe } from "@/app/utils/types/recipe.type";
+// import { Recipe } from "../utils/types/recipe.type";
 
-const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
+const RecipeCard: React.FC<{ recipe:Recipe }> = ({ recipe }) => {
   return (
     <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72">
       <a href={recipe.link}>
