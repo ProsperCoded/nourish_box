@@ -1,7 +1,6 @@
 import { collection, getDocs, addDoc, query } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { COLLECTION } from "../schema/collection.enum";
-import "dotenv";
 import { Recipe } from "../types/recipe.type";
 export const seedRecipesToFirebase = async (recipes: Recipe[]) => {
   try {
