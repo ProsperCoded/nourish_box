@@ -20,7 +20,7 @@ type Recipe = {
     time: string;
     servings: string;
     difficulty: string;
-    description: string
+    description: string,
 }
 const recipeCards: Recipe[] = [
     {
@@ -31,7 +31,8 @@ const recipeCards: Recipe[] = [
         servings: "2 Serving",
         difficulty: "Easy",
         link: 'https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu',
-        description: 'null'
+        description: 'null',
+       
     },
     {
         id: '2',
@@ -132,10 +133,10 @@ const Page = () => {
     const showSearch = searchQuery.trim() !== ''
     return (
         <div className='flex flex-col items-center'>
-            <div className='flex  flex-row w-11/12  justify-between lg:px-8 py-5'>
+            <div className='flex  items-center flex-row w-11/12  justify-between lg:px-8 py-5 '>
                 <Link href="/" >
                     <Image src={icon} alt='icon' className='block w-[70px]  lg:hidden' />   <Image src={logo} alt='nourish box logo' className='w-[150px] hidden lg:block' /></Link>
-                <div className='flex items-center px-2 border-[1px] border-gray-400 rounded-xl justify-end sm:w-8/12 lg:w-1/4'>
+                <div className='flex items-center p-2 border-[1px] border-gray-400 rounded-xl justify-end sm:w-8/12 lg:w-1/4'>
                     <input type="text"
                         placeholder="Search recipes..."
                         value={searchQuery}
@@ -156,8 +157,8 @@ const Page = () => {
             </div>
             <div className="flex flex-wrap gap-6 justify-center p-6 lg:p-10 pt-0">
 
-                {(showSearch ? searchResult : recipeCards).map((recipe) => (
-                    <RecipeCard key={recipe.id} recipe={recipe.id} />
+                {(showSearch ? searchResult : recipeCards).map((i) => (
+                    <RecipeCard key={i.id} recipe={i.id} />
                 ))}
             </div>
 

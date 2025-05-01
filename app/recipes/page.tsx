@@ -114,8 +114,8 @@ const Page = () => {
   );
   const showSearch = searchQuery.trim() !== "";
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex flex-row justify-between lg:px-8 py-5 w-11/12">
+    <div className="flex flex-col ">
+      <div className="flex flex-row items-center justify-between  lg:px-8 py-5 w-11/12">ff
         <Link href="/">
           <Image src={icon} alt="icon" className="lg:hidden block w-[70px]" />{" "}
           <Image
@@ -124,7 +124,7 @@ const Page = () => {
             className="hidden lg:block w-[150px]"
           />
         </Link>
-        <div className="flex justify-end items-center px-2 border-[1px] border-gray-400 rounded-xl sm:w-8/12 lg:w-1/4">
+        <div className="flex justify-end items-center px-2 border-[1px] border-gray-400 rounded-xl sm:w-8/12  lg:w-1/4">
           <input
             type="text"
             placeholder="Search recipes..."
@@ -133,7 +133,7 @@ const Page = () => {
             className="mr-3 p-1 w-full"
           />
 
-          <Image src={search} alt="search icon" width={30} />
+          <Image src={search} alt="search icon" width={20} height={10}/>
         </div>
       </div>
 
