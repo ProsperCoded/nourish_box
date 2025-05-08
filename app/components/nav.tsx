@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import user from "../assets/icons8-user-48.png";
+
 import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 
 import Link from "next/link";
@@ -13,6 +13,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import { UserAvatar } from "@/app/components/UserAvatar";
 
 const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,7 +63,6 @@ const Nav = () => {
 
   const linkColorClass = scrolled ? "text-black" : "text-white";
   const mobileIconColor = scrolled ? "black" : "white";
-  const userIconFilterClass = scrolled ? "" : "filter brightness-0 invert";
 
   return (
     <div className={`${navBaseClasses} ${navVisibilityClass} ${navStyleClass}`}>
@@ -119,15 +119,7 @@ const Nav = () => {
             </Link>
           </ul>
           <div className="flex items-center justify-end">
-            <Link href="/login">
-              <Image
-                src={user}
-                alt="user icon"
-                width={30}
-                height={30.11}
-                className={userIconFilterClass}
-              />
-            </Link>
+            <UserAvatar />
           </div>
         </div>
       </div>
