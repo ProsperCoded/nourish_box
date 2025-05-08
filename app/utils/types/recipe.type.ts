@@ -3,8 +3,6 @@ export type Recipe = {
   name: string;
   description: string;
   image: string;
-  time: string;
-  servings: string;
-  difficulty: string;
+  duration: string;
   link: any;
 };

@@ -1,5 +1,6 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import Nav from "@/app/components/nav";
 
 // If loading a variable font, you don't need to specify the font weight
 const jakarta = Plus_Jakarta_Sans({
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${jakarta.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Nav />
+        <div>{children}</div>
+      </body>
     </html>
   );
 }
