@@ -76,7 +76,7 @@ const SignUp = () => {
             ) :
                 (
                     <div className='flex w-100 justify-between'>
-                        <div className='w-1/2 flex items-center justify-center bg-[#004C30]'>
+                        <div className='w-1/2 flex items-center justify-center '>
                             <Image src={logo} alt='jollof rice' width={600} />
                         </div>
                         <div className='w-1/2'>

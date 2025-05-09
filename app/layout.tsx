@@ -1,5 +1,6 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import FavContext  from "./contexts/FavContext";
 
 // If loading a variable font, you don't need to specify the font weight
 const jakarta = Plus_Jakarta_Sans({
@@ -15,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${jakarta.variable}`}>
-      <body>{children}</body>
+      <body><FavContext>{children}</FavContext></body>
     </html>
   );
 }

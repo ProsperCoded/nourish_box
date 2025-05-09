@@ -3,35 +3,54 @@ import Image from "next/image";
 import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
 import graph from "../assets/icons8-graph-24.png";
-import { auth } from "../lib/firebase";
-import { Recipe } from "@/app/utils/types/recipe.type";
+// import {Recipe}  from "@/app/utils/types/recipe.type";
 import friedRiceImage from "../assets/praw fried rice.webp";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { useState } from "react";
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Link from "next/link";
+import liked_empty  from "../assets/icons8-love-circled-50.png";
+import filled_liked from '../assets/red_liked.png';
+import { useFavorites } from '../contexts/FavContext';
+interface Product {
+  id: number;
+  name: string;
+  image: string;
+}
 
-const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
+interface Recipe {
+  id: number;
+  name: string;
+  time: string;
+  difficulty: string;
+  servings: string;
+}
+
+const RecipeCard: React.FC<{ recipe: Recipe; product: Product }> = ({ recipe, product }) => {
+  const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
+
   const [option, setOption] = useState<string>('');
   const [open, setOpen] = useState(false);
+  const [showPopUp, setShowPopUp] = useState(false);
+  const handlePopUp = () => setShowPopUp(true);
+  const handleClosePopUp = () => setShowPopUp(false);
   const [count, setCount] = useState(0);
-  const router = useRouter()
- 
 
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
   };
-
+  const liked = isFavorite(recipe?.id);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleAddToCart = () => {
-    const user = auth.currentUser;
-    if (!user) {
-      router.push('/login'); 
-      return;
+
+  const toogleLiked = () => {
+    if (liked) {
+      deleteFavorite(product.id);
+    } else {
+      addFavorite(product);
     }
-  console.log('hi');
   }
+
     const modalStyle = {
       position: 'absolute',
       top: '50%',
@@ -45,6 +64,11 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
       boxShadow: 24,
       p: 4,
     };
+  const popUpStyle = {
+    ...modalStyle,
+    width: { xs: 370, lg: 500 },
+   
+  }
     return (
       <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72"  >
 
@@ -87,11 +111,17 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
             </p>
           </div>
           <div className="my-8 mb-4 font-inter">
-            <h3 className="mt-2 font-custom font-semibold text-lg">
-              {recipe.name}
-            </h3>
+            <div className="px-2">
+              <h3 className="mt-2 font-custom font-semibold text-lg">
+                {recipe.name}
+              </h3>
 
-            <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
+              <div className="flex items-center justify-between ">
+                <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
+                <button onClick={() => toogleLiked(recipe.id)}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
+            </div>
+            
+          </div>
             <Modal open={open} onClose={handleClose}>
               <Box sx={modalStyle}>
 
@@ -165,7 +195,7 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
                         <p className="text-2xl font-inter text-gray-800 font-semibold">NGN 10,000</p>
                       </div>
                       <div className="my-2 mt-4 flex justify-center">
-                        <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handleAddToCart}>Add to bag</button>
+                        <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handlePopUp}>Add to bag</button>
                       </div>
                     </div>
                   </div>
@@ -174,7 +204,20 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
             </Modal>
           </div>
         </div>
-
+        <Modal
+          open={showPopUp}
+          onClose={handleClosePopUp}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={popUpStyle}> <h1 className="text-black font-semibold font-inter text-2xl text-center">Skip the hassle next time</h1>
+            <p className="text-center font-inter my-5 "><span className="font-semibold">Sign up</span> to save your favorite and skip the hassle of fiiling in your details on every order</p>
+          
+            <div className="flex justify-evenly my-4">
+              
+              <Link href="#" className="bg-gray-400 text-center text-white px-4 py-2 w-36 rounded-lg font-inter">Never mind</Link>
+              <Link href="/sign_in" className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter">Sign up</Link></div></Box>
+        </Modal>
       </div>
     );
   };
