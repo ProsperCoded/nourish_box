@@ -3,9 +3,9 @@ import { useFavorites } from "../contexts/FavContext";
 import RecipeList from "../components/RecipeCard";
 import Header from "../components/header";
 import { useState } from "react";
-import { recipeItem } from "../recipes";
+import { recipeItem } from "../recipes/page";
 
-export default function FavoritesPage({recipeItem[]}) {
+export default function FavoritesPage() {
     const { favorites } = useFavorites();
     const [searchQuery, setSearchQuery] = useState("");
 
