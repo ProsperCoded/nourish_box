@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Image from "next/image";
 import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
@@ -138,16 +138,16 @@ const RecipeCard: React.FC<{ recipe: Recipe; product: Product }> = ({ recipe, pr
                     
                       <h4 className="text-gray-700 font-semibold font-xl my-4 font-inter">For the Chicken</h4>
 
-                      <li>Chicken</li>
-                      <li>Black pepper</li>
-                      <li>Salt</li>
-                      <li>Seasoning cubes</li>
-                      <li>Tatshe</li>
-                      <li>Rodo</li>
-                      <li>Paprika</li>
-                      <li>Garlic </li>
-                      <li>Ginger</li>
-                      <li>Onions</li>
+                    <li>Chicken</li>
+                    <li>Black pepper</li>
+                    <li>Salt</li>
+                    <li>Seasoning cubes</li>
+                    <li>Tatshe</li>
+                    <li>Rodo</li>
+                    <li>Paprika</li>
+                    <li>Garlic </li>
+                    <li>Ginger</li>
+                    <li>Onions</li>
 
                       <h4 className="text-gray-700 font-semibold font-xl my-4">For the Rice</h4>
                       <li>Rice</li>
@@ -222,4 +222,4 @@ const RecipeCard: React.FC<{ recipe: Recipe; product: Product }> = ({ recipe, pr
     );
   };
 
-  export default RecipeCard;
+export default RecipeCard;
