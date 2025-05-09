@@ -44,3 +44,5 @@ next-env.d.ts
 # unused package manager 
 pnpm-lock.yaml
 package-lock.json
+
+/temp

@@ -49,7 +49,6 @@ export default function Home() {
         This page is not available for small screen sizes
       </div>
       <div className="block">
-        <Nav />
         <div className="flex lg:flex-row flex-col justify-center">
           <div className="flex lg:flex-row flex-col md:flex-col justify-between items-center py-10 lg:py-20 lg:w-10/12">
             <div className="flex flex-col items-center lg:items-start p-4 lg:p-10 lg:w-1/2 lg:text-left text-center">
@@ -61,14 +60,12 @@ export default function Home() {
                 pre-measured, pre-cut ingredients along with guided recipes. We
                 ensure every meal is made with carefully sourced ingredients,
                 delivering farm-to-table goodness in every box.
-              </p>
-              
-                {" "}
-                <Link href="/recipes">
+              </p>{" "}
+              <Link href="/recipes">
                 <button className="bg-brand-btn_orange my-12 mt-4 px-2 lg:px-[30px] py-3 lg:py-[20px] rounded-xl font-inter lg:font-semibold text-white text-xl capitalize">
-                 Order Now
+                  Order Now
                 </button>
-                </Link>
+              </Link>
             </div>
             <div className="relative flex justify-center items-center m-6 lg:m-0 lg:w-1/2">
               <Image
