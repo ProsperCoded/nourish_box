@@ -128,7 +128,7 @@ export default function Home() {
           {" "}
           <button
             className="bg-brand-btn_orange px-[25px] py-[10px] rounded-xl font-inter text-white text-lg capitalize"
-            onClick={() => router.push("/receipes")}
+            onClick={() => router.push("/recipes")}
           >
             See All
           </button>

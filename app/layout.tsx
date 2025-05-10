@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Nav from "@/app/components/nav";
 import { AuthProvider } from "./contexts/AuthContext";
+import FavContext  from "./contexts/FavContext";
 
 // If loading a variable font, you don't need to specify the font weight
 const jakarta = Plus_Jakarta_Sans({
@@ -17,12 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${jakarta.variable}`}>
-      <body>
+      <body><FavContext>
         <AuthProvider>
           <Nav />
           <div className="mt-[5rem]">{children}</div>
         </AuthProvider>
-      </body>
+      </FavContext></body>
     </html>
   );
 }
