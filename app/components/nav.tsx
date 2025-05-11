@@ -100,16 +100,19 @@ const [cart, setCart] = useState<Item[]>(cart_items);
         <Link href="/">
           <Image src={Logo} alt="Logo" className="w-[120px] sm:w-[150px]" />
         </Link>
-        <IconButton
-          onClick={toggleDrawer("menu")}
-          edge="start"
-          aria-label="menu"
-          sx={{ color: mobileIconColor }}
-        >
-          <MenuIcon />
+        <div className="flex items-center gap-2">
+          <UserAvatar />
+          <IconButton
+            onClick={toggleDrawer("menu")}
+            edge="start"
+            aria-label="menu"
+            sx={{ color: mobileIconColor }}
+          >
+            <MenuIcon />
           </IconButton>
-          {/* mobile menu */}
-      <Drawer anchor="left" open={isOpen=== "menu"} onClose={closeDrawer}>
+        </div>
+        {/* mobile menu */}
+        <Drawer anchor="left" open={isOpen=== "menu"} onClose={closeDrawer}>
           <List sx={{ width: 250, pt: "env(safe-area-inset-top)" }}>
             {/* Added safe-area padding */}
             {mobileMenu.map((i) => (
@@ -120,7 +123,7 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               </Link>
             ))}
           </List>
-          </Drawer>
+        </Drawer>
 
         <Drawer anchor="right" open={isOpen === "cart"} onClose={closeDrawer}>
           <List sx={{ width: 500 }}>
@@ -128,11 +131,9 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               <Image src={Logo} alt="Logo" className=" m-4" width={50} height={50} />
               <Image src={cancel_icon} alt="cart" className=" m-4 rotate-[270]" width={30} height={30} onClick={closeDrawer} />
             </div>
-            <Cart_tab cart={cart}  setCart={setCart}/>
-            
+            <Cart_tab cart={cart} setCart={setCart}/>
           </List>
         </Drawer>
-        
       </div>
       {/* Desktop Nav */}
       <div className="hidden lg:flex justify-center">
@@ -163,9 +164,9 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           <div className="flex items-center justify-end gap-4">
             <UserAvatar />
             <div className="flex items-center justify-end">
-            <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
-              <Image src={Cart} alt="cart" width={30} height={30.11} />
-            </IconButton>
+              <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
+                <Image src={Cart} alt="cart" width={30} height={30.11} />
+              </IconButton>
             </div>
           </div>
         </div>
