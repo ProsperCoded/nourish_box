@@ -162,10 +162,16 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           </ul>
           <div className="flex items-center justify-end">
             <UserAvatar />
+            <div className='flex items-center justify-end w-1/12'>
+
+              <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
+                <Image src={Cart} alt="cart" width={30} height={30.11} />
+              </IconButton>
+            </div>
           </div>
         </div>
       </div>
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
       <div className=' hidden lg:w-11/12 lg:flex justify-between items-center p-10 pb-0 md:w-100 text-black font-sans'>
         <Image src={Logo} alt='Logo' className='w-[150px]' />
         <ul className='flex py-0 w-1/2 font-inter'>
@@ -175,14 +181,9 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           
 
         </ul>
-        <div className='flex items-center justify-end w-1/12'>
-          
-            <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
-              <Image src={Cart} alt="cart" width={30} height={30.11} />
-            </IconButton>
-        </div>
+        
       </div>
-    </div>
+    </div> */}
     </div>
   );
 };

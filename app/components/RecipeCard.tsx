@@ -118,7 +118,7 @@ const RecipeCard: React.FC<{ recipe: Recipe; product: Product }> = ({ recipe, pr
 
               <div className="flex items-center justify-between ">
                 <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
-                <button onClick={() => toogleLiked(recipe.id)}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
+                <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
             </div>
             
           </div>
