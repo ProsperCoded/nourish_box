@@ -1,5 +1,7 @@
+import { StaticImageData } from "next/image";
+
 export type Recipe = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   displayUrl: string;
@@ -7,6 +9,7 @@ export type Recipe = {
   duration: number; //seconds
   price: number; //naira
   ingredients: string[];
+  image: StaticImageData; // image url
 
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage

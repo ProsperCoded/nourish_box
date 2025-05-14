@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import user_green from "../assets/icons8-user-24.png";
+// import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
-import graph from "../assets/icons8-graph-24.png";
+// import graph from "../assets/icons8-graph-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import React, { useState } from "react";
@@ -85,11 +85,9 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
               {recipe.name}
             </h3>
 
-            <div className="flex items-center justify-between">
-              <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline">View Recipe</button>
-              <button onClick={toogleLiked}>
-                <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} />
-              </button>
+              <div className="flex items-center justify-between ">
+                <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
+                <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
             </div>
           </div>
           <Modal open={open} onClose={handleClose}>
