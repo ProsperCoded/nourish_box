@@ -47,13 +47,15 @@ export function UserAvatar() {
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 hover:opacity-80 focus:outline-none">
             <div className="relative">
-              <Image
-                src={userIcon}
-                alt="user icon"
-                width={30}
-                height={30.11}
-                className="rounded-full"
-              />
+              <div className="bg-brand-btn_orange/20 p-1.5 rounded-full">
+                <Image
+                  src={userIcon}
+                  alt="user icon"
+                  width={30}
+                  height={30.11}
+                  className="rounded-full"
+                />
+              </div>
               {isProfileIncomplete && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 text-white text-xs rounded-full flex items-center justify-center font-bold">
                   !
@@ -61,7 +63,7 @@ export function UserAvatar() {
               )}
             </div>
             <span className="hidden md:inline text-sm font-medium">
-              {authUser.name}
+              {authUser.name.split(" ")[0]}
             </span>
           </button>
         </DropdownMenuTrigger>
@@ -125,6 +127,33 @@ export function UserAvatar() {
               <span>My Orders</span>
             </Link>
           </DropdownMenuItem>
+
+          {authUser.role === 'admin' && (
+            <DropdownMenuItem className="hover:bg-gray-50 cursor-pointer">
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 w-full text-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-500"
+                >
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M3 9h18" />
+                  <path d="M9 21V9" />
+                </svg>
+                <span>Admin Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 
