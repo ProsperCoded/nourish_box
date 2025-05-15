@@ -161,9 +161,9 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               Community
             </Link>
           </ul>
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center justify-end gap-4 w-1/3">
             <UserAvatar />
-            <div className='flex items-center justify-end w-1/12'>
+            <div className='flex items-center justify-center w-2/12 border-2 border-orange-500 '>
 
               <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
                 <Image src={Cart} alt="cart" width={30} height={30.11} />
