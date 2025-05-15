@@ -12,7 +12,7 @@ import filled_liked from '../assets/red_liked.png';
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
-import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
+import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/favorite.firebase";
 import { Heart } from "lucide-react";
 
 interface RecipeCardProps {

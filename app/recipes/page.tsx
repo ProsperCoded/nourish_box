@@ -13,7 +13,7 @@ import RecipeCard from "../components/RecipeCard";
 // import chickenteriyaki from './assets/chicken teriyaki.webp'
 import gizdodo from "../assets/gizdodo.webp";
 import Link from "next/link";
-import { fetchRecipes } from "../utils/firebase/recipes";
+import { fetchRecipes } from "../utils/firebase/recipes.firebase";
 import { Recipe } from "../utils/types/recipe.type";
 
 const Page = () => {

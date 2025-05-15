@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "./AuthContext";
-import { addToFavorites, removeFromFavorites, getUserFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
+import { addToFavorites, removeFromFavorites, getUserFavorites, isRecipeFavorited } from "../utils/firebase/favorite.firebase";
 
 interface FavoritesContextType {
     favorites: Recipe[];
