@@ -5,13 +5,7 @@ import logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 
 import search from "../assets/icons8-search-48.png";
-import prawnfriedrice from "../assets/praw fried rice.webp";
-import turkeyfriedrice from "../assets/realturkeyfriedrice.webp";
-import plantainporridge from "../assets/shrimpand plantain porridge.webp";
 import RecipeCard from "../components/RecipeCard";
-// import user from '../assets/icons8-user-48.png'
-// import chickenteriyaki from './assets/chicken teriyaki.webp'
-import gizdodo from "../assets/gizdodo.webp";
 import Link from "next/link";
 import { fetchRecipes } from "../utils/firebase/recipes";
 import { Recipe } from "../utils/types/recipe.type";
