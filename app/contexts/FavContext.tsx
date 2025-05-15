@@ -1,42 +1,100 @@
 'use client'
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { Recipe } from "../utils/types/recipe.type";
+import { useAuth } from "./AuthContext";
+import { addToFavorites, removeFromFavorites, getUserFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
 
-interface Product {
-    id: number;
-    name: string;
-    image: string;
-}
 interface FavoritesContextType {
-    favorites: Product[];
-    addFavorite: (product: Product) => void
-    deleteFavorite: (id: number) => void
-    isFavorite: (id: number) => boolean
+    favorites: Recipe[];
+    isLoading: boolean;
+    error: string | null;
+    addFavorite: (recipe: Recipe) => Promise<void>;
+    deleteFavorite: (recipeId: string) => Promise<void>;
+    isFavorite: (recipeId: string) => Promise<boolean>;
+    refreshFavorites: () => Promise<void>;
 }
-const IsFavContext = createContext<FavoritesContextType | undefined>(undefined)
-const FavContext = ({ children }: { children: ReactNode }) => {
-    
-    const [favorites, setFavorites] = useState<Product[]>([]);
-    const addFavorite = (product: Product) => {
-        setFavorites((prev) =>
-            prev.find((p) => p.id === product.id) ? prev : [...prev, product]
-        );
-    };
-    const deleteFavorite = (id: number) => {
-        setFavorites((prev) => prev.filter((p) => p.id !== id));
+
+const FavContext = createContext<FavoritesContextType | undefined>(undefined);
+
+export const FavProvider = ({ children }: { children: ReactNode }) => {
+    const { user } = useAuth();
+    const [favorites, setFavorites] = useState<Recipe[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const refreshFavorites = async () => {
+        if (!user) return;
+        
+        try {
+            setIsLoading(true);
+            setError(null);
+            const userFavorites = await getUserFavorites(user.id);
+            setFavorites(userFavorites);
+        } catch (err) {
+            setError("Failed to load favorites");
+            console.error("Error loading favorites:", err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const isFavorite = (id: number) => {
-        return favorites.some((p) => p.id === id);
+    useEffect(() => {
+        if (user) {
+            refreshFavorites();
+        } else {
+            setFavorites([]);
+            setIsLoading(false);
+        }
+    }, [user]);
+
+    const addFavorite = async (recipe: Recipe) => {
+        if (!user) throw new Error("User must be logged in to add favorites");
+        
+        try {
+            await addToFavorites(user.id, recipe.id.toString());
+            await refreshFavorites();
+        } catch (err) {
+            console.error("Error adding favorite:", err);
+            throw err;
+        }
     };
+
+    const deleteFavorite = async (recipeId: string) => {
+        if (!user) throw new Error("User must be logged in to remove favorites");
+        
+        try {
+            await removeFromFavorites(user.id, recipeId);
+            await refreshFavorites();
+        } catch (err) {
+            console.error("Error removing favorite:", err);
+            throw err;
+        }
+    };
+
+    const isFavorite = async (recipeId: string) => {
+        if (!user) return false;
+        return await isRecipeFavorited(user.id, recipeId);
+    };
+
     return (
-        <IsFavContext.Provider value={{ favorites, addFavorite, deleteFavorite, isFavorite }}>
+        <FavContext.Provider value={{ 
+            favorites, 
+            isLoading, 
+            error, 
+            addFavorite, 
+            deleteFavorite, 
+            isFavorite,
+            refreshFavorites 
+        }}>
             {children}
-        </IsFavContext.Provider>
-    )
-}
+        </FavContext.Provider>
+    );
+};
+
 export function useFavorites() {
-    const context = useContext(IsFavContext);
-    if (!context) throw new Error('useFavorites must be used within FavoritesProvider');
+    const context = useContext(FavContext);
+    if (!context) throw new Error('useFavorites must be used within FavProvider');
     return context;
 }
-export default FavContext
+
+export default FavProvider;

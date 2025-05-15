@@ -2,36 +2,13 @@
 import { useFavorites } from "../contexts/FavContext";
 import RecipeList from "../components/RecipeCard";
 import Header from "../components/header";
-import { useState, useEffect } from "react";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { getUserFavorites } from "../utils/firebase/recipes";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function FavoritesPage() {
     const { user } = useAuth();
-    const [favorites, setFavorites] = useState<Recipe[]>([]);
+    const { favorites, isLoading, error } = useFavorites();
     const [searchQuery, setSearchQuery] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const loadFavorites = async () => {
-            if (!user) return;
-            
-            try {
-                setIsLoading(true);
-                const userFavorites = await getUserFavorites(user.id);
-                setFavorites(userFavorites);
-            } catch (err) {
-                setError("Failed to load favorites. Please try again later.");
-                console.error("Error loading favorites:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadFavorites();
-    }, [user]);
 
     const searchResult = favorites.filter((recipe) =>
         recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
