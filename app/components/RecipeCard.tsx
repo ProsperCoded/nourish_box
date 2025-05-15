@@ -1,54 +1,91 @@
 "use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 // import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
 // import graph from "../assets/icons8-graph-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import React, { useState } from "react";
 import Link from "next/link";
 import liked_empty from "../assets/icons8-love-circled-50.png";
 import filled_liked from '../assets/red_liked.png';
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
+import { useAuth } from "../contexts/AuthContext";
+import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
+import { Heart } from "lucide-react";
 
-const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
+interface RecipeCardProps {
+  recipe: Recipe;
+}
+
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
-
-  const [option, setOption] = useState<string>('');
+  const { user } = useAuth();
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [option, setOption] = useState<string>('');
+  const [count, setCount] = useState(1);
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!user) return;
+      try {
+        const favorited = await isRecipeFavorited(user.id, recipe.id.toString());
+        setIsFavorited(favorited);
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, recipe.id]);
+
   const [showPopUp, setShowPopUp] = useState(false);
   const handlePopUp = () => setShowPopUp(true);
   const handleClosePopUp = () => setShowPopUp(false);
-  const [count, setCount] = useState(0);
 
+  const handleFavoriteClick = async () => {
+    if (!user) {
+      // You might want to show a login prompt here
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      if (isFavorited) {
+        await removeFromFavorites(user.id, recipe.id.toString());
+        setIsFavorited(false);
+      } else {
+        await addToFavorites(user.id, recipe.id.toString());
+        setIsFavorited(true);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
   };
-  const liked = isFavorite(recipe?.id);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const toogleLiked = () => {
-    if (liked) {
-      deleteFavorite(recipe.id);
-    } else {
-      addFavorite(recipe);
-    }
-  }
 
   const modalStyle = {
-    position: 'absolute',
+    position: 'absolute' as 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: 370, lg: 1200 },
-    overflow: 'auto',
-    maxHeight: '80vh',
+    width: '80%',
+    maxWidth: '1000px',
     bgcolor: 'background.paper',
-    borderRadius: 2,
     boxShadow: 24,
     p: 4,
+    maxHeight: '90vh',
+    overflow: 'auto',
   };
 
   const popUpStyle = {
@@ -57,116 +94,120 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   }
 
   return (
-    <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72">
-      <div className="relative">
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
+      <div className="relative h-48">
         <Image
           src={recipe.displayUrl}
           alt={recipe.name}
-          width={400}
-          height={400}
-          className="rounded-md"
+          fill
+          className="object-cover"
         />
-        <div className="bottom-[70px] z-50 absolute flex items-center bg-white/20 backdrop-blur-lg p-2 pb-3 w-full text-brand-logo_green text-sm">
-          {recipe.duration && (
-            <p className="flex items-center mx-1">
-              <Image
-                className="mx-1 w-[12px] h-[12px]"
-                src={clock_green}
-                alt="time"
-              />
-              {recipe.duration}
-            </p>
-          )}
-        
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-start">
+          <h3 className="text-lg font-semibold mb-2">{recipe.name}</h3>
+          <button
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            className={`p-2 rounded-full transition-colors ${
+              isFavorited ? "text-red-500" : "text-gray-400"
+            } hover:text-red-500`}
+          >
+            <Heart
+              className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`}
+            />
+          </button>
         </div>
-        <div className="my-8 mb-4 font-inter">
-          <div className="px-2">
-            <h3 className="mt-2 font-custom font-semibold text-lg">
-              {recipe.name}
-            </h3>
+        <p className="text-gray-600 text-sm mb-2">{recipe.description}</p>
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>{recipe.duration} mins</span>
+          <span>₦{recipe.price}</span>
+        </div>
+        <button 
+          onClick={handleOpen} 
+          className="mt-2 text-orange-500 text-sm hover:underline"
+        >
+          View Recipe
+        </button>
+      </div>
 
-              <div className="flex items-center justify-between ">
-                <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
-                <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={modalStyle}>
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/2 md:mr-8">
+              <Image 
+                src={recipe.displayUrl} 
+                alt={recipe.name} 
+                className="rounded-md w-full" 
+                width={500}
+                height={300}
+              />
             </div>
-          </div>
-          <Modal open={open} onClose={handleClose}>
-            <Box sx={modalStyle}>
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/2 md:mr-8">
-                  <Image 
-                    src={recipe.displayUrl} 
-                    alt={recipe.name} 
-                    className="rounded-md w-full" 
-                  />
-                </div>
-                <div>
-                  <h2 className="font-custom font-medium text-2xl my-4">{recipe.name}</h2>
-                  {/* {recipe.author && (
-                    <sub className="text-gray-400 my-2">By {recipe.author}</sub>
-                  )} */}
-                  <div className="text-gray-600 font-inter">
-                    {recipe.description && (
-                      <p className="font-inter mt-2">{recipe.description}</p>
-                    )}
-                    
-                    {recipe.ingredients && recipe.ingredients.length > 0 && (
-                      <>
-                        <h4 className="text-gray-700 font-semibold font-xl my-4 font-inter">Ingredients</h4>
-                        <ul>
-                          {recipe.ingredients.map((ingredient, index) => (
-                            <li key={index}>{ingredient}</li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-700 mt-4 mb-2 font-inter">
-                      How do you want it packaged? (if more than one portion ordered)
-                    </p>
-                    <FormControl fullWidth>
-                      <InputLabel id="dropdown-label">Choose an option</InputLabel>
-                      <Select
-                        labelId="dropdown-label"
-                        value={option}
-                        label="Choose an option"
-                        onChange={handleChange}
-                        className="font-inter"
-                      >
-                        <MenuItem value="separate">Pack separately</MenuItem>
-                        <MenuItem value="together">Pack as one</MenuItem>
-                      </Select>
-                      <div className="flex w-full justify-center">
-                        <Stack direction="row" spacing={2} alignItems="center" marginY={2}>
-                          <div className="rounded-xl border-[1px] border-gray-400 flex p-2 w-[80px] my-2 text-gray-500">
-                            <button className="mr-4" onClick={() => setCount(count - 1)}>-</button>
-                            <p className="font-inter">{count}</p>
-                            <button className="ml-4" onClick={() => setCount(count + 1)}>+</button>
-                          </div>
-                        </Stack>
+            <div>
+              <h2 className="font-custom font-medium text-2xl my-4">{recipe.name}</h2>
+              {/* {recipe.author && (
+                <sub className="text-gray-400 my-2">By {recipe.author}</sub>
+              )} */}
+              <div className="text-gray-600 font-inter">
+                {recipe.description && (
+                  <p className="font-inter mt-2">{recipe.description}</p>
+                )}
+                
+                {recipe.ingredients && recipe.ingredients.length > 0 && (
+                  <>
+                    <h4 className="text-gray-700 font-semibold font-xl my-4 font-inter">Ingredients</h4>
+                    <ul>
+                      {recipe.ingredients.map((ingredient, index) => (
+                        <li key={index}>{ingredient}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700 mt-4 mb-2 font-inter">
+                  How do you want it packaged? (if more than one portion ordered)
+                </p>
+                <FormControl fullWidth>
+                  <InputLabel id="dropdown-label">Choose an option</InputLabel>
+                  <Select
+                    labelId="dropdown-label"
+                    value={option}
+                    label="Choose an option"
+                    onChange={handleChange}
+                    className="font-inter"
+                  >
+                    <MenuItem value="separate">Pack separately</MenuItem>
+                    <MenuItem value="together">Pack as one</MenuItem>
+                  </Select>
+                  <div className="flex w-full justify-center">
+                    <Stack direction="row" spacing={2} alignItems="center" marginY={2}>
+                      <div className="rounded-xl border-[1px] border-gray-400 flex p-2 w-[80px] my-2 text-gray-500">
+                        <button className="mr-4" onClick={() => setCount(Math.max(1, count - 1))}>-</button>
+                        <p className="font-inter">{count}</p>
+                        <button className="ml-4" onClick={() => setCount(count + 1)}>+</button>
                       </div>
-                    </FormControl>
+                    </Stack>
                   </div>
-                  <div className="md:flex justify-between">
-                    <div>
-                      <h4 className="font-custom text-gray-700">Price</h4>
-                      <p className="text-2xl font-inter text-gray-800 font-semibold">
-                        {recipe.price ? `NGN ${recipe.price.toLocaleString()}` : 'Price not available'}
-                      </p>
-                    </div>
-                    <div className="my-2 mt-4 flex justify-center">
-                      <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handlePopUp}>
-                        Add to bag
-                      </button>
-                    </div>
-                  </div>
+                </FormControl>
+              </div>
+              <div className="md:flex justify-between">
+                <div>
+                  <h4 className="font-custom text-gray-700">Price</h4>
+                  <p className="text-2xl font-inter text-gray-800 font-semibold">
+                    {recipe.price ? `NGN ${recipe.price.toLocaleString()}` : 'Price not available'}
+                  </p>
+                </div>
+                <div className="my-2 mt-4 flex justify-center">
+                  <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handlePopUp}>
+                    Add to bag
+                  </button>
                 </div>
               </div>
-            </Box>
-          </Modal>
-        </div>
-      </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
       <Modal
         open={showPopUp}
         onClose={handleClosePopUp}

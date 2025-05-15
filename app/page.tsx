@@ -39,16 +39,13 @@ export default function Home() {
     loadRecipes();
   }, []);
   // Seeding
-  // useEffect(() => {
-  //   // console.log("seeding into database...");
-  //   runSeed().catch(console.error);
-  // }, []);
   return (
     <div>
+      <Nav />
       <div className="hidden justify-center items-center w-screen h-screen">
         This page is not available for small screen sizes
       </div>
-      <div className="block">
+      <div className="mt-[5rem] block">
         <div className="flex lg:flex-row flex-col justify-center">
           <div className="flex lg:flex-row flex-col md:flex-col justify-between items-center py-10 lg:py-20 lg:w-10/12">
             <div className="flex flex-col items-center lg:items-start p-4 lg:p-10 lg:w-1/2 lg:text-left text-center">

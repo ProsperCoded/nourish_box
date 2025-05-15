@@ -88,10 +88,10 @@ const [cart, setCart] = useState<Item[]>(cart_items);
   const navVisibilityClass = navVisible ? "translate-y-0" : "-translate-y-full";
   const navStyleClass = scrolled
     ? "bg-white shadow-lg text-black"
-    : "bg-brand-logo_green/90 backdrop-blur-sm text-white";
+    : " backdrop-blur-sm";
 
-  const linkColorClass = scrolled ? "text-black" : "text-white";
-  const mobileIconColor = scrolled ? "black" : "white";
+  const linkColorClass = scrolled ? "text-black" : "text-black";
+  const mobileIconColor = scrolled ? "black" : "black";
 
   return (
     <div className={`${navBaseClasses} ${navVisibilityClass} ${navStyleClass}`}>

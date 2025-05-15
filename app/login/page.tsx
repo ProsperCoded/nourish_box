@@ -57,7 +57,7 @@ const SignUp = () => {
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      router.push("/Overview");
+      router.push("/");
       console.log("User Info:", result.user);
     } catch (error) {
       console.error("Error signing in:", error);
