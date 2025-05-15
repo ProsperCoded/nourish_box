@@ -17,9 +17,7 @@ export default function FavoritesPage() {
     if (favorites.length === 0) {
         return <div className="p-4">No favorites yet.</div>;
     }
-    if (favorites.length === 0) {
-        return <div className="p-4">No favorites yet.</div>;
-    }
+ 
 
     return (
         <div className="p-6">

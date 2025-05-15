@@ -1,8 +1,6 @@
 "use client";
 import Image from "next/image";
-// import user_green from "../assets/icons8-user-24.png";
 import clock_green from "../assets/icons8-clock-24.png";
-// import graph from "../assets/icons8-graph-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import React, { useState } from "react";
@@ -33,7 +31,7 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
     if (liked) {
       deleteFavorite(recipe.id);
     } else {
-      addFavorite(recipe);
+      addFavorite(recipe.id);
     }
   }
 
@@ -102,9 +100,7 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
                 </div>
                 <div>
                   <h2 className="font-custom font-medium text-2xl my-4">{recipe.name}</h2>
-                  {/* {recipe.author && (
-                    <sub className="text-gray-400 my-2">By {recipe.author}</sub>
-                  )} */}
+                 
                   <div className="text-gray-600 font-inter">
                     {recipe.description && (
                       <p className="font-inter mt-2">{recipe.description}</p>
@@ -182,7 +178,7 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
             <Link href="#" className="bg-gray-400 text-center text-white px-4 py-2 w-36 rounded-lg font-inter">
               Never mind
             </Link>
-            <Link href="/sign_in" className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter">
+            <Link href="/sign_up" className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter">
               Sign up
             </Link>
           </div>
