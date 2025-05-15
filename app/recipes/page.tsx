@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
@@ -13,133 +13,49 @@ import RecipeCard from "../components/RecipeCard";
 // import chickenteriyaki from './assets/chicken teriyaki.webp'
 import gizdodo from "../assets/gizdodo.webp";
 import Link from "next/link";
-// Dormy data
+import { fetchRecipes } from "../utils/firebase/recipes";
+import { Recipe } from "../utils/types/recipe.type";
 
-
-const recipeCards = [
-  {
-    id: 1,
-    name: "Prawn fried rice",
-    displayUrl: prawnfriedrice,
-    time: "10 Mins",
-    servings: "2 Serving",
-    difficulty: "Easy",
-    description: 'The portions',
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu",
-  },
-  {
-    id: 2,
-    name: "Turkey fried rice",
-    displayUrl: turkeyfriedrice,
-    time: "25 Mins",
-    servings: "2 Serving",
-    difficulty: "Medium",
-    description: 'The portions',
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=turkey-fried-rice-meal-kit-xtehel",
-  },
-  {
-    id: 3,
-    name: "Shrimp and plaintain pottage",
-    displayUrl: plantainporridge,
-    time: "10 Mins",
-    servings: "2 Serving",
-    difficulty: "Easy",
-    description: 'The portions',
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=shrimp-and-plantain-porridge-meal-kit-oirbiq",
-  },
-  {
-    id: 4,
-    name: "Gizdodo",
-    displayUrl: gizdodo,
-    time: "25 Mins",
-    servings: "2 Serving",
-    description: 'The portions',
-    difficulty: "Medium",
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=gizdodo-xyoogt",
-  },
-  {
-    id: 5,
-    name: "Prawn fried rice",
-    displayUrl: prawnfriedrice,
-    time: "30 Mins",
-    servings: "1 Serving",
-    description: 'The portions',
-    difficulty: "Easy",
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu",
-  },
-  {
-    id: 6,
-    name: "Turkey fried rice",
-    displayUrl: turkeyfriedrice,
-    time: "25 Mins",
-    servings: "2 Serving",
-    description: 'The portions',
-    difficulty: "Medium",
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=turkey-fried-rice-meal-kit-xtehel",
-  },
-  {
-    id: 7,
-    name: "Shrimp and plaintain pottage",
-    displayUrl: plantainporridge,
-    time: "10 Mins",
-    servings: "2 Serving",
-    description: 'The portions',
-    difficulty: "Easy",
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=shrimp-and-plantain-porridge-meal-kit-oirbiq",
-  },
-  {
-    id: 8,
-    name: "Gizdodo",
-    displayUrl: gizdodo,
-    time: "25 Mins",
-    servings: "2 Serving",
-    description: 'The portions',
-    difficulty: "Medium",
-    price: "10k",
-    link: "https://paystack.shop/nourish-box?product=gizdodo-xyoogt",
-  },
-  {
-    id: 9,
-    name: "Prawn fried rice",
-    displayUrl: prawnfriedrice,
-    time: "30 Mins",
-    servings: "1 Serving",
-    difficulty: "Easy",
-    price: "10k",
-    description: 'The portions',
-    link: "https://paystack.shop/nourish-box?product=prawn-fried-rice-meal-kit-qgplsu",
-  },
-  {
-    id: 10,
-    name: "Turkey fried rice",
-    displayUrl: turkeyfriedrice,
-    time: "25 Mins",
-    servings: "2 Serving",
-    price:"10k",
-    description: 'The portions',
-    difficulty: "Medium",
-    link: "https://paystack.shop/nourish-box?product=turkey-fried-rice-meal-kit-xtehel",
-  },
-];
-export const recipeItem = recipeCards
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const searchResult = recipeCards.filter((i) =>
-    i.name.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    const loadRecipes = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedRecipes = await fetchRecipes();
+        setRecipes(fetchedRecipes);
+      } catch (err) {
+        setError("Failed to load recipes. Please try again later.");
+        console.error("Error loading recipes:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRecipes();
+  }, []);
+
+  const searchResult = recipes.filter((recipe) =>
+    recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const showSearch = searchQuery.trim() !== "";
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-wrap flex-col  py-5   lg:px-8 ">
+    <div className="flex flex-wrap flex-col py-5 lg:px-8">
       <div className="flex justify-center">
-        <div className="flex flex-row items-center justify-between  w-11/12">
+        <div className="flex flex-row items-center justify-between w-11/12">
           <Link href="/">
             <Image src={icon} alt="icon" className="lg:hidden block w-[70px]" />{" "}
             <Image
@@ -179,11 +95,18 @@ const Page = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap w-full justify-center gap-6 p-6 lg:0 ">
-        {(showSearch ? searchResult : recipeCards).map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} product={recipe.id} />
-        ))}
-      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap w-full justify-center gap-6 p-6 lg:0">
+          {(showSearch ? searchResult : recipes).map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

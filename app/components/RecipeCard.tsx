@@ -1,25 +1,73 @@
 "use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import clock_green from "../assets/icons8-clock-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import React, { useState } from "react";
 import Link from "next/link";
 import liked_empty from "../assets/icons8-love-circled-50.png";
 import filled_liked from '../assets/red_liked.png';
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
+import { useAuth } from "../contexts/AuthContext";
+import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
+import { Heart } from "lucide-react";
 
-const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
+interface RecipeCardProps {
+  recipe: Recipe;
+}
+
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
-
-  const [option, setOption] = useState<string>('');
+  const { user } = useAuth();
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [option, setOption] = useState<string>('');
+  const [count, setCount] = useState(1);
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!user) return;
+      try {
+        const favorited = await isRecipeFavorited(user.id, recipe.id.toString());
+        setIsFavorited(favorited);
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, recipe.id]);
+
   const [showPopUp, setShowPopUp] = useState(false);
   const handlePopUp = () => setShowPopUp(true);
   const handleClosePopUp = () => setShowPopUp(false);
-  const [count, setCount] = useState(0);
 
+  const handleFavoriteClick = async () => {
+    if (!user) {
+      // You might want to show a login prompt here
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      if (isFavorited) {
+        await removeFromFavorites(user.id, recipe.id.toString());
+        setIsFavorited(false);
+      } else {
+        await addToFavorites(user.id, recipe.id.toString());
+        setIsFavorited(true);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
   };
@@ -36,17 +84,17 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   }
 
   const modalStyle = {
-    position: 'absolute',
+    position: 'absolute' as 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: 370, lg: 1200 },
-    overflow: 'auto',
-    maxHeight: '80vh',
+    width: '80%',
+    maxWidth: '1000px',
     bgcolor: 'background.paper',
-    borderRadius: 2,
     boxShadow: 24,
     p: 4,
+    maxHeight: '90vh',
+    overflow: 'auto',
   };
 
   const popUpStyle = {
@@ -55,27 +103,29 @@ const RecipeCard: React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   }
 
   return (
-    <div className="bg-white shadow-md p-2 rounded-lg w-full lg:w-72">
-      <div className="relative">
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
+      <div className="relative h-48">
         <Image
           src={recipe.displayUrl}
           alt={recipe.name}
-          width={400}
-          height={400}
-          className="rounded-md"
+          fill
+          className="object-cover"
         />
-        <div className="bottom-[70px] z-50 absolute flex items-center bg-white/20 backdrop-blur-lg p-2 pb-3 w-full text-brand-logo_green text-sm">
-          {recipe.duration && (
-            <p className="flex items-center mx-1">
-              <Image
-                className="mx-1 w-[12px] h-[12px]"
-                src={clock_green}
-                alt="time"
-              />
-              {recipe.duration}
-            </p>
-          )}
-        
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-start">
+          <h3 className="text-lg font-semibold mb-2">{recipe.name}</h3>
+          <button
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            className={`p-2 rounded-full transition-colors ${
+              isFavorited ? "text-red-500" : "text-gray-400"
+            } hover:text-red-500`}
+          >
+            <Heart
+              className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`}
+            />
+          </button>
         </div>
         <div className="my-8 mb-4 font-inter">
           <div className="px-2">

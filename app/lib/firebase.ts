@@ -21,6 +21,7 @@ export const provider = new GoogleAuthProvider();
 
 export { signInWithPopup };
 
+// ! for seeding to the database
 // import { runSeed } from "@/app/utils/seed/seed-script";
 // console.log("seeding into database...");
 // runSeed().catch(console.error);

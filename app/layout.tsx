@@ -20,8 +20,8 @@ export default function RootLayout({
     <html lang="en" className={`${jakarta.variable}`}>
       <body><FavContext>
         <AuthProvider>
-          <Nav />
-          <div className="mt-[5rem]">{children}</div>
+          
+          <div>{children}</div>
         </AuthProvider>
       </FavContext></body>
     </html>
