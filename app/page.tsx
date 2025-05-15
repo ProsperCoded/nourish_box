@@ -10,7 +10,7 @@ import RecipeCard from "./components/RecipeCard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Recipe } from "./utils/types/recipe.type";
-import { fetchRecipes } from "./utils/firebase/recipes";
+import { fetchRecipes } from "./utils/firebase/recipes.firebase";
 
 import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
