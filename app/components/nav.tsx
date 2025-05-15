@@ -141,7 +141,7 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
-          <ul className={`flex py-0 font-inter justify-center items-center`}>
+          <ul className={`flex py-0 font-inter justifnourish-box.vercel.appy-center items-center`}>
             <Link
               href="/recipes"
               className={`px-4 font-medium text-xl ${linkColorClass}`}
@@ -161,7 +161,7 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               Community
             </Link>
           </ul>
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center justify-end gap-10">
             <UserAvatar />
             <div className='flex items-center justify-end w-1/12'>
 
@@ -172,19 +172,6 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           </div>
         </div>
       </div>
-      {/* <div className="flex justify-center">
-      <div className=' hidden lg:w-11/12 lg:flex justify-between items-center p-10 pb-0 md:w-100 text-black font-sans'>
-        <Image src={Logo} alt='Logo' className='w-[150px]' />
-        <ul className='flex py-0 w-1/2 font-inter'>
-          <Link href="/"  className='px-4  font-medium text-xl'>Home</Link>
-          <Link href="/recipes" className='px-4 font-medium text-xl'>Recipe </Link>
-          <Link href="/about_us" className='px-4 font-medium text-xl'>About us</Link>
-          
-
-        </ul>
-        
-      </div>
-    </div> */}
     </div>
   );
 };

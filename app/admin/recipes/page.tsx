@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import { RecipeGrid } from "../../components/admin/RecipeGrid";
 import { RecipeCardForm } from "../../components/admin/RecipeCardForm";
 import { RecipeDetailModal } from "../../components/admin/RecipeDetailModal";
-import { fetchRecipes } from "../../utils/firebase/recipes";
+import { fetchRecipes } from "../../utils/firebase/recipes.firebase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,61 +38,7 @@ export default function RecipesManagement() {
     });
   }, []);
 
-  const handleSaveRecipe = async (
-    recipeData: Partial<Recipe>,
-    displayFile: File | null,
-    sampleFiles: { file: File; variant: string }[]
-  ) => {
-    setLoading(true);
 
-    try {
-      let displayUrl = selectedRecipe?.displayUrl || recipeData.displayUrl || "";
-
-      if (displayFile) {
-        const displayRef = ref(storage, `recipes/${uuidv4()}_${displayFile.name}`);
-        await uploadBytes(displayRef, displayFile);
-        displayUrl = await getDownloadURL(displayRef);
-      }
-
-      let allSamples = [...(recipeData.samples || [])];
-      
-      if (sampleFiles.length > 0) {
-        const uploadedSamples = await Promise.all(
-          sampleFiles.map(async ({ file, variant }) => {
-            const sampleRef = ref(storage, `recipes/samples/${uuidv4()}_${file.name}`);
-            await uploadBytes(sampleRef, file);
-            const url = await getDownloadURL(sampleRef);
-            return { variant, image: url };
-          })
-        );
-        allSamples = [...allSamples, ...uploadedSamples];
-      }
-
-      const finalRecipeData = {
-        ...recipeData,
-        displayUrl,
-        samples: allSamples,
-        createdAt: selectedRecipe?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        clicks: selectedRecipe?.clicks || 0,
-      };
-
-      if (selectedRecipe) {
-        await updateDoc(doc(db, COLLECTION.recipes, selectedRecipe.id), finalRecipeData);
-      } else {
-        await addDoc(collection(db, COLLECTION.recipes), finalRecipeData);
-      }
-
-      setIsFormOpen(false);
-      setSelectedRecipe(null);
-      await fetchRecipes().then(setRecipes); // Re-fetch and update recipes
-    } catch (error) {
-      console.error("Error saving recipe:", error);
-      // Consider adding user-facing error toast here
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEditRecipe = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -168,8 +114,11 @@ export default function RecipesManagement() {
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <RecipeCardForm
               recipe={selectedRecipe}
-              onSave={handleSaveRecipe}
               onCancel={() => setIsFormOpen(false)}
+              onSuccess={() => {
+                setIsFormOpen(false);
+                fetchRecipes().then(setRecipes);
+              }}
             />
           </div>
         </div>
