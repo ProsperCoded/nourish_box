@@ -18,12 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${jakarta.variable}`}>
-      <body><FavContext>
+      <body>
         <AuthProvider>
+        <FavContext>
           
           <div>{children}</div>
+      </FavContext>
         </AuthProvider>
-      </FavContext></body>
+      </body>
     </html>
   );
 }

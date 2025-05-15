@@ -1,15 +1,14 @@
 import { StaticImageData } from "next/image";
 
 export type Recipe = {
-  id: number;
+  id: string;
   name: string;
   description: string;
-  displayUrl: string;
-  samples: { variant: string; image: string }[];
+  displayMedia: { url: string; publicId: string; type: "image" | "video" };
+  samples: { variant: string; media: { url: string; publicId: string; type: "image" | "video" } }[];
   duration: number; //seconds
   price: number; //naira
   ingredients: string[];
-  image: StaticImageData; // image url
 
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage

@@ -7,7 +7,7 @@ import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 import search from "../assets/icons8-search-48.png";
 import RecipeCard from "../components/RecipeCard";
 import Link from "next/link";
-import { fetchRecipes } from "../utils/firebase/recipes";
+import { fetchRecipes } from "../utils/firebase/recipes.firebase";
 import { Recipe } from "../utils/types/recipe.type";
 
 const Page = () => {

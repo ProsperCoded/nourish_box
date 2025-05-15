@@ -10,7 +10,7 @@ import filled_liked from '../assets/red_liked.png';
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
-import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/recipes";
+import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/favorite.firebase";
 import { Heart } from "lucide-react";
 
 interface RecipeCardProps {
@@ -30,7 +30,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     const checkFavoriteStatus = async () => {
       if (!user) return;
       try {
-        const favorited = await isRecipeFavorited(user.id, recipe.id.toString());
+        const favorited = await isFavorite(recipe.id.toString());
         setIsFavorited(favorited);
       } catch (error) {
         console.error("Error checking favorite status:", error);
@@ -38,7 +38,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     };
 
     checkFavoriteStatus();
-  }, [user, recipe.id]);
+  }, [user, recipe.id, isFavorite]);
 
   const [showPopUp, setShowPopUp] = useState(false);
   const handlePopUp = () => setShowPopUp(true);
@@ -53,10 +53,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     try {
       setIsLoading(true);
       if (isFavorited) {
-        await removeFromFavorites(user.id, recipe.id.toString());
+        await deleteFavorite(recipe.id.toString());
         setIsFavorited(false);
       } else {
-        await addToFavorites(user.id, recipe.id.toString());
+        await addFavorite(recipe);
         setIsFavorited(true);
       }
     } catch (error) {

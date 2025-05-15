@@ -1,5 +1,5 @@
 import { seedRecipes } from "./recipes.seed";
-import { seedRecipesToFirebase } from "../firebase/recipes";
+import { seedRecipesToFirebase } from "../firebase/recipes.firebase";
 
 export async function runSeed() {
   console.log("Starting to seed recipes...");
