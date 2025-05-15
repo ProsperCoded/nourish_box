@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🥗 Nourish Box – Recipe Selling Platform
+
+**Nourish Box** is a recipe-selling web application built for chefs to upload, manage, and sell their recipes online. Customers can browse recipes, order them (with physical delivery for now), and leave “I Tried This” feedback after cooking the meal. This MVP is built using **Next.js** with **Firebase** for both database and media storage, and **Paystack** for payments.
+
+Use very sleak interface that showcase the brand identity, and leverage on libraries like shadcn, react icons, material ui e.t.c

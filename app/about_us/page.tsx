@@ -2,9 +2,8 @@ import React from 'react'
 import Nav from "../components/nav";
 // import Link from 'next/link';
 import target from "../assets/icons8-target-100.png";
-import quote from "../assets/icons8-quote-60.png";
 import vision from '../assets/icons8-vision-100.png'
-import banner from "../assets/nourish_box_folder/DPs and Banners/Twitter header - 1.png";
+
 import Image from 'next/image';
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 const page = () => {
@@ -25,18 +24,8 @@ const page = () => {
 
                 </div>
             </div>
-            <div className="relative w-full  h-[100px] overflow-hidden my-16">
-                {/* Background Image */}
-                <Image
-                    src={banner}
-                    alt="Background"
-                    fill
-                    className="object-cover bg-repeat-x object-left" // Ensures it aligns horizontally
-                    quality={100}
-                />
-
-            </div>
-            <div className='flex flex-col md:flex-row justify-center md:justify-evenly w-full '>
+          
+            <div className='flex flex-col md:flex-row justify-center md:justify-evenly w-full mb-10'>
                 <div className=' text-center mx-10 md:mx-0 md:w-1/3 flex flex-col items-center justify-center '>
                     <Image src={target} alt='target icon' width={50} height={50} />
                     <h1 className="text-2xl text-[#004C30] font-bold font-custom  mt-5">Our Mission</h1>
@@ -54,26 +43,8 @@ const page = () => {
                         easy recipes, and unmatched convenience.</p>
                 </div>
             </div>
-            <div className="relative w-full  h-[100px] overflow-hidden my-16">
-                {/* Background Image */}
-                <Image
-                    src={banner}
-                    alt="Background"
-                    fill
-                    className="object-cover bg-repeat-x object-left" // Ensures it aligns horizontally
-                    quality={100}
-                />
-
-            </div>
-            <div className='flex items-center my-20 '>
-               <div className="flex flex-col md:flex-row  justify-evenly">
-               <div className="flex justify-center items-center md:w-1/2">
-                    <h2 className='text-4xl   font-inter'>Founders Quote</h2>
-                </div>
-                <div className=' md:w-1/2 md:mr-20 mx-10 md:mx-0'> <div className="flex text-2xl font-light font-inter text-brand-sub_gray mt-5"><div>
-                    <Image className='rotate-180' src={quote} alt='quote' width={60} height={60} /></div><p>At Nourish Box, we believe that cooking should be a joyful experience. Our mission is to make healthy eating accessible and enjoyable for everyone, one meal kit at a time.</p><div className='flex justify-start items-end'><Image src={quote} alt='quote' width={60} height={60} /></div></div></div>
-               </div>
-            </div>
+           
+            
         </div>
     )
 }
