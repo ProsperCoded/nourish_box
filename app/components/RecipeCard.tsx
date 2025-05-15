@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import clock_green from "../assets/icons8-clock-24.png";
+// import clock_green from "../assets/icons8-clock-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Link from "next/link";
@@ -66,8 +66,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     }
   };
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
   };
@@ -84,7 +83,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   }
 
   const modalStyle = {
-    position: 'absolute' as 'absolute',
+    position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
