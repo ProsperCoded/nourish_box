@@ -84,8 +84,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (isMobile) {
-      router.push(`/recipe/${recipe.id}`);
+      router.push(`/recipes/${recipe.id}`);
       e.stopPropagation();
+      return;
     
     }
     e.stopPropagation();

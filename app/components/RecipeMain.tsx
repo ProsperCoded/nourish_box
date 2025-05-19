@@ -10,7 +10,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
     <div>
-      <div><Image src={recipe.displayMedia.url} alt={recipe.name} /> Image </div>
+      <div><img src={recipe.displayMedia.url} alt={recipe.name} /> Image </div>
       <div>
         <h2>{recipe.name}</h2>
         <div>
