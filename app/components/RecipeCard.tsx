@@ -42,7 +42,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const handlePopUp = () => setShowPopUp(true);
   const handleClosePopUp = () => setShowPopUp(false);
 
-  const handleFavoriteClick = async () => {
+  const handleFavoriteClick = async (e) => {
     if (!user) {
       // You might want to show a login prompt here
       return;
@@ -60,6 +60,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     } catch (error) {
       console.error("Error toggling favorite:", error);
     } finally {
+      e.stopPropagation();
       setIsLoading(false);
     }
   };
