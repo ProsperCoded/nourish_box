@@ -69,9 +69,20 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     setOption(event.target.value);
   };
   const liked = isFavorite(recipe?.id);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen(true);
+  };
 
+  const handleClose = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    setOpen(false);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleOpen(e);
+  };
 
   const modalStyle = {
     position: 'absolute',
@@ -85,6 +96,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     p: 4,
     maxHeight: '90vh',
     overflow: 'auto',
+    outline: 'none',
   };
 
   const popUpStyle = {
@@ -94,7 +106,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
     <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px] cursor-pointer"
-    onClick={handleOpen}  
+    onClick={handleCardClick}  
     >
       <div className="relative h-48">
         {recipe.displayMedia.type === "video" ? (
@@ -142,8 +154,34 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             <div className="md:w-1/2 md:mr-8 mb-4 md:mb-0">
               
           </div> */}
-          <Modal open={open} onClose={handleClose}>
+          <Modal 
+            open={open} 
+            onClose={handleClose}
+            onClick={(e) => e.stopPropagation()}
+            disableAutoFocus={true}
+            disableEnforceFocus={true}
+          >
             <Box sx={modalStyle}>
+              <button
+                onClick={handleClose}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Close modal"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
               <div className="flex flex-col md:flex-row">
               {recipe.displayMedia.type === "video" ? (
                 <video
