@@ -72,13 +72,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const toogleLiked = () => {
-    if (liked) {
-      deleteFavorite(recipe.id);
-    } else {
-      addFavorite(recipe.id);
-    }
-  }
 
   const modalStyle = {
     position: 'absolute',
@@ -100,7 +93,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   }
 
   return (
-    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px] cursor-pointer"
+    onClick={handleOpen}  
+    >
       <div className="relative h-48">
         {recipe.displayMedia.type === "video" ? (
           <video
@@ -141,10 +136,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               {recipe.name}
             </h3>
 
-      <Modal open={open} onClose={handleClose}>
+      {/* <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyle}>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 md:mr-8 mb-4 md:mb-0">
+              
+          </div> */}
+          <Modal open={open} onClose={handleClose}>
+            <Box sx={modalStyle}>
+              <div className="flex flex-col md:flex-row">
               {recipe.displayMedia.type === "video" ? (
                 <video
                   src={recipe.displayMedia.url}
@@ -163,24 +163,25 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 />
               )}
 
-              <div className="flex items-center justify-between ">
-                <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
-                <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
-
-            </div>
-          </div>
-          <Modal open={open} onClose={handleClose}>
-            <Box sx={modalStyle}>
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/2 md:mr-8">
-                  <Image 
-                    src={recipe.displayUrl} 
-                    alt={recipe.name} 
-                    className="rounded-md w-full" 
-                  />
-                </div>
+              
                 <div>
-                  <h2 className="font-custom font-medium text-2xl my-4">{recipe.name}</h2>
+                  <div className="flex justify-between items-center">
+                    <h2 className="font-custom font-medium text-2xl my-4">{recipe.name}</h2>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFavoriteClick();
+                      }}
+                      disabled={isLoading}
+                      className={`p-2 rounded-full transition-colors ${
+                        isFavorited ? "text-red-500" : "text-gray-400"
+                      } hover:text-red-500`}
+                    >
+                      <Heart
+                        className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`}
+                      />
+                    </button>
+                  </div>
                  
                   <div className="text-gray-600 font-inter">
                     {recipe.description && (
@@ -265,6 +266,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           </div>
         </Box>
       </Modal>
+    </div>
     </div>
   );
 };
