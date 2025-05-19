@@ -101,7 +101,7 @@ const [cart, setCart] = useState<Item[]>(cart_items);
           <Image src={Logo} alt="Logo" className="w-[120px] sm:w-[150px]" />
         </Link>
         <div className="flex items-center gap-2">
-          <UserAvatar />
+         
           <IconButton
             onClick={toggleDrawer("menu")}
             edge="start"
@@ -118,15 +118,22 @@ const [cart, setCart] = useState<Item[]>(cart_items);
             {mobileMenu.map((i) => (
               <Link href={i.link} key={i.id} passHref legacyBehavior>
                 <ListItemButton component="a" onClick={toggleDrawer("menu")}>
-                  <ListItemText primary={i.label} />
+                  <ListItemText primary={i.label} className="flex pl-2 hover:text-gray-600 transition-colors duration-300 py-2 font-medium text-lg " slotProps={{
+                    primary: {
+                      className: 'font-medium text-lg hover:text-gray-600 transition-colors duration-300',
+                    },
+                  }} />
                 </ListItemButton>
               </Link>
             ))}
+            <div className="px-2">
+              <UserAvatar className="flex-col " />
+           </div>
           </List>
         </Drawer>
 
         <Drawer anchor="right" open={isOpen === "cart"} onClose={closeDrawer}>
-          <List sx={{ width: 500 }}>
+          <List sx={{ width: 500, }}>
             <div className="flex justify-between items-center">
               <Image src={Logo} alt="Logo" className=" m-4" width={50} height={50} />
               <Image src={cancel_icon} alt="cart" className=" m-4 rotate-[270]" width={30} height={30} onClick={closeDrawer} />
@@ -158,7 +165,7 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               </Link>
 
             </ul>
-            <UserAvatar />
+            <UserAvatar className="flex-row"/>
             <div className='flex items-center justify-center w-2/12 '>
 
               <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">

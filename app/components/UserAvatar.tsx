@@ -10,8 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+interface menuProps {
+  className?: string,
+}
 
-export function UserAvatar() {
+export function UserAvatar({ className = ''}:menuProps
+) {
   const { user: authUser, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -23,7 +27,7 @@ export function UserAvatar() {
 
   if (!authUser) {
     return (
-      <div className="flex gap-4">
+      <div className={`flex gap-4 ${className}`}>
         <Link href="/login">
           <button className="text-brand-btn_orange hover:text-gray-600 transition-colors duration-300 px-4 py-2 font-medium text-lg">
             Login
