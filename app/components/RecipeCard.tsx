@@ -50,7 +50,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       // You might want to show a login prompt here
       return;
     }
-   
+    e.stopPropagation();
+
     try {
       setIsLoading(true);
       if (isFavorited) {
@@ -63,7 +64,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     } catch (error) {
       console.error("Error toggling favorite:", error);
     } finally {
-      e.stopPropagation();
       setIsLoading(false);
     }
   };

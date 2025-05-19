@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query } from "firebase/firestore";
+import { collection, getDocs, addDoc, query, doc, getDoc } from "firebase/firestore"; // Added getDoc
 import { db } from "../../lib/firebase";
 import { COLLECTION } from "../schema/collection.enum";
 import { Recipe } from "../types/recipe.type";
@@ -32,3 +32,20 @@ export const fetchRecipes = async (): Promise<Recipe[]> => {
   }
 };
 
+
+export const getRecipeById = async (recipeId: string): Promise<Recipe | null> => {
+  try {
+    const recipeDocRef = doc(db, COLLECTION.recipes, recipeId);
+    const recipeDocSnap = await getDoc(recipeDocRef); // Changed getDocs to getDoc
+
+    if (recipeDocSnap.exists()) {
+      return { ...recipeDocSnap.data(), id: recipeDocSnap.id } as Recipe;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching recipe by ID:", error);
+    return null;
+  }
+};
