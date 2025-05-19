@@ -136,34 +136,30 @@ const [cart, setCart] = useState<Item[]>(cart_items);
         </Drawer>
       </div>
       {/* Desktop Nav */}
-      <div className="hidden lg:flex justify-center">
-        <div className="w-full max-w-screen-xl mx-auto flex justify-between items-center p-4 font-sans">
+      <div className="hidden lg:flex justify-center ">
+        <div className="w-full max-w-screen-xl mx-auto flex justify-between items-center p-4 font-sans  ">
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
-          <ul className={`flex py-0 font-inter justifnourish-box.vercel.appy-center items-center`}>
-            <Link
-              href="/recipes"
-              className={`px-4 font-medium text-xl ${linkColorClass}`}
-            >
-              Recipe{" "}
-            </Link>
-            <Link
-              href="/about_us"
-              className={`px-4 font-medium text-xl ${linkColorClass}`}
-            >
-              About us
-            </Link>
-            <Link
-              href="/"
-              className={`px-4 font-medium text-xl ${linkColorClass}`}
-            >
-              Community
-            </Link>
-          </ul>
-          <div className="flex items-center justify-end gap-4 w-1/3">
+          
+          <div className="flex items-center justify-center gap-4 w-1/2 border-2 border-red-500 ">
+            <ul className={`flex py-0 font-inter justify-start items-center`}>
+              <Link
+                href="/recipes"
+                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              >
+                Recipes{" "}
+              </Link>
+              <Link
+                href="/about_us"
+                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              >
+                About us
+              </Link>
+
+            </ul>
             <UserAvatar />
-            <div className='flex items-center justify-center w-2/12 border-2 border-orange-500 '>
+            <div className='flex items-center justify-center w-2/12 '>
 
               <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
                 <Image src={Cart} alt="cart" width={30} height={30.11} />
