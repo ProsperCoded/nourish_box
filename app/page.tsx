@@ -6,7 +6,7 @@ import hover_img_one from "./assets/Frame 464.png";
 import hover_img_two from "./assets/Frame 466.png";
 import broccoli from "./assets/Broccoli.png";
 import tomato from "./assets/Tomato.png";
-import RecipeCard from "./components/RecipeCard";
+import RecipeCard from './components/RecipeCard';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Recipe } from "./utils/types/recipe.type";

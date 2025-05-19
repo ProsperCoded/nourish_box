@@ -9,7 +9,8 @@ export type Recipe = {
   duration: number; //seconds
   price: number; //naira
   ingredients: string[];
-
+  servings: number; // number of servings
+numberOfIngredients: number; // number of ingredients
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage
 
