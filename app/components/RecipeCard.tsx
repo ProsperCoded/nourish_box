@@ -72,13 +72,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const toogleLiked = () => {
-    if (liked) {
-      deleteFavorite(recipe.id);
-    } else {
-      addFavorite(recipe.id);
-    }
-  }
 
   const modalStyle = {
     position: 'absolute',
@@ -99,7 +92,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     width: { xs: 370, lg: 500 },
   }
   return (
-    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px] cursor-pointer"
+    onClick={handleOpen}  
+    >
       <div className="relative h-48">
         {recipe.displayMedia.type === "video" ? (
           <video
@@ -163,7 +158,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
                     <div className="flex items-center justify-between ">
                       <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
-                      <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
+                      {/* <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button> */}
 
                     </div>
                   </div>
