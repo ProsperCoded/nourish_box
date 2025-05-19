@@ -10,7 +10,7 @@ import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
 import { Heart } from "lucide-react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import useMobileVs from "../hooks/useMobileVs";
 
 interface RecipeCardProps {
@@ -85,7 +85,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (isMobile) {
-      router.push(`/recipe/${recipe.id}`);
+      router.push(`/recipes/${recipe.id}`);
       e.stopPropagation();
     
     }
