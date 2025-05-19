@@ -1,16 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+
 // import clock_green from "../assets/icons8-clock-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Link from "next/link";
-import liked_empty from "../assets/icons8-love-circled-50.png";
-import filled_liked from '../assets/red_liked.png';
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
-import { addToFavorites, removeFromFavorites, isRecipeFavorited } from "../utils/firebase/favorite.firebase";
 import { Heart } from "lucide-react";
 
 interface RecipeCardProps {
@@ -104,12 +102,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   return (
     <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px]">
       <div className="relative h-48">
-        <Image
-          src={recipe.displayUrl}
-          alt={recipe.name}
-          fill
-          className="object-cover"
-        />
+        {recipe.displayMedia.type === "video" ? (
+          <video
+            src={recipe.displayMedia.url}
+            className="object-cover w-full h-full"
+            controls={false}
+            autoPlay
+            muted
+            loop
+          />
+        ) : (
+          <Image
+            src={recipe.displayMedia.url}
+            alt={recipe.name}
+            fill
+            className="object-cover"
+          />
+        )}
       </div>
       <div className="p-4">
         <div className="flex justify-between items-start">
@@ -132,9 +141,32 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               {recipe.name}
             </h3>
 
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={modalStyle}>
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/2 md:mr-8 mb-4 md:mb-0">
+              {recipe.displayMedia.type === "video" ? (
+                <video
+                  src={recipe.displayMedia.url}
+                  className="rounded-md w-full max-h-[400px]"
+                  controls
+                  autoPlay
+                />
+              ) : (
+                <Image
+                  src={recipe.displayMedia.url}
+                  alt={recipe.name}
+                  className="rounded-md w-full"
+                  width={500}
+                  height={300}
+                  style={{ objectFit: "contain", maxHeight: "400px" }}
+                />
+              )}
+
               <div className="flex items-center justify-between ">
                 <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button>
                 <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button>
+
             </div>
           </div>
           <Modal open={open} onClose={handleClose}>
