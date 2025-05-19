@@ -295,7 +295,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             <span className="font-semibold">Sign up</span> to save your favorite and skip the hassle of filling in your details on every order
           </p>
           <div className="flex justify-evenly my-4">
-            <Link href="/cart" className="bg-gray-400 text-center text-white px-4 py-2 w-36 rounded-lg font-inter">
+            <Link href="/" className="bg-gray-400 text-center text-white px-4 py-2 w-36 rounded-lg font-inter">
               Never mind
             </Link>
             <Link href="/sign_up" className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter">
