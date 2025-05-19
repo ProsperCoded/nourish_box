@@ -1,15 +1,14 @@
 // app/recipe/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import RecipeMain from '@/app/components/RecipeMain';
-import { Recipe } from "@/app/api/recipes/[recipeId]/route";
+import {getRecipeById} from '@/app/utils/firebase/recipes.firebase';
 
 interface PageProps {
-    recipe: Recipe;
     params: { id: string };
 }
 
-export default async function RecipePage({  recipe }: PageProps) {
-    const recipes = await Recipe(recipe.id);
+export default async function RecipePage({  params }: PageProps) {
+    const recipes = await getRecipeById(params.id);
 
     if (!recipes) return notFound();
 
