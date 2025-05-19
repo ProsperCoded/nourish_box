@@ -10,9 +10,8 @@ import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
 import { Heart } from "lucide-react";
-import { useRouter } from "next/router";
 import useMobileVs from "../hooks/useMobileVs";
-
+import { useRouter } from "next/navigation";
 interface RecipeCardProps {
   recipe: Recipe;
 }
