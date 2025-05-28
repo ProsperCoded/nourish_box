@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
-import Cart from '../assets/icons8-cart-48.png';
+import Cart from '../assets/icons8-cart-50.png';
 import cancel_icon from "../assets/icons8-cancel-48.png";
 import Link from "next/link";
 import {
@@ -143,13 +143,13 @@ const [cart, setCart] = useState<Item[]>(cart_items);
         </Drawer>
       </div>
       {/* Desktop Nav */}
-      <div className="hidden lg:flex justify-center ">
+      <div className="hidden lg:flex justify-between ">
         <div className="w-full max-w-screen-xl mx-auto flex justify-between items-center p-4 font-sans  ">
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
           
-          <div className="flex items-center justify-center gap-4 w-1/2 border-2 border-red-500 ">
+          <div className="flex items-center justify-between gap-4 w-1/2  ">
             <ul className={`flex py-0 font-inter justify-start items-center`}>
               <Link
                 href="/recipes"
@@ -163,11 +163,16 @@ const [cart, setCart] = useState<Item[]>(cart_items);
               >
                 About us
               </Link>
-
+              <Link
+                href="/contact_us"
+                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              >
+               Contact us
+              </Link>
             </ul>
-            <UserAvatar className="flex-row"/>
-            <div className='flex items-center justify-center w-2/12 '>
-
+            <div className="flex">
+           
+              <div className="mx-4"><UserAvatar className="flex-row " /></div>
               <IconButton onClick={toggleDrawer("cart")} edge="start" color="inherit" aria-label="cart">
                 <Image src={Cart} alt="cart" width={30} height={30.11} />
               </IconButton>

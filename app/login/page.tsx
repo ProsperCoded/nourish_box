@@ -11,7 +11,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../lib/firebase";
 import { FirebaseError } from "firebase/app";
 
-const SignUp = () => {
+const LogIn = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [view, setView] = useState(false);
@@ -70,16 +70,12 @@ const SignUp = () => {
         <p>Loading...</p>
       ) : (
         <div className="flex w-100 justify-between">
-          <div className="w-1/2 flex items-center justify-center bg-[#004C30]">
+          <div className="w-1/2  items-center justify-center hidden md:flex ">
             <Image src={logo} alt="jollof rice" width={600} />
           </div>
-          <div className="w-1/2">
+          <div className="w-full md:w-1/2">
             {error && <p style={{ color: "red" }}>{error}</p>}
-            <div className="block md:hidden">
-              <div className="bg-brand-brand_black text-white flex justify-center py-6 font-extrabold text-3xl rounded-b-xl ">
-                <h1>W-Finance</h1>
-              </div>
-            </div>
+          
             <div className="flex w-full items-center justify-center bg-brand-bg_white_clr h-screen md:h-screen">
               {/* <div className=' hidden md:block p-2 md:w-1/3 '>
                             <Image src={Sidebar} alt='side bar' />
@@ -90,7 +86,7 @@ const SignUp = () => {
                   className="flex flex-col modal h-1/2 w-full   "
                   onSubmit={handleLogin}
                 >
-                  <h1 className="my-4 font-bold text-3xl text-black ">
+                  <h1 className="my-4 font-bold text-3xl text-black text-center md:text-left ">
                     Log In
                   </h1>
 
@@ -122,11 +118,9 @@ const SignUp = () => {
                     />
                   </div>
                   <p className="text-xs flex justify-end text-brand-text_gray">
-                    <i className="not-italic">
-                      Password must be at least 8 characters
-                    </i>
+                    <Link href="/forgotPassword">Forgot password</Link>
                   </p>
-                  <div className="flex my-8 justify-center">
+                  <div className="flex mt-8 justify-center">
                     <button
                       type="submit"
                       className="flex bg-[#004C30] text-white py-3 px-16 rounded-xl items-center"
@@ -135,7 +129,7 @@ const SignUp = () => {
                     </button>
                   </div>
                 </form>
-                <div className="flex w-full items-center">
+                <div className="flex w-full items-center my-4">
                   <p className="bg-gray-400 h-[1px] w-1/2 mr-2"></p>
                   <p className="text-gray-400">OR</p>
                   <p className="bg-gray-400 h-[1px] w-1/2 ml-2"></p>
@@ -173,4 +167,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default LogIn;
