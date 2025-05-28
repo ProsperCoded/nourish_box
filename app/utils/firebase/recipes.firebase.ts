@@ -1,4 +1,11 @@
-import { collection, getDocs, addDoc, query, doc, getDoc } from "firebase/firestore"; // Added getDoc
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  doc,
+  getDoc,
+} from "firebase/firestore"; // Added getDoc
 import { db } from "../../lib/firebase";
 import { COLLECTION } from "../schema/collection.enum";
 import { Recipe } from "../types/recipe.type";
@@ -32,8 +39,9 @@ export const fetchRecipes = async (): Promise<Recipe[]> => {
   }
 };
 
-
-export const getRecipeById = async (recipeId: string): Promise<Recipe | null> => {
+export const getRecipeById = async (
+  recipeId: string
+): Promise<Recipe | null> => {
   try {
     const recipeDocRef = doc(db, COLLECTION.recipes, recipeId);
     const recipeDocSnap = await getDoc(recipeDocRef); // Changed getDocs to getDoc

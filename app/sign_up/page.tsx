@@ -171,10 +171,10 @@ const SignUp = () => {
         <p>Loading...</p>
       ) : (
         <div className="flex w-100 justify-between">
-          <div className="w-1/2 flex items-center justify-center bg-[#004C30]">
+          <div className="hidden w-1/2 md:flex items-center justify-center bg-[#004C30]">
             <Image src={logo} alt="jollof rice" width={600} />
           </div>
-          <div className="w-1/2">
+          <div className="w-full md:w-1/2">
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}
             <div className="flex w-full items-center justify-center bg-brand-bg_white_clr h-screen overflow-y-auto">
               <div className="flex flex-col items-center justify-center w-10/12 py-8">
@@ -182,7 +182,7 @@ const SignUp = () => {
                   className="flex flex-col w-full space-y-4"
                   onSubmit={handleSignUp}
                 >
-                  <h1 className="font-bold text-3xl text-black">Sign Up</h1>
+                  <h1 className="font-bold text-3xl text-black text-center md:text-left">Sign Up</h1>
 
                   <TextField
                     label="Full Name"
@@ -225,8 +225,8 @@ const SignUp = () => {
                         height={20}
                       />
                     </button>
-                  </div>
-
+                    </div>
+                    
                   <TextField
                     label="Phone Number"
                     name="phone"
@@ -266,7 +266,7 @@ const SignUp = () => {
 
                   <button
                     type="submit"
-                    className="bg-[#004C30] text-white py-3 px-16 rounded-xl mx-auto"
+                    className="bg-[#004C30] text-white py-3 px-16 rounded-xl mx-auto my-3" 
                   >
                     Sign Up
                   </button>

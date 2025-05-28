@@ -1,10 +1,10 @@
-"use client"
-import { notFound } from 'next/navigation';
+"use client";
 import RecipeMain from '@/app/components/RecipeMain';
-import {getRecipeById} from '@/app/utils/firebase/recipes.firebase';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { getRecipeById } from '@/app/utils/firebase/recipes.firebase';
+import { useState, useEffect } from 'react';
 import { Recipe } from '@/app/utils/types/recipe.type';
+import {  notFound } from 'next/navigation';
+
 import { use } from 'react';
 
 interface PageProps {
@@ -49,5 +49,5 @@ export default function RecipePage({ params }: PageProps) {
         return notFound();
     }
 
-    return <RecipeMain recipe={recipe} />;
+    return <RecipeMain recipe={recipe!} />;
 }

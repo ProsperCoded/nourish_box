@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-
+import LoginPrompt from '../components/login_prompt';
 // import clock_green from "../assets/icons8-clock-24.png";
 import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import Link from "next/link";
+
 import { useFavorites } from '../contexts/FavContext';
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
@@ -87,7 +87,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       router.push(`/recipes/${recipe.id}`);
       e.stopPropagation();
       return;
-    
+
     }
     e.stopPropagation();
     handleOpen(e);
@@ -108,12 +108,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     outline: 'none',
   };
 
-  const popUpStyle = {
-    ...modalStyle,
-    width: { xs: 370, lg: 500 },
-  }
+  // const popUpStyle = {
+  //   ...modalStyle,
+  //   width: { xs: 370, lg: 500 },
+  // }
   return (
-    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[300px] cursor-pointer"
+    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[350px] cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="relative h-48">
@@ -269,34 +269,22 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                     <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handlePopUp}>
                       Add to bag
                     </button>
+                   
                   </div>
                 </div>
-        </Box>
-      </Modal>
-    </div>
+              </Box>
+            </Modal>
+          </div>
+        </div >
+        <Modal
+          open={showPopUp}
+          onClose={handleClosePopUp}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+         <LoginPrompt main_text="Sign in to Skip the hassle "/>
+        </Modal>
       </div >
-  <Modal
-    open={showPopUp}
-    onClose={handleClosePopUp}
-    aria-labelledby="modal-modal-title"
-    aria-describedby="modal-modal-description"
-  >
-    <Box sx={popUpStyle}>
-      <h1 className="text-black font-semibold font-inter text-2xl text-center">Skip the hassle next time</h1>
-      <p className="text-center font-inter my-5">
-        <span className="font-semibold">Sign up</span> to save your favorite and skip the hassle of filling in your details on every order
-      </p>
-      <div className="flex justify-evenly my-4">
-        <Link href="/" className="bg-gray-400 text-center text-white px-4 py-2 w-36 rounded-lg font-inter">
-          Never mind
-        </Link>
-        <Link href="/sign_up" className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter">
-          Sign up
-        </Link>
-      </div>
-    </Box>
-  </Modal>
-    </div >
     </div >
   );
 };
