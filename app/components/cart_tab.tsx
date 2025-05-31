@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "../contexts/CartContext";
 import { CartItem } from "../utils/types/cart.tyes";
+import { CircularProgress } from "@mui/material";
 
 const Cart_tab = () => {
   const {
@@ -15,6 +16,7 @@ const Cart_tab = () => {
     clearCart,
     getTotalPrice,
     loading,
+    isItemLoading,
   } = useCart();
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -44,7 +46,8 @@ const Cart_tab = () => {
   if (loading) {
     return (
       <div className="h-full flex flex-col justify-center items-center">
-        <p className="text-gray-600">Loading cart...</p>
+        <CircularProgress size={24} />
+        <p className="text-gray-600 mt-2">Loading cart...</p>
       </div>
     );
   }
@@ -68,66 +71,89 @@ const Cart_tab = () => {
             </Link>
           </div>
         ) : (
-          cartItems.map((item: CartItem) => (
-            <div
-              className="border-[1px] border-solid rounded-lg py-2 relative my-2 border-gray-300 text-gray-600 w-11/12"
-              key={item.id}
-            >
-              <div className="flex items-center justify-between px-3 py-2">
-                <div className="w-3/5 flex items-center">
-                  <div>
-                    <Image
-                      src={item.image || pottage}
-                      alt={item.name}
-                      width={40}
-                      height={60}
-                      className="rounded-md object-cover"
-                    />
+          cartItems.map((item: CartItem) => {
+            const itemLoading = isItemLoading(item.id);
+            return (
+              <div
+                className={`border-[1px] border-solid rounded-lg py-2 relative my-2 border-gray-300 text-gray-600 w-11/12 ${
+                  itemLoading ? "opacity-70" : ""
+                }`}
+                key={item.id}
+              >
+                <div className="flex items-center justify-between px-3 py-2">
+                  <div className="w-3/5 flex items-center">
+                    <div className="relative">
+                      <Image
+                        src={item.image || pottage}
+                        alt={item.name}
+                        width={40}
+                        height={60}
+                        className="rounded-md object-cover"
+                      />
+                      {itemLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md">
+                          <CircularProgress size={16} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mx-3">
+                      <h3 className="font-medium">{item.name}</h3>
+                      <p className="text-sm">
+                        NGN {item.price.toLocaleString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="mx-3">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm">NGN {item.price.toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="rounded-xl border-[1px] border-gray-400 flex p-1 w-[100px] my-2 text-gray-500 justify-center mr-2">
+                  <div className="flex items-center">
+                    <div className="rounded-xl border-[1px] border-gray-400 flex p-1 w-[100px] my-2 text-gray-500 justify-center mr-2 relative">
+                      {itemLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-xl">
+                          <CircularProgress size={14} />
+                        </div>
+                      )}
+                      <button
+                        className="mr-4"
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
+                        disabled={item.quantity <= 1 || itemLoading}
+                      >
+                        -
+                      </button>
+                      <p className="font-inter text-center">{item.quantity}</p>
+                      <button
+                        className="ml-4"
+                        onClick={() =>
+                          handleQuantityChange(item.id, item.quantity + 1)
+                        }
+                        disabled={itemLoading}
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
-                      className="mr-4"
-                      onClick={() =>
-                        handleQuantityChange(
-                          item.id,
-                          Math.max(1, item.quantity - 1)
-                        )
-                      }
-                      disabled={item.quantity <= 1}
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="hover:opacity-70 transition-opacity relative"
+                      disabled={itemLoading}
                     >
-                      -
-                    </button>
-                    <p className="font-inter text-center">{item.quantity}</p>
-                    <button
-                      className="ml-4"
-                      onClick={() =>
-                        handleQuantityChange(item.id, item.quantity + 1)
-                      }
-                    >
-                      +
+                      {itemLoading ? (
+                        <CircularProgress size={15} />
+                      ) : (
+                        <Image
+                          src={dustbin}
+                          alt="trash can"
+                          width={15}
+                          height={15}
+                        />
+                      )}
                     </button>
                   </div>
-                  <button
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="hover:opacity-70 transition-opacity"
-                  >
-                    <Image
-                      src={dustbin}
-                      alt="trash can"
-                      width={15}
-                      height={15}
-                    />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -148,12 +174,20 @@ const Cart_tab = () => {
           {/* Action Buttons */}
           <div className="flex justify-between px-5 py-4">
             <button
-              className="w-[200px] px-5 py-2 rounded-md bg-gray-400 text-white hover:bg-gray-500 transition-colors"
+              className="w-[200px] px-5 py-2 rounded-md bg-gray-400 text-white hover:bg-gray-500 transition-colors flex items-center justify-center"
               onClick={handleClearCart}
+              disabled={cartItems.some((item) => isItemLoading(item.id))}
             >
-              Clear cart
+              {cartItems.some((item) => isItemLoading(item.id)) ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Clear cart"
+              )}
             </button>
-            <button className="w-[200px] px-5 py-2 rounded-md bg-orange-400 text-white hover:bg-orange-500 transition-colors">
+            <button
+              className="w-[200px] px-5 py-2 rounded-md bg-orange-400 text-white hover:bg-orange-500 transition-colors"
+              disabled={cartItems.some((item) => isItemLoading(item.id))}
+            >
               Checkout
             </button>
           </div>
