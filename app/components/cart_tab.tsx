@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useCart } from "../contexts/CartContext";
 import { CartItem } from "../utils/types/cart.tyes";
 import { CircularProgress } from "@mui/material";
+import { PaystackButton } from "react-paystack";
 
 const Cart_tab = () => {
   const {
@@ -18,6 +19,8 @@ const Cart_tab = () => {
     loading,
     isItemLoading,
   } = useCart();
+
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     try {
@@ -54,6 +57,62 @@ const Cart_tab = () => {
 
   const cartItems = cart?.items || [];
   const totalPrice = getTotalPrice();
+
+  // Paystack configuration
+  const config = {
+    reference: new Date().getTime().toString(),
+    email: "test@test.com",
+    amount: totalPrice * 100, // Amount in kobo (smallest currency unit)
+    key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+  };
+
+  // Payment success callback
+  const handlePaystackSuccessAction = async (reference: any) => {
+    console.log("Payment successful:", reference);
+    setPaymentLoading(true);
+    try {
+      // Verify payment on backend
+      const verifyRes = await fetch(
+        `/api/paystack/verify?reference=${reference.reference}`
+      );
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        alert(
+          `Payment successful! Amount: NGN ${
+            verifyData.data?.amount?.toLocaleString() ||
+            totalPrice.toLocaleString()
+          }`
+        );
+        await handleClearCart();
+      } else {
+        alert(
+          `Payment verification failed: ${verifyData.error || "Unknown error"}`
+        );
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      alert("Payment verification failed. Please contact support.");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // Payment close callback
+  const handlePaystackCloseAction = () => {
+    console.log("Payment dialog closed");
+    alert("Payment cancelled");
+    setPaymentLoading(false);
+  };
+
+  // PaystackButton component props
+  const paystackProps = {
+    ...config,
+    text: "Checkout",
+    onSuccess: (reference: any) => handlePaystackSuccessAction(reference),
+    onClose: handlePaystackCloseAction,
+  };
 
   return (
     <div className="h-full flex flex-col justify-between">
@@ -184,12 +243,16 @@ const Cart_tab = () => {
                 "Clear cart"
               )}
             </button>
-            <button
-              className="w-[200px] px-5 py-2 rounded-md bg-orange-400 text-white hover:bg-orange-500 transition-colors"
-              disabled={cartItems.some((item) => isItemLoading(item.id))}
-            >
-              Checkout
-            </button>
+            <div className="w-[200px]">
+              <PaystackButton
+                {...paystackProps}
+                className="w-full px-5 py-2 rounded-md bg-orange-400 text-white hover:bg-orange-500 transition-colors flex items-center justify-center"
+                disabled={
+                  cartItems.some((item) => isItemLoading(item.id)) ||
+                  paymentLoading
+                }
+              />
+            </div>
           </div>
         </div>
       )}

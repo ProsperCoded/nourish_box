@@ -3,8 +3,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
-import Cart from "../assets/icons8-cart-50.png";
-import cancel_icon from "../assets/icons8-cancel-48.png";
 import Link from "next/link";
 import {
   Drawer,
@@ -12,21 +10,16 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Badge,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserAvatar } from "@/app/components/UserAvatar";
-import Cart_tab from "./cart_tab";
-import { useCart } from "../contexts/CartContext";
+import CartComponent from "./Cart";
 
 const Nav = () => {
-  const [isOpen, setIsOpen] = useState<null | "cart" | "menu">(null);
-  const { getItemsCount } = useCart();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
-
-  const cartItemsCount = getItemsCount();
 
   const mobileMenu = [
     { id: 1, label: "Home", link: "/" },
@@ -35,12 +28,12 @@ const Nav = () => {
     { id: 4, label: "Contact", link: "/contact_us" },
   ];
 
-  const toggleDrawer = (open: "cart" | "menu") => () => {
-    setIsOpen(open);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const closeDrawer = () => {
-    setIsOpen(null);
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   useEffect(() => {
@@ -88,18 +81,9 @@ const Nav = () => {
             <div>
               <UserAvatar className="flex-row " />
             </div>
+            <CartComponent />
             <IconButton
-              onClick={toggleDrawer("cart")}
-              edge="start"
-              color="inherit"
-              aria-label="cart"
-            >
-              <Badge badgeContent={cartItemsCount} color="error">
-                <Image src={Cart} alt="cart" width={30} height={30.11} />
-              </Badge>
-            </IconButton>
-            <IconButton
-              onClick={toggleDrawer("menu")}
+              onClick={toggleMobileMenu}
               edge="start"
               color="inherit"
               aria-label="menu"
@@ -109,39 +93,26 @@ const Nav = () => {
           </div>
         </div>
 
-        <Drawer anchor="right" open={isOpen === "menu"} onClose={closeDrawer}>
+        <Drawer
+          anchor="right"
+          open={isMobileMenuOpen}
+          onClose={closeMobileMenu}
+        >
           <List sx={{ width: 250 }}>
             {mobileMenu.map((item) => (
-              <ListItemButton key={item.id} component="a" href={item.link}>
+              <ListItemButton
+                key={item.id}
+                component="a"
+                href={item.link}
+                onClick={closeMobileMenu}
+              >
                 <ListItemText primary={item.label} />
               </ListItemButton>
             ))}
           </List>
         </Drawer>
-
-        <Drawer anchor="right" open={isOpen === "cart"} onClose={closeDrawer}>
-          <List sx={{ width: 500 }}>
-            <div className="flex justify-between items-center">
-              <Image
-                src={Logo}
-                alt="Logo"
-                className=" m-4"
-                width={50}
-                height={50}
-              />
-              <Image
-                src={cancel_icon}
-                alt="cart"
-                className=" m-4 rotate-[270]"
-                width={30}
-                height={30}
-                onClick={closeDrawer}
-              />
-            </div>
-            <Cart_tab />
-          </List>
-        </Drawer>
       </div>
+
       {/* Desktop Nav */}
       <div className="hidden lg:flex justify-between ">
         <div className="w-full max-w-screen-xl mx-auto flex justify-between items-center p-4 font-sans  ">
@@ -174,16 +145,7 @@ const Nav = () => {
               <div className="mx-4">
                 <UserAvatar className="flex-row " />
               </div>
-              <IconButton
-                onClick={toggleDrawer("cart")}
-                edge="start"
-                color="inherit"
-                aria-label="cart"
-              >
-                <Badge badgeContent={cartItemsCount} color="error">
-                  <Image src={Cart} alt="cart" width={30} height={30.11} />
-                </Badge>
-              </IconButton>
+              <CartComponent />
             </div>
           </div>
         </div>

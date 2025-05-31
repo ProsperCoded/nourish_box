@@ -6,7 +6,7 @@ import hover_img_one from "./assets/Frame 464.png";
 import hover_img_two from "./assets/Frame 466.png";
 import broccoli from "./assets/Broccoli.png";
 import tomato from "./assets/Tomato.png";
-import RecipeCard from './components/RecipeCard';
+import RecipeCard from "./components/RecipeCard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Recipe } from "./utils/types/recipe.type";
@@ -17,6 +17,7 @@ import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
 import Link from "next/link";
+import Script from "next/script";
 // import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {
