@@ -6,16 +6,19 @@ import { auth, db } from "@/app/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { User } from "../utils/types/user.type";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   logout: async () => {},
+  refreshAuth: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -24,24 +27,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Get user profile from Firestore
-        const userDoc = await getDoc(
-          doc(db, COLLECTION.users, firebaseUser.uid)
-        );
-        if (userDoc.exists()) {
-          setUser({ ...(userDoc.data() as User), id: userDoc.id });
-        }
-      } else {
-        setUser(null);
+  const fetchUserData = async (firebaseUser: any) => {
+    if (firebaseUser) {
+      // Get user profile from Firestore
+      const userDoc = await getDoc(doc(db, COLLECTION.users, firebaseUser.uid));
+      if (userDoc.exists()) {
+        setUser({ ...(userDoc.data() as User), id: userDoc.id });
       }
-      setLoading(false);
-    });
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, fetchUserData);
     return () => unsubscribe();
   }, []);
+
+  const refreshAuth = async () => {
+    setLoading(true);
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await fetchUserData(currentUser);
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
+  };
 
   const logout = async () => {
     try {
@@ -53,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );
