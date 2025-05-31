@@ -11,6 +11,7 @@ import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider, db } from "../lib/firebase";
 import { FirebaseError } from "firebase/app";
 import { doc, setDoc } from "firebase/firestore";
+import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import {
   Select,
   MenuItem,
@@ -143,28 +144,6 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      // Create/update user profile in Firestore
-      await setDoc(
-        doc(db, "users", result.user.uid),
-        {
-          name: result.user.displayName,
-          email: result.user.email,
-          role: "user",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true }
-      );
-
-      router.push("/");
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
-  };
-
   return (
     <div>
       {loading ? (
@@ -182,7 +161,9 @@ const SignUp = () => {
                   className="flex flex-col w-full space-y-4"
                   onSubmit={handleSignUp}
                 >
-                  <h1 className="font-bold text-3xl text-black text-center md:text-left">Sign Up</h1>
+                  <h1 className="font-bold text-3xl text-black text-center md:text-left">
+                    Sign Up
+                  </h1>
 
                   <TextField
                     label="Full Name"
@@ -225,8 +206,8 @@ const SignUp = () => {
                         height={20}
                       />
                     </button>
-                    </div>
-                    
+                  </div>
+
                   <TextField
                     label="Phone Number"
                     name="phone"
@@ -266,7 +247,7 @@ const SignUp = () => {
 
                   <button
                     type="submit"
-                    className="bg-[#004C30] text-white py-3 px-16 rounded-xl mx-auto my-3" 
+                    className="bg-[#004C30] text-white py-3 px-16 rounded-xl mx-auto my-3"
                   >
                     Sign Up
                   </button>
@@ -281,7 +262,16 @@ const SignUp = () => {
                 <button
                   type="button"
                   className="flex items-center bg-gray-200 text-gray-500 py-3 px-8 rounded-xl"
-                  onClick={handleGoogleSignIn}
+                  onClick={(e) =>
+                    handleGoogleSignIn(
+                      () => {
+                        router.push("/");
+                      },
+                      (error: string) => {
+                        setError(error);
+                      }
+                    )
+                  }
                 >
                   <Image
                     src={google_logo}

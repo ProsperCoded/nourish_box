@@ -8,8 +8,9 @@ import Link from "next/link";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../lib/firebase";
+import { auth, provider, db } from "../lib/firebase";
 import { FirebaseError } from "firebase/app";
+import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ const LogIn = () => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       router.push("/");
     } catch (err: unknown) {
       console.error("Login failed", error);
@@ -54,15 +55,6 @@ const LogIn = () => {
       }
     }
   };
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      router.push("/");
-      console.log("User Info:", result.user);
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
-  };
 
   return (
     <div>
@@ -75,7 +67,7 @@ const LogIn = () => {
           </div>
           <div className="w-full md:w-1/2">
             {error && <p style={{ color: "red" }}>{error}</p>}
-          
+
             <div className="flex w-full items-center justify-center bg-brand-bg_white_clr h-screen md:h-screen">
               {/* <div className=' hidden md:block p-2 md:w-1/3 '>
                             <Image src={Sidebar} alt='side bar' />
@@ -137,7 +129,16 @@ const LogIn = () => {
                 <button
                   type="button"
                   className="flex bg-gray-200 text-gray-500 py-3 px-8 rounded-xl items-center"
-                  onClick={handleGoogleSignIn}
+                  onClick={(e) =>
+                    handleGoogleSignIn(
+                      () => {
+                        router.push("/");
+                      },
+                      (error: string) => {
+                        setError(error);
+                      }
+                    )
+                  }
                 >
                   <Image
                     src={google_logo}
