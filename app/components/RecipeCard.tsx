@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import LoginPrompt from "../components/login_prompt";
+import toast from "react-hot-toast";
 // import clock_green from "../assets/icons8-clock-24.png";
 import {
   Modal,
@@ -17,6 +18,7 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import { useFavorites } from "../contexts/FavContext";
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 import { Heart, Play } from "lucide-react";
 import useMobileVs from "../hooks/useMobileVs";
 import { useRouter } from "next/navigation";
@@ -26,7 +28,8 @@ interface RecipeCardProps {
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { addToCart, loading: cartLoading } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -36,6 +39,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isMobile = useMobileVs();
   const router = useRouter();
+
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       if (!user) return;
@@ -99,6 +103,34 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     }
     e.stopPropagation();
     handleOpen(e);
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user) {
+      handlePopUp();
+      return;
+    }
+
+    try {
+      await addToCart(recipe, count, option);
+      toast.success(`${recipe.name} added to cart!`, {
+        duration: 3000,
+        position: "top-center",
+      });
+      setOpen(false); // Close modal after adding to cart
+
+      // Reset form state for next time
+      setCount(1);
+      setOption("");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add item to cart. Please try again.", {
+        duration: 4000,
+        position: "top-center",
+      });
+    }
   };
 
   const modalStyle = {
@@ -278,7 +310,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                         <div className="rounded-xl border-[1px] border-gray-400 flex p-2 w-[80px] my-2 text-gray-500">
                           <button
                             className="mr-4"
-                            onClick={() => setCount(count - 1)}
+                            onClick={() => setCount(Math.max(1, count - 1))}
                           >
                             -
                           </button>
@@ -305,10 +337,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                   </div>
                   <div className="my-2 mt-4 flex justify-center">
                     <button
-                      className="bg-orange-400 rounded-lg text-white px-5 py-2"
-                      onClick={handlePopUp}
+                      className="bg-orange-400 rounded-lg text-white px-5 py-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      onClick={handleAddToCart}
+                      disabled={cartLoading}
                     >
-                      Add to bag
+                      {cartLoading ? "Adding..." : "Add to bag"}
                     </button>
                   </div>
                 </div>
