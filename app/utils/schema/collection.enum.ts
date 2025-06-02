@@ -3,6 +3,7 @@ export enum COLLECTION {
   users = "users",
   comments = "comments",
   favorites = "favorites",
-  payments = "payments",
+  carts = "carts",
   transactions = "transactions",
+  // payments = "payments",
 }

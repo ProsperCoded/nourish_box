@@ -22,17 +22,3 @@ export type Recipe = {
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format
 };
-
-export type Recipe = {
-  id: string;
-  name: string;
-  description: string;
-  displayMedia: { url: string; publicId: string; type: "image" | "video" };
-
-  duration: string; //seconds
-  price: number; //naira
-  ingredients: string[];
-  difficulty: string;
-  servings: number; // number of servings
-  numberOfIngredients: number;
-};

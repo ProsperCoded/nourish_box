@@ -1,15 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import LoginPrompt from '../components/login_prompt';
+import LoginPrompt from "../components/login_prompt";
+import toast from "react-hot-toast";
 // import clock_green from "../assets/icons8-clock-24.png";
-import { Modal, Box, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
+import {
+  Modal,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
+} from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 
-import { useFavorites } from '../contexts/FavContext';
+import { useFavorites } from "../contexts/FavContext";
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
-import { Heart } from "lucide-react";
+import { useCart } from "../contexts/CartContext";
+import { Heart, Play } from "lucide-react";
 import useMobileVs from "../hooks/useMobileVs";
 import { useRouter } from "next/navigation";
 interface RecipeCardProps {
@@ -18,14 +28,18 @@ interface RecipeCardProps {
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { addToCart, loading: cartLoading } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [option, setOption] = useState<string>('');
+  const [option, setOption] = useState<string>("");
   const [count, setCount] = useState(1);
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const isMobile = useMobileVs();
-  const router = useRouter()
+  const router = useRouter();
+
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       if (!user) return;
@@ -67,7 +81,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     }
   };
 
-
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
   };
@@ -87,45 +100,88 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       router.push(`/recipes/${recipe.id}`);
       e.stopPropagation();
       return;
-
     }
     e.stopPropagation();
     handleOpen(e);
   };
 
-  const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '80%',
-    maxWidth: '1000px',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    maxHeight: '90vh',
-    overflow: 'auto',
-    outline: 'none',
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user) {
+      handlePopUp();
+      return;
+    }
+
+    try {
+      await addToCart(recipe, count, option);
+      toast.success(`${recipe.name} added to cart!`, {
+        duration: 3000,
+        position: "top-center",
+      });
+      setOpen(false); // Close modal after adding to cart
+
+      // Reset form state for next time
+      setCount(1);
+      setOption("");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add item to cart. Please try again.", {
+        duration: 4000,
+        position: "top-center",
+      });
+    }
   };
 
-  // const popUpStyle = {
-  //   ...modalStyle,
-  //   width: { xs: 370, lg: 500 },
-  // }
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "80%",
+    maxWidth: "1000px",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+    maxHeight: "90vh",
+    overflow: "auto",
+    outline: "none",
+  };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isHovered) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isHovered]);
+
   return (
-    <div className="relative bg-white rounded-lg shadow-md overflow-hidden w-[350px] cursor-pointer"
+    <div
+      className="relative bg-white rounded-lg shadow-md overflow-hidden w-[350px] cursor-pointer"
       onClick={handleCardClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-48">
         {recipe.displayMedia.type === "video" ? (
-          <video
-            src={recipe.displayMedia.url}
-            className="object-cover w-full h-full"
-            controls={false}
-            autoPlay
-            muted
-            loop
-          />
+          <>
+            <video
+              ref={videoRef}
+              src={recipe.displayMedia.url}
+              className="object-cover w-full h-full"
+              controls={false}
+              muted
+              loop
+            />
+            {!isHovered && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                <Play className="w-12 h-12 text-white" />
+              </div>
+            )}
+          </>
         ) : (
           <Image
             src={recipe.displayMedia.url}
@@ -141,12 +197,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <button
             onClick={handleFavoriteClick}
             disabled={isLoading}
-            className={`p-2 rounded-full transition-colors ${isFavorited ? "text-red-500" : "text-gray-400"
-              } hover:text-red-500`}
+            className={`p-2 rounded-full transition-colors ${
+              isFavorited ? "text-red-500" : "text-gray-400"
+            } hover:text-red-500`}
           >
-            <Heart
-              className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`}
-            />
+            <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
           </button>
         </div>
         <div className="my-8 mb-4 font-inter">
@@ -154,13 +209,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             <h3 className="mt-2 font-custom font-semibold text-lg">
               {recipe.name}
             </h3>
-
-            {/* <Modal open={open} onClose={handleClose}>
-        <Box sx={modalStyle}>
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/2 md:mr-8 mb-4 md:mb-0">
-              
-          </div> */}
             <Modal
               open={open}
               onClose={handleClose}
@@ -192,6 +240,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 <div className="flex flex-col md:flex-row">
                   {recipe.displayMedia.type === "video" ? (
                     <video
+                      ref={videoRef}
                       src={recipe.displayMedia.url}
                       className="rounded-md w-full max-h-[400px]"
                       controls
@@ -211,7 +260,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                   <div className="flex items-center justify-between ">
                     {/* <button onClick={handleOpen} className="inline-block mt-2 font-inter text-orange-500 text-sm hover:underline" >View Recipe</button> */}
                     {/* <button onClick={() => toogleLiked()}>  <Image src={liked ? filled_liked : liked_empty} alt="like button" width={20} height={20} /></button> */}
-
                   </div>
                 </div>
 
@@ -222,7 +270,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
                   {recipe.ingredients && recipe.ingredients.length > 0 && (
                     <>
-                      <h4 className="text-gray-700 font-semibold font-xl my-4 font-inter">Ingredients</h4>
+                      <h4 className="text-gray-700 font-semibold font-xl my-4 font-inter">
+                        Ingredients
+                      </h4>
                       <ul>
                         {recipe.ingredients.map((ingredient, index) => (
                           <li key={index}>{ingredient}</li>
@@ -233,10 +283,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-700 mt-4 mb-2 font-inter">
-                    How do you want it packaged? (if more than one portion ordered)
+                    How do you want it packaged? (if more than one portion
+                    ordered)
                   </p>
                   <FormControl fullWidth>
-                    <InputLabel id="dropdown-label">Choose an option</InputLabel>
+                    <InputLabel id="dropdown-label">
+                      Choose an option
+                    </InputLabel>
                     <Select
                       labelId="dropdown-label"
                       value={option}
@@ -248,11 +301,26 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                       <MenuItem value="together">Pack as one</MenuItem>
                     </Select>
                     <div className="flex w-full justify-center">
-                      <Stack direction="row" spacing={2} alignItems="center" marginY={2}>
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="center"
+                        marginY={2}
+                      >
                         <div className="rounded-xl border-[1px] border-gray-400 flex p-2 w-[80px] my-2 text-gray-500">
-                          <button className="mr-4" onClick={() => setCount(count - 1)}>-</button>
+                          <button
+                            className="mr-4"
+                            onClick={() => setCount(Math.max(1, count - 1))}
+                          >
+                            -
+                          </button>
                           <p className="font-inter">{count}</p>
-                          <button className="ml-4" onClick={() => setCount(count + 1)}>+</button>
+                          <button
+                            className="ml-4"
+                            onClick={() => setCount(count + 1)}
+                          >
+                            +
+                          </button>
                         </div>
                       </Stack>
                     </div>
@@ -262,30 +330,35 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                   <div>
                     <h4 className="font-custom text-gray-700">Price</h4>
                     <p className="text-2xl font-inter text-gray-800 font-semibold">
-                      {recipe.price ? `NGN ${recipe.price.toLocaleString()}` : 'Price not available'}
+                      {recipe.price
+                        ? `NGN ${recipe.price.toLocaleString()}`
+                        : "Price not available"}
                     </p>
                   </div>
                   <div className="my-2 mt-4 flex justify-center">
-                    <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={handlePopUp}>
-                      Add to bag
+                    <button
+                      className="bg-orange-400 rounded-lg text-white px-5 py-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      onClick={handleAddToCart}
+                      disabled={cartLoading}
+                    >
+                      {cartLoading ? "Adding..." : "Add to bag"}
                     </button>
-                   
                   </div>
                 </div>
               </Box>
             </Modal>
           </div>
-        </div >
+        </div>
         <Modal
           open={showPopUp}
           onClose={handleClosePopUp}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-         <LoginPrompt main_text="Sign in to Skip the hassle "/>
+          <LoginPrompt main_text="Sign in to Skip the hassle " />
         </Modal>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 
