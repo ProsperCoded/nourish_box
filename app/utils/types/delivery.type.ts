@@ -1,6 +1,6 @@
 export type Delivery = {
-  transactionId: string;
   deliveryId: string;
+  transactionId?: string; // Optional, will be set after transaction creation
   deliveryName: string;
   deliveryEmail: string;
   deliveryPhone: string;

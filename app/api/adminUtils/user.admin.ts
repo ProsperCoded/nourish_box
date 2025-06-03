@@ -28,7 +28,11 @@ export async function isAdmin(userId: string | undefined): Promise<boolean> {
   }
 }
 
-export async function getUserById(userId: string) {
+export async function getUserById(userId: string | null) {
+  if (!userId) {
+    console.warn("getUserById check failed: userId is null.");
+    return null;
+  }
   const userDocRef = adminDb.collection(COLLECTION.users).doc(userId);
   const userDoc = await userDocRef.get();
   return userDoc.data() as User;

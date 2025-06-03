@@ -12,6 +12,7 @@ export type Transaction = {
   status: TransactionStatus;
   paymentMethod: string; // e.g. "card", "bank transfer", etc.
   recipes: string[]; // array of recipe IDs
+  deliveryId: string;
   paymentDate: string; // date in ISO format
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format

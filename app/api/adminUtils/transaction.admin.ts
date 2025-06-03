@@ -5,7 +5,7 @@ import { COLLECTION } from "@/app/utils/schema/collection.enum";
 export async function createTransaction(transaction: Partial<Transaction>) {
   try {
     // Validate transaction data
-    if (!transaction.userId || !transaction.amount) {
+    if (!transaction.email || !transaction.amount) {
       throw new Error("Invalid transaction data: missing required fields");
     }
 
@@ -21,6 +21,8 @@ export async function createTransaction(transaction: Partial<Transaction>) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+
+    console.log("transactionWithTimestamp:", transactionWithTimestamp);
 
     await transactionDocRef.set(transactionWithTimestamp);
 
