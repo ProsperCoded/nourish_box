@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/app/lib/firebase-admin";
+import { adminDb } from "@/app/api/lib/firebase-admin";
 import { Recipe } from "@/app/utils/types/recipe.type";
-import { isAdmin } from "@/app/api/utils/authUtils";
+import { isAdmin } from "@/app/api/adminUtils/user.admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { paystackConfig } from "../../utils/config.env";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${paystackConfig.secretKey}`,
           "Content-Type": "application/json",
         },
       }

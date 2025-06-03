@@ -1,13 +1,14 @@
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
+import { cloudinaryConfig } from "../utils/config.env";
 
 const config = {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: cloudinaryConfig.cloudName,
+  api_key: cloudinaryConfig.apiKey,
+  api_secret: cloudinaryConfig.apiSecret,
   secure: true,
-}
-console.log('cloudinary config', config)
+};
+console.log("cloudinary config", { ...config, api_secret: "[HIDDEN]" }); // Hide secret in logs
 cloudinary.config(config);
 
 export class StorageService {
@@ -15,12 +16,16 @@ export class StorageService {
     fileBuffer: Buffer,
     fileName: string,
     folder: string = "nourish_box"
-  ): Promise<{ public_id: string; url: string; resource_type: "image" | "video" }> {
+  ): Promise<{
+    public_id: string;
+    url: string;
+    resource_type: "image" | "video";
+  }> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: folder,
-          public_id: fileName.split('.')[0] || fileName, // Use filename without extension as public_id
+          public_id: fileName.split(".")[0] || fileName, // Use filename without extension as public_id
           resource_type: "auto", // Automatically detect if it's an image or video
         },
         (error, result) => {
@@ -29,7 +34,9 @@ export class StorageService {
             return reject(error);
           }
           if (!result) {
-            return reject(new Error("Cloudinary upload failed, no result returned."));
+            return reject(
+              new Error("Cloudinary upload failed, no result returned.")
+            );
           }
           resolve({
             public_id: result.public_id,
@@ -46,9 +53,14 @@ export class StorageService {
     });
   }
 
-  async deleteMedia(publicId: string, resourceType: "image" | "video" | "raw" = "image"): Promise<void> {
+  async deleteMedia(
+    publicId: string,
+    resourceType: "image" | "video" | "raw" = "image"
+  ): Promise<void> {
     try {
-      await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType,
+      });
     } catch (error) {
       console.error("Cloudinary Delete Error:", error);
       // Decide if you want to throw the error or handle it, e.g. log and continue
