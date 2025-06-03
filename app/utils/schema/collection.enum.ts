@@ -5,6 +5,6 @@ export enum COLLECTION {
   favorites = "favorites",
   carts = "carts",
   transactions = "transactions",
-  // payments = "payments",
+  orders = "orders",
   deliveries = "deliveries",
 }

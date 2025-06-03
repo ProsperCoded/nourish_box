@@ -1,18 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { paystackConfig } from "../../utils/config.env";
+import { ResponseDto } from "@/app/api/response.dto";
+import {
+  getTransactionByReference,
+  updateTransaction,
+} from "@/app/api/adminUtils/transaction.admin";
+import { createOrder } from "@/app/api/adminUtils/order.admin";
+import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
+import {
+  TransactionStatus,
+  Transaction,
+} from "@/app/utils/types/transaction.type";
+import {
+  Payment,
+  PaymentStatus,
+  DeliveryStatus,
+} from "@/app/utils/types/order.type";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const reference = searchParams.get("reference");
+  const transactionId = searchParams.get("transactionId");
 
   if (!reference) {
-    return NextResponse.json(
-      { error: "Payment reference is required", success: false },
-      { status: 400 }
-    );
+    return ResponseDto.createErrorResponse("Payment reference is required", {
+      statusCode: 400,
+    });
   }
 
   try {
+    // Get transaction from database by reference
+    const transaction = await getTransactionByReference(reference);
+    if (!transaction) {
+      return ResponseDto.createErrorResponse("Transaction not found", {
+        statusCode: 404,
+      });
+    }
+
     // Verify payment with Paystack
     const paystackRes = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
@@ -25,54 +49,129 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const data = await paystackRes.json();
+    const paystackData = await paystackRes.json();
 
     if (!paystackRes.ok) {
-      console.error("Paystack verification failed:", data);
-      return NextResponse.json(
-        {
-          error: data.message || "Payment verification failed",
-          success: false,
-        },
-        { status: 400 }
+      console.error("Paystack verification failed:", paystackData);
+      return ResponseDto.createErrorResponse(
+        paystackData.message || "Payment verification failed",
+        { statusCode: 400 }
       );
     }
 
     // Check if payment was successful
-    const isSuccessful = data.status && data.data.status === "success";
+    const isSuccessful =
+      paystackData.status && paystackData.data.status === "success";
 
     if (isSuccessful) {
-      // You can add additional logic here like:
-      // - Save transaction to database
-      // - Send confirmation email
-      // - Update order status
-
-      return NextResponse.json({
-        success: true,
-        message: "Payment verified successfully",
-        data: {
-          reference: data.data.reference,
-          amount: data.data.amount / 100, // Convert back from kobo to naira
-          status: data.data.status,
-          customer: data.data.customer,
-          paid_at: data.data.paid_at,
-        },
+      // Update transaction status to successful
+      await updateTransaction(transaction.id!, {
+        status: TransactionStatus.SUCCESS,
+        paymentMethod: paystackData.data.channel || "card",
+        paymentDate: paystackData.data.paid_at || new Date().toISOString(),
       });
-    } else {
-      return NextResponse.json(
-        {
-          error: "Payment verification failed",
-          success: false,
-          status: data.data?.status || "unknown",
-        },
-        { status: 400 }
+
+      // Create separate orders for each recipe
+      const orderPromises = transaction.recipes.map(
+        async (recipeId: string) => {
+          try {
+            // Get recipe to calculate individual price
+            const recipe = await getRecipeById(recipeId);
+            if (!recipe) {
+              console.error(`Recipe not found: ${recipeId}`);
+              return null;
+            }
+
+            const orderData: Partial<Payment> = {
+              ...(transaction.userId && { userId: transaction.userId }),
+              recipeId: recipeId,
+              amount: recipe.price, // Individual recipe price
+              status: PaymentStatus.COMPLETED,
+              deliveryId: transaction.deliveryId,
+              deliveryStatus: DeliveryStatus.PENDING,
+              deliveryDate: "", // Will be set when delivered
+              deliveryDurationRange: "2-3 days",
+              transactionId: transaction.id!,
+            };
+
+            const orderResult = await createOrder(orderData);
+            console.log(
+              `Order created for recipe ${recipeId}: ${orderResult.id}`
+            );
+            return orderResult;
+          } catch (error) {
+            console.error(
+              `Error creating order for recipe ${recipeId}:`,
+              error
+            );
+            return null;
+          }
+        }
       );
+
+      const orderResults = await Promise.allSettled(orderPromises);
+      const successfulOrders = orderResults.filter(
+        (result) => result.status === "fulfilled" && result.value !== null
+      ).length;
+
+      const failedOrders = orderResults.filter(
+        (result) => result.status === "rejected" || result.value === null
+      ).length;
+
+      console.log(
+        `Created ${successfulOrders} orders successfully, ${failedOrders} failed`
+      );
+
+      return ResponseDto.createSuccessResponse(
+        "Payment verified successfully",
+        {
+          reference: paystackData.data.reference,
+          amount: paystackData.data.amount / 100, // Convert back from kobo to naira
+          status: paystackData.data.status,
+          customer: paystackData.data.customer,
+          paid_at: paystackData.data.paid_at,
+          transaction: {
+            id: transaction.id,
+            status: TransactionStatus.SUCCESS,
+            deliveryId: transaction.deliveryId,
+          },
+          orders: {
+            total: transaction.recipes.length,
+            successful: successfulOrders,
+            failed: failedOrders,
+          },
+        }
+      );
+    } else {
+      // Update transaction status to failed
+      await updateTransaction(transaction.id!, {
+        status: TransactionStatus.FAILED,
+      });
+
+      return ResponseDto.createErrorResponse("Payment verification failed", {
+        statusCode: 400,
+      });
     }
   } catch (error) {
     console.error("Error verifying payment:", error);
-    return NextResponse.json(
-      { error: "Internal server error", success: false },
-      { status: 500 }
-    );
+
+    // Try to update transaction status to failed if we have the transaction
+    try {
+      const transaction = await getTransactionByReference(reference);
+      if (transaction && transaction.id) {
+        await updateTransaction(transaction.id, {
+          status: TransactionStatus.FAILED,
+        });
+      }
+    } catch (updateError) {
+      console.error(
+        "Error updating transaction status to failed:",
+        updateError
+      );
+    }
+
+    return ResponseDto.createErrorResponse("Internal server error", {
+      statusCode: 500,
+    });
   }
 }

@@ -41,12 +41,47 @@ export async function getTransaction(transactionId: string) {
   return transactionDoc.data() as Transaction;
 }
 
+export async function getTransactionByReference(
+  reference: string
+): Promise<Transaction | null> {
+  try {
+    const transactionQuery = await adminDb
+      .collection(COLLECTION.transactions)
+      .where("reference", "==", reference)
+      .limit(1)
+      .get();
+
+    if (transactionQuery.empty) {
+      return null;
+    }
+
+    const transactionDoc = transactionQuery.docs[0];
+    return {
+      id: transactionDoc.id,
+      ...transactionDoc.data(),
+    } as Transaction;
+  } catch (error) {
+    console.error("Error getting transaction by reference:", error);
+    throw new Error("Failed to get transaction by reference");
+  }
+}
+
 export async function updateTransaction(
   transactionId: string,
-  transaction: Transaction
+  updateData: Partial<Transaction>
 ) {
-  const transactionDocRef = adminDb
-    .collection(COLLECTION.transactions)
-    .doc(transactionId);
-  await transactionDocRef.update(transaction);
+  try {
+    const timestamp = new Date().toISOString();
+
+    await adminDb
+      .collection(COLLECTION.transactions)
+      .doc(transactionId)
+      .update({
+        ...updateData,
+        updatedAt: timestamp,
+      });
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    throw new Error("Failed to update transaction");
+  }
 }
