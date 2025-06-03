@@ -22,7 +22,7 @@ interface PaystackResponse {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   console.log("request body:", body);
-  const { amount, recipes, userId } = body;
+  const { amount, recipes, userId, delivery } = body;
   try {
     const user = await getUserById(userId);
     if (!user) {

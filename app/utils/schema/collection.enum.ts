@@ -6,4 +6,5 @@ export enum COLLECTION {
   carts = "carts",
   transactions = "transactions",
   // payments = "payments",
+  deliveries = "deliveries",
 }
