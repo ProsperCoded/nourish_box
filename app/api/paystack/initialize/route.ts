@@ -5,6 +5,7 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 import { getUserById } from "@/app/api/adminUtils/user.admin";
 import { createTransaction } from "@/app/api/adminUtils/transaction.admin";
+import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
 import { paystackConfig } from "../../utils/config.env";
 import { ResponseDto } from "@/app/api/response.dto";
 
@@ -23,8 +24,8 @@ export async function POST(request: NextRequest) {
   console.log("request body:", body);
   const { amount, recipes, userId } = body;
   try {
-    const { email } = await getUserById(userId);
-    if (!email) {
+    const user = await getUserById(userId);
+    if (!user) {
       return ResponseDto.createErrorResponse("User not found", {
         statusCode: 404,
       });
@@ -34,6 +35,27 @@ export async function POST(request: NextRequest) {
         statusCode: 400,
       });
     }
+
+    // Validate that all recipes exist
+    const recipeValidationPromises = recipes.map(async (recipeId: string) => {
+      const recipe = await getRecipeById(recipeId);
+      return { recipeId, exists: !!recipe };
+    });
+
+    const recipeValidationResults = await Promise.all(recipeValidationPromises);
+    const invalidRecipes = recipeValidationResults.filter(
+      (result) => !result.exists
+    );
+
+    if (invalidRecipes.length > 0) {
+      return ResponseDto.createErrorResponse(
+        `Invalid recipes found: ${invalidRecipes
+          .map((r) => r.recipeId)
+          .join(", ")}`,
+        { statusCode: 400 }
+      );
+    }
+
     const paystackRes = await fetch(
       "https://api.paystack.co/transaction/initialize",
       {
@@ -43,8 +65,8 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          amount: amount, // already in kobo
+          email: user.email,
+          amount: amount * 100, // convert to kobo
           metadata: {
             recipes,
           },
@@ -53,15 +75,14 @@ export async function POST(request: NextRequest) {
     );
 
     const paystackResponse = (await paystackRes.json()) as PaystackResponse;
+    console.log("paystack response:", paystackResponse);
     const transaction: Partial<Transaction> = {
       userId: userId as string,
-      email,
+      email: user.email,
       amount,
       recipes,
       status: TransactionStatus.PENDING,
       reference: paystackResponse.data.reference,
-      // paymentMethod: data.data.payment_method,
-      // paymentDate: data.data.payment_date,
     };
     const { id: transactionId } = await createTransaction(transaction);
 

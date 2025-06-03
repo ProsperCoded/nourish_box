@@ -87,8 +87,8 @@ class ConfigValidator {
         },
         paystack: {
           secretKey: this.validateEnvVar(
-            "PAYSTACK_SECRET_KEY",
-            process.env.PAYSTACK_SECRET_KEY
+            "PAYSTACK_SECRETE_KEY",
+            process.env.PAYSTACK_SECRETE_KEY
           ),
           publicKey: this.validateEnvVar(
             "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY",

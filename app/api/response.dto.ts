@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 export class ResponseDto<T = any> {
   constructor(
     public message: string,
@@ -13,8 +15,8 @@ export class ResponseDto<T = any> {
   public static createSuccessResponse<T>(
     message: string,
     data?: T
-  ): ResponseDto<T> {
-    return new ResponseDto<T>(message, 200, data);
+  ): NextResponse<ResponseDto<T>> {
+    return NextResponse.json(new ResponseDto<T>(message, 200, data));
   }
 
   public static createErrorResponse<T>(
@@ -24,12 +26,9 @@ export class ResponseDto<T = any> {
       name?: string;
       statusCode?: number;
     }
-  ): ResponseDto<T> {
-    return new ResponseDto<T>(
-      message,
-      error?.statusCode || 500,
-      undefined,
-      error
+  ): NextResponse<ResponseDto<T>> {
+    return NextResponse.json(
+      new ResponseDto<T>(message, error?.statusCode || 500, undefined, error)
     );
   }
 }
