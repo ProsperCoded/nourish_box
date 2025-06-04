@@ -9,7 +9,6 @@ import { createOrder } from "@/app/api/adminUtils/order.admin";
 import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
 import {
   TransactionStatus,
-  Transaction,
 } from "@/app/utils/types/transaction.type";
 import {
   Payment,
@@ -21,11 +20,13 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const reference = searchParams.get("reference");
   const transactionId = searchParams.get("transactionId");
-
-  if (!reference) {
-    return ResponseDto.createErrorResponse("Payment reference is required", {
-      statusCode: 400,
-    });
+  if (!reference || !transactionId) {
+    return ResponseDto.createErrorResponse(
+      "reference or transactionId is required",
+      {
+        statusCode: 400,
+      }
+    );
   }
 
   try {
