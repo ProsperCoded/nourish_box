@@ -1,31 +1,63 @@
+// Types
 interface Config {
-  // Firebase Configuration
-  firebase: {
-    projectId: string;
-    clientEmail: string;
-    privateKey: string;
-  };
-
-  // Cloudinary Configuration
-  cloudinary: {
-    cloudName: string;
-    apiKey: string;
-    apiSecret: string;
-  };
-
-  // Paystack Configuration
-  paystack: {
-    secretKey: string;
-    publicKey: string;
-  };
+  firebase: FirebaseConfig;
+  cloudinary: CloudinaryConfig;
+  paystack: PaystackConfig;
 }
+
+interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
+  clientEmail: string;
+  privateKey: string;
+}
+
+interface CloudinaryConfig {
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+}
+
+interface PaystackConfig {
+  secretKey: string;
+  publicKey: string;
+}
+
+// Environment variable names
+const ENV_VARS = {
+  firebase: {
+    apiKey: "NEXT_PUBLIC_FIREBASE_API_KEY",
+    authDomain: "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+    projectId: "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+    storageBucket: "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+    messagingSenderId: "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+    appId: "NEXT_PUBLIC_FIREBASE_APP_ID",
+    measurementId: "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID",
+    clientEmail: "FIREBASE_CLIENT_EMAIL",
+    privateKey: "FIREBASE_PRIVATE_KEY",
+  },
+  cloudinary: {
+    cloudName: "CLOUDINARY_CLOUD_NAME",
+    apiKey: "CLOUDINARY_API_KEY",
+    apiSecret: "CLOUDINARY_API_SECRET",
+  },
+  paystack: {
+    secretKey: "PAYSTACK_SECRETE_KEY",
+    publicKey: "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY",
+  },
+} as const;
 
 class ConfigValidator {
   private static validateEnvVar(
     name: string,
     value: string | undefined
   ): string {
-    if (!value || value.trim() === "") {
+    if (!value?.trim()) {
       throw new Error(`❌ Missing required environment variable: ${name}`);
     }
     return value.trim();
@@ -40,9 +72,7 @@ class ConfigValidator {
       );
     }
 
-    // Replace \\n with actual newlines for Firebase private key
     const formattedKey = privateKey.replace(/\\n/g, "\n");
-
     if (
       !formattedKey.includes("-----BEGIN PRIVATE KEY-----") ||
       !formattedKey.includes("-----END PRIVATE KEY-----")
@@ -53,84 +83,98 @@ class ConfigValidator {
     return formattedKey;
   }
 
+  private static validateFirebaseConfig(): FirebaseConfig {
+    return {
+      apiKey: this.validateEnvVar(
+        ENV_VARS.firebase.apiKey,
+        process.env[ENV_VARS.firebase.apiKey]
+      ),
+      authDomain: this.validateEnvVar(
+        ENV_VARS.firebase.authDomain,
+        process.env[ENV_VARS.firebase.authDomain]
+      ),
+      projectId: this.validateEnvVar(
+        ENV_VARS.firebase.projectId,
+        process.env[ENV_VARS.firebase.projectId]
+      ),
+      storageBucket: this.validateEnvVar(
+        ENV_VARS.firebase.storageBucket,
+        process.env[ENV_VARS.firebase.storageBucket]
+      ),
+      messagingSenderId: this.validateEnvVar(
+        ENV_VARS.firebase.messagingSenderId,
+        process.env[ENV_VARS.firebase.messagingSenderId]
+      ),
+      appId: this.validateEnvVar(
+        ENV_VARS.firebase.appId,
+        process.env[ENV_VARS.firebase.appId]
+      ),
+      measurementId: this.validateEnvVar(
+        ENV_VARS.firebase.measurementId,
+        process.env[ENV_VARS.firebase.measurementId]
+      ),
+      clientEmail: this.validateEnvVar(
+        ENV_VARS.firebase.clientEmail,
+        process.env[ENV_VARS.firebase.clientEmail]
+      ),
+      privateKey: this.validateFirebasePrivateKey(
+        process.env[ENV_VARS.firebase.privateKey]
+      ),
+    };
+  }
+
+  private static validateCloudinaryConfig(): CloudinaryConfig {
+    return {
+      cloudName: this.validateEnvVar(
+        ENV_VARS.cloudinary.cloudName,
+        process.env[ENV_VARS.cloudinary.cloudName]
+      ),
+      apiKey: this.validateEnvVar(
+        ENV_VARS.cloudinary.apiKey,
+        process.env[ENV_VARS.cloudinary.apiKey]
+      ),
+      apiSecret: this.validateEnvVar(
+        ENV_VARS.cloudinary.apiSecret,
+        process.env[ENV_VARS.cloudinary.apiSecret]
+      ),
+    };
+  }
+
+  private static validatePaystackConfig(): PaystackConfig {
+    return {
+      secretKey: this.validateEnvVar(
+        ENV_VARS.paystack.secretKey,
+        process.env[ENV_VARS.paystack.secretKey]
+      ),
+      publicKey: this.validateEnvVar(
+        ENV_VARS.paystack.publicKey,
+        process.env[ENV_VARS.paystack.publicKey]
+      ),
+    };
+  }
+
   public static validate(): Config {
     console.log("🔧 Validating environment variables...");
 
     try {
       const config: Config = {
-        firebase: {
-          projectId: this.validateEnvVar(
-            "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
-            process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-          ),
-          clientEmail: this.validateEnvVar(
-            "FIREBASE_CLIENT_EMAIL",
-            process.env.FIREBASE_CLIENT_EMAIL
-          ),
-          privateKey: this.validateFirebasePrivateKey(
-            process.env.FIREBASE_PRIVATE_KEY
-          ),
-        },
-        cloudinary: {
-          cloudName: this.validateEnvVar(
-            "CLOUDINARY_CLOUD_NAME",
-            process.env.CLOUDINARY_CLOUD_NAME
-          ),
-          apiKey: this.validateEnvVar(
-            "CLOUDINARY_API_KEY",
-            process.env.CLOUDINARY_API_KEY
-          ),
-          apiSecret: this.validateEnvVar(
-            "CLOUDINARY_API_SECRET",
-            process.env.CLOUDINARY_API_SECRET
-          ),
-        },
-        paystack: {
-          secretKey: this.validateEnvVar(
-            "PAYSTACK_SECRETE_KEY",
-            process.env.PAYSTACK_SECRETE_KEY
-          ),
-          publicKey: this.validateEnvVar(
-            "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY",
-            process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
-          ),
-        },
+        firebase: this.validateFirebaseConfig(),
+        cloudinary: this.validateCloudinaryConfig(),
+        paystack: this.validatePaystackConfig(),
       };
 
       console.log("✅ All environment variables validated successfully");
-      console.log("🔧 Configuration loaded for:");
-      console.log(`   📦 Firebase Project: ${config.firebase.projectId}`);
-      console.log(`   ☁️  Cloudinary Cloud: ${config.cloudinary.cloudName}`);
-      console.log(`   💳 Paystack: Configured`);
-
       return config;
     } catch (error) {
       console.error("💥 Configuration validation failed:");
-      console.error(error instanceof Error ? error.message : error);
-      console.error("\n📋 Required environment variables:");
-      console.error("   🔥 NEXT_PUBLIC_FIREBASE_PROJECT_ID");
-      console.error("   🔥 FIREBASE_CLIENT_EMAIL");
-      console.error("   🔥 FIREBASE_PRIVATE_KEY");
-      console.error("   ☁️  CLOUDINARY_CLOUD_NAME");
-      console.error("   ☁️  CLOUDINARY_API_KEY");
-      console.error("   ☁️  CLOUDINARY_API_SECRET");
-      console.error("   💳 PAYSTACK_SECRET_KEY");
-      console.error("\n🔗 Please check your .env.local file\n");
-
-      // In development, we'll throw to stop the application
-      // In production, you might want to handle this differently
       throw error;
     }
   }
 }
 
-// Validate and export the configuration immediately
-export const config = ConfigValidator.validate();
-
-// Export individual configurations for easy access
+// Initialize and export configurations
+const config = ConfigValidator.validate();
 export const firebaseConfig = config.firebase;
 export const cloudinaryConfig = config.cloudinary;
 export const paystackConfig = config.paystack;
-
-// Export the full config as default
 export default config;
