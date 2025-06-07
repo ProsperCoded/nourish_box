@@ -1,23 +1,18 @@
 import { adminDb } from "@/app/api/lib/firebase-admin";
-import {
-  Payment,
-  PaymentStatus,
-  DeliveryStatus,
-} from "@/app/utils/types/order.type";
+import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
 
 /**
- * Create a new order/payment document
+ * Create a new order/Orders document
  */
 export async function createOrder(
-  orderData: Partial<Payment>
+  orderData: Partial<Order>
 ): Promise<{ id: string }> {
   try {
     const timestamp = new Date().toISOString();
 
-    const order: Partial<Payment> = {
+    const order: Partial<Order> = {
       ...orderData,
-      status: orderData.status || PaymentStatus.PENDING,
       deliveryStatus: orderData.deliveryStatus || DeliveryStatus.PENDING,
       deliveryDurationRange: orderData.deliveryDurationRange || "2-3 days",
       deliveryDate: orderData.deliveryDate || "", // Will be set when delivered
@@ -37,7 +32,7 @@ export async function createOrder(
 /**
  * Get order by ID
  */
-export async function getOrderById(orderId: string): Promise<Payment | null> {
+export async function getOrderById(orderId: string): Promise<Order | null> {
   try {
     const orderDoc = await adminDb
       .collection(COLLECTION.orders)
@@ -51,7 +46,7 @@ export async function getOrderById(orderId: string): Promise<Payment | null> {
     return {
       id: orderDoc.id,
       ...orderDoc.data(),
-    } as Payment;
+    } as Order;
   } catch (error) {
     console.error("Error getting order by ID:", error);
     throw new Error("Failed to get order document");
@@ -63,7 +58,7 @@ export async function getOrderById(orderId: string): Promise<Payment | null> {
  */
 export async function updateOrder(
   orderId: string,
-  updateData: Partial<Payment>
+  updateData: Partial<Order>
 ): Promise<void> {
   try {
     const timestamp = new Date().toISOString();
@@ -86,7 +81,7 @@ export async function updateOrder(
  */
 export async function getOrdersByTransactionId(
   transactionId: string
-): Promise<Payment[]> {
+): Promise<Order[]> {
   try {
     const ordersQuery = await adminDb
       .collection(COLLECTION.orders)
@@ -96,7 +91,7 @@ export async function getOrdersByTransactionId(
     return ordersQuery.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Payment[];
+    })) as Order[];
   } catch (error) {
     console.error("Error getting orders by transaction ID:", error);
     throw new Error("Failed to get orders by transaction ID");
@@ -106,7 +101,7 @@ export async function getOrdersByTransactionId(
 /**
  * Get orders by user ID
  */
-export async function getOrdersByUserId(userId: string): Promise<Payment[]> {
+export async function getOrdersByUserId(userId: string): Promise<Order[]> {
   try {
     const ordersQuery = await adminDb
       .collection(COLLECTION.orders)
@@ -117,7 +112,7 @@ export async function getOrdersByUserId(userId: string): Promise<Payment[]> {
     return ordersQuery.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Payment[];
+    })) as Order[];
   } catch (error) {
     console.error("Error getting orders by user ID:", error);
     throw new Error("Failed to get orders by user ID");
