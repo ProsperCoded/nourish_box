@@ -9,7 +9,7 @@ export type Recipe = {
     variant: string;
     media: { url: string; publicId: string; type: "image" | "video" };
   }[];
-  duration: string; //seconds
+  duration: number; //seconds
   price: number; //naira
   ingredients: string[];
   difficulty: string;

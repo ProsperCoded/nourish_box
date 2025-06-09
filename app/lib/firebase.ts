@@ -11,10 +11,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-console.log("envs", firebaseConfig);
+console.log("Firebase config loaded:", firebaseConfig);
+console.log("Storage bucket:", firebaseConfig.storageBucket);
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Log storage initialization
+console.log("Firebase Storage initialized:", !!storage);
+console.log("Storage app:", storage.app.name);
 
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();

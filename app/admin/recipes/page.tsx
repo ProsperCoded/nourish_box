@@ -1,9 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, orderBy, query } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { db, storage } from "../../lib/firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  addDoc,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { db } from "../../lib/firebase";
 import { COLLECTION } from "../../utils/schema/collection.enum";
 import { Recipe } from "../../utils/types/recipe.type";
 import { v4 as uuidv4 } from "uuid";
@@ -33,12 +41,10 @@ export default function RecipesManagement() {
 
   useEffect(() => {
     fetchRecipes().then((recipes) => {
-      console.log('recipes', recipes)
+      console.log("recipes", recipes);
       setRecipes(recipes);
     });
   }, []);
-
-
 
   const handleEditRecipe = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -57,33 +63,47 @@ export default function RecipesManagement() {
 
   const confirmDeleteRecipe = async () => {
     if (!recipeToDelete) return;
-    
+
     setLoading(true);
     try {
-      if (recipeToDelete.displayUrl) {
+      // Delete display media if it exists
+      if (recipeToDelete.displayMedia?.publicId) {
         try {
-          const displayRef = ref(storage, recipeToDelete.displayUrl);
-          await deleteObject(displayRef);
+          const { storageService } = await import(
+            "../../api/storage/storage.service"
+          );
+          await storageService.deleteMedia(
+            recipeToDelete.displayMedia.publicId,
+            recipeToDelete.displayMedia.type || "image"
+          );
         } catch (error) {
-          console.warn("Error deleting display file:", error); // Use warn for non-critical deletion errors
+          console.warn("Error deleting display media:", error);
         }
       }
 
+      // Delete sample media if they exist
       if (recipeToDelete.samples && recipeToDelete.samples.length > 0) {
+        const { storageService } = await import(
+          "../../api/storage/storage.service"
+        );
         await Promise.all(
           recipeToDelete.samples.map(async (sample) => {
             try {
-              const sampleRef = ref(storage, sample.image);
-              await deleteObject(sampleRef);
+              if (sample.media?.publicId) {
+                await storageService.deleteMedia(
+                  sample.media.publicId,
+                  sample.media.type || "image"
+                );
+              }
             } catch (error) {
-              console.warn("Error deleting sample file:", error); // Use warn
+              console.warn("Error deleting sample media:", error);
             }
           })
         );
       }
 
       await deleteDoc(doc(db, COLLECTION.recipes, recipeToDelete.id));
-      await fetchRecipes().then(setRecipes); // Re-fetch and update recipes
+      await fetchRecipes().then(setRecipes);
       setIsDeleteAlertOpen(false);
       setRecipeToDelete(null);
     } catch (error) {
@@ -137,13 +157,16 @@ export default function RecipesManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the recipe
+              This action cannot be undone. This will permanently delete the
+              recipe
               <span className="font-semibold"> {recipeToDelete?.name} </span>
               and all its associated files from the servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setRecipeToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setRecipeToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteRecipe}
               className="bg-red-600 hover:bg-red-700"
@@ -156,4 +179,4 @@ export default function RecipesManagement() {
       </AlertDialog>
     </div>
   );
-} 
+}
