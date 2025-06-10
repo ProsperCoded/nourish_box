@@ -8,6 +8,8 @@ import User_profile from '../components/user_profile';
 import Order from '../components/order';
 import { useRouter } from 'next/navigation';
 import return_btn from '../assets/icons8-left-arrow-50.png';
+import { motion, AnimatePresence } from 'framer-motion';
+
 type SidebarItem = {
     id: string;
     title: string;
@@ -66,6 +68,20 @@ const Profile = () => {
                     </div>
 
 
+                </div>
+                <div className='w-3/4 relative overflow-hidden'>
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={activeElement}
+                            initial={{ x: 300, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -300, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className='absolute w-full'
+                        >
+                            {sideBarElement?.content}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </div>
         </div>
