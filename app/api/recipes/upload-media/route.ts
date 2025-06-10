@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storageService } from "@/app/api/storage/storage.service";
-import { isAdmin } from "@/app/api/utils/authUtils";
+import { isAdmin } from "@/app/api/adminUtils/user.admin";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +18,10 @@ export async function POST(request: NextRequest) {
     const userIsAdmin = await isAdmin(userId);
     if (!userIsAdmin) {
       return NextResponse.json(
-        { success: false, message: "Forbidden: User does not have admin privileges." },
+        {
+          success: false,
+          message: "Forbidden: User does not have admin privileges.",
+        },
         { status: 403 }
       );
     }
@@ -30,18 +33,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "video/mp4",
+      "video/webm",
+    ];
     if (!allowedTypes.includes(file.type)) {
-        return NextResponse.json(
-            { success: false, message: `Invalid file type: ${file.type}. Allowed types: ${allowedTypes.join(", ")}` },
-            { status: 400 }
-        );
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Invalid file type: ${
+            file.type
+          }. Allowed types: ${allowedTypes.join(", ")}`,
+        },
+        { status: 400 }
+      );
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadResult = await storageService.uploadMedia(buffer, file.name + (new Date()).getTime().toString(), "nourish_box/recipes");
+    const uploadResult = await storageService.uploadMedia(
+      buffer,
+      file.name + new Date().getTime().toString(),
+      "nourish_box/recipes"
+    );
 
     return NextResponse.json({
       success: true,
@@ -52,10 +71,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Media upload error:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     return NextResponse.json(
-      { success: false, message: "Error uploading media.", error: errorMessage },
+      {
+        success: false,
+        message: "Error uploading media.",
+        error: errorMessage,
+      },
       { status: 500 }
     );
   }
-} 
+}

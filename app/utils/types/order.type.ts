@@ -19,13 +19,7 @@ export type Payment = {
   amount: number; //naira
   status: PaymentStatus;
 
-  // deliver info
-  deliveryAddress: string;
-  deliveryPhone1: string;
-  deliveryPhone2?: string; // optional
-  deliveryName: string;
-  deliveryEmail: string;
-  deliveryNote?: string; // extra note for delivery
+  deliveryId: string;
 
   deliveryStatus: DeliveryStatus;
   deliveryDate: string; // date in ISO format

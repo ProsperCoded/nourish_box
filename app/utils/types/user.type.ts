@@ -4,6 +4,8 @@ export type User = {
   email: string;
   phone: string;
   address: string;
+  city: string;
+  state: string;
   role: "admin" | "user";
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format
