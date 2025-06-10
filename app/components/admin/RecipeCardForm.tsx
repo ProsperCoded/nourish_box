@@ -25,6 +25,37 @@ interface RecipeCardFormProps {
   onCancel: () => void;
 }
 
+// Utility functions for number formatting
+const formatNumberWithCommas = (num: number | string): string => {
+  const cleanNum = String(num).replace(/[^\d]/g, "");
+  if (!cleanNum) return "";
+  return Number(cleanNum).toLocaleString();
+};
+
+const parseFormattedNumber = (formattedStr: string): number => {
+  const cleanStr = formattedStr.replace(/[^\d]/g, "");
+  return cleanStr ? Number(cleanStr) : 0;
+};
+
+const formatDurationDisplay = (minutes: number): string => {
+  if (minutes === 0) return "";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  if (remainingMinutes === 0) return `${hours}h`;
+  return `${hours}h ${remainingMinutes}m`;
+};
+
+// Duration presets in minutes
+const DURATION_PRESETS = [
+  { label: "30 min", minutes: 30 },
+  { label: "1 hr", minutes: 60 },
+  { label: "1.5 hr", minutes: 90 },
+  { label: "2 hr", minutes: 120 },
+  { label: "3 hr", minutes: 180 },
+  { label: "5 hr", minutes: 300 },
+];
+
 export function RecipeCardForm({
   recipe,
   onSuccess,
@@ -49,6 +80,10 @@ export function RecipeCardForm({
   const [displayMediaType, setDisplayMediaType] = useState<"image" | "video">(
     "image"
   );
+
+  // New state for formatted inputs
+  const [priceDisplay, setPriceDisplay] = useState<string>("");
+  const [durationMinutes, setDurationMinutes] = useState<number>(0);
 
   const [sampleFiles, setSampleFiles] = useState<
     { file: File; variant: string; preview?: string; id: string }[]
@@ -79,13 +114,20 @@ export function RecipeCardForm({
         featured: recipe.featured,
         displayMedia: recipe.displayMedia,
       });
+
+      // Set formatted displays
+      setPriceDisplay(recipe.price ? formatNumberWithCommas(recipe.price) : "");
+      setDurationMinutes(
+        recipe.duration ? Math.round(recipe.duration / 60) : 0
+      );
+
       if (recipe.displayMedia) {
         setDisplayPreview(recipe.displayMedia.url);
         setDisplayMediaType(recipe.displayMedia.type || "image");
       }
       setExistingSamples(recipe.samples || []);
-      setDisplayFile(null); // Clear any previously selected local file
-      setSampleFiles([]); // Clear any new local sample files
+      setDisplayFile(null);
+      setSampleFiles([]);
     } else {
       setFormData({
         name: "",
@@ -98,6 +140,8 @@ export function RecipeCardForm({
         displayMedia: undefined,
         samples: [],
       });
+      setPriceDisplay("");
+      setDurationMinutes(0);
       setDisplayFile(null);
       setDisplayPreview("");
       setSampleFiles([]);
@@ -129,7 +173,7 @@ export function RecipeCardForm({
         ...prev,
         [name]: (e.target as HTMLInputElement).checked,
       }));
-    } else if (["duration", "price", "order"].includes(name)) {
+    } else if (name === "order") {
       setFormData((prev) => ({ ...prev, [name]: Number(value) }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -169,6 +213,7 @@ export function RecipeCardForm({
   ) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      e.stopPropagation();
       handleAddIngredientField(index);
     }
   };
@@ -361,6 +406,16 @@ export function RecipeCardForm({
       setCurrentTab("basic");
       return;
     }
+    if (!formData.price || formData.price <= 0) {
+      toast.error("Price must be greater than 0.");
+      setCurrentTab("basic");
+      return;
+    }
+    if (!formData.duration || formData.duration <= 0) {
+      toast.error("Duration must be specified.");
+      setCurrentTab("basic");
+      return;
+    }
     if (!recipe && !displayFile && !formData.displayMedia?.url) {
       // New recipe must have display media
       toast.error("Display Image/Video is required for a new recipe.");
@@ -441,14 +496,10 @@ export function RecipeCardForm({
       // Clean up payload: remove fields not part of backend schema or that are undefined
       delete payload.image; // old static image field if it exists on formData
 
-      // Determine endpoint and method (only POST for now)
-      const endpoint = "/api/recipes"; // recipe && recipe.id ? `/api/recipes/${recipe.id}` : "/api/recipes";
-      const method = "POST"; // recipe && recipe.id ? "PUT" : "POST";
-
-      // if (method === "PUT") { // Update logic not implemented yet
-      //   toast.error("Updating recipes is not yet implemented.", { id: saveToastId });
-      //   setLoading(false); return;
-      // }
+      // Determine endpoint and method
+      const endpoint =
+        recipe && recipe.id ? `/api/recipes/${recipe.id}` : "/api/recipes";
+      const method = recipe && recipe.id ? "PUT" : "POST";
 
       const response = await fetch(endpoint, {
         method: method,
@@ -569,14 +620,23 @@ export function RecipeCardForm({
                 </label>
                 <input
                   id="price"
-                  type="number"
+                  type="text"
                   name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  min="0"
+                  value={priceDisplay}
+                  onChange={(e) => {
+                    const newValue = parseFormattedNumber(e.target.value);
+                    setPriceDisplay(formatNumberWithCommas(newValue));
+                    setFormData((prev) => ({ ...prev, price: newValue }));
+                  }}
+                  placeholder="e.g., 20,000"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
                 />
+                {priceDisplay && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Amount: ₦{priceDisplay}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -584,18 +644,59 @@ export function RecipeCardForm({
                   className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
                 >
                   <Clock size={16} className="mr-1.5 text-gray-500" /> Duration
-                  (seconds)
                 </label>
-                <input
-                  id="duration"
-                  type="number"
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleInputChange}
-                  min="0"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
-                />
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {DURATION_PRESETS.map((preset) => (
+                      <button
+                        key={preset.minutes}
+                        type="button"
+                        onClick={() => {
+                          setDurationMinutes(preset.minutes);
+                          setFormData((prev) => ({
+                            ...prev,
+                            duration: preset.minutes * 60,
+                          }));
+                        }}
+                        className={cn(
+                          "px-3 py-2 text-sm font-medium rounded-md border transition-colors",
+                          durationMinutes === preset.minutes
+                            ? "bg-brand-logo_green text-white border-brand-logo_green"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                        )}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="duration"
+                      type="number"
+                      value={durationMinutes || ""}
+                      onChange={(e) => {
+                        const newValue =
+                          e.target.value === "" ? 0 : Number(e.target.value);
+                        setDurationMinutes(newValue);
+                        setFormData((prev) => ({
+                          ...prev,
+                          duration: newValue * 60,
+                        }));
+                      }}
+                      placeholder="Custom minutes"
+                      min="0"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
+                    />
+                    <span className="text-sm text-gray-500 whitespace-nowrap min-w-[60px]">
+                      {durationMinutes > 0 &&
+                        formatDurationDisplay(durationMinutes)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select a preset or enter custom minutes. Duration will be
+                    converted to seconds when saved.
+                  </p>
+                </div>
               </div>
             </div>
             <div>

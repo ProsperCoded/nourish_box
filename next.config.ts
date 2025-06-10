@@ -14,8 +14,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
     ],
-    domains: ["res.cloudinary.com", "firebasestorage.googleapis.com"],
+    // domains: ["res.cloudinary.com", "firebasestorage.googleapis.com"],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ["image/webp"],

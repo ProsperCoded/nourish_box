@@ -10,6 +10,7 @@ import { RecipeCardForm } from "../../components/admin/RecipeCardForm";
 import { RecipeDetailModal } from "../../components/admin/RecipeDetailModal";
 import { fetchRecipes } from "../../utils/firebase/recipes.firebase";
 import { storageService } from "../../api/storage/storage.service";
+import { X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,27 @@ export default function RecipesManagement() {
       setRecipes(recipes);
     });
   }, []);
+
+  // Handle escape key to close modals
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (isFormOpen) {
+          setIsFormOpen(false);
+        }
+        if (isDetailModalOpen) {
+          setIsDetailModalOpen(false);
+        }
+        if (isDeleteAlertOpen) {
+          setIsDeleteAlertOpen(false);
+          setRecipeToDelete(null);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isFormOpen, isDetailModalOpen, isDeleteAlertOpen]);
 
   const handleEditRecipe = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -115,8 +137,24 @@ export default function RecipesManagement() {
       />
 
       {isFormOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+          onClick={(e) => {
+            // Close modal when clicking on backdrop
+            if (e.target === e.currentTarget) {
+              setIsFormOpen(false);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            {/* X button to close modal */}
+            <button
+              onClick={() => setIsFormOpen(false)}
+              className="absolute top-4 right-4 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg transition-colors"
+              aria-label="Close modal"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
             <RecipeCardForm
               recipe={selectedRecipe}
               onCancel={() => setIsFormOpen(false)}
