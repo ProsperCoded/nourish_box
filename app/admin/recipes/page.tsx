@@ -1,24 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  collection,
-  getDocs,
-  doc,
-  deleteDoc,
-  updateDoc,
-  addDoc,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { COLLECTION } from "../../utils/schema/collection.enum";
 import { Recipe } from "../../utils/types/recipe.type";
-import { v4 as uuidv4 } from "uuid";
 import { RecipeGrid } from "../../components/admin/RecipeGrid";
 import { RecipeCardForm } from "../../components/admin/RecipeCardForm";
 import { RecipeDetailModal } from "../../components/admin/RecipeDetailModal";
 import { fetchRecipes } from "../../utils/firebase/recipes.firebase";
+import { storageService } from "../../api/storage/storage.service";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,9 +60,6 @@ export default function RecipesManagement() {
       // Delete display media if it exists
       if (recipeToDelete.displayMedia?.publicId) {
         try {
-          const { storageService } = await import(
-            "../../api/storage/storage.service"
-          );
           await storageService.deleteMedia(
             recipeToDelete.displayMedia.publicId,
             recipeToDelete.displayMedia.type || "image"
@@ -83,9 +71,6 @@ export default function RecipesManagement() {
 
       // Delete sample media if they exist
       if (recipeToDelete.samples && recipeToDelete.samples.length > 0) {
-        const { storageService } = await import(
-          "../../api/storage/storage.service"
-        );
         await Promise.all(
           recipeToDelete.samples.map(async (sample) => {
             try {
