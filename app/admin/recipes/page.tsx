@@ -138,7 +138,7 @@ export default function RecipesManagement() {
 
       {isFormOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50 overflow-y-auto"
           onClick={(e) => {
             // Close modal when clicking on backdrop
             if (e.target === e.currentTarget) {
@@ -146,7 +146,7 @@ export default function RecipesManagement() {
             }
           }}
         >
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-4xl my-8">
             {/* X button to close modal */}
             <button
               onClick={() => setIsFormOpen(false)}
