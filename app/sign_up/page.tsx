@@ -150,8 +150,8 @@ const SignUp = () => {
         <p>Loading...</p>
       ) : (
         <div className="flex w-100 justify-between">
-          <div className="hidden w-1/2 md:flex items-center justify-center bg-[#004C30]">
-            <Image src={logo} alt="jollof rice" width={600} />
+          <div className="hidden w-1/2 md:flex items-center justify-center ">
+              <Link href="/"> <Image src={logo} alt="jollof rice" width={600} /></Link>
           </div>
           <div className="w-full md:w-1/2">
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}

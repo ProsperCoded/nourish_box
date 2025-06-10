@@ -17,7 +17,7 @@ import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
 import Link from "next/link";
-import Script from "next/script";
+
 // import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {

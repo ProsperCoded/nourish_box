@@ -206,9 +206,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         </div>
         <div className="my-8 mb-4 font-inter">
           <div className="px-2">
-            <h3 className="mt-2 font-custom font-semibold text-lg">
+            {/* <h3 className="mt-2 font-custom font-semibold text-lg">
               {recipe.name}
-            </h3>
+            </h3> */}
             <Modal
               open={open}
               onClose={handleClose}

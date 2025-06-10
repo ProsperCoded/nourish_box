@@ -4,12 +4,8 @@ import React, { useState } from 'react'
 import Logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import Cancel from "../assets/icons8-cancel-64.png";
 import Link from 'next/link';
-interface Props {
-    className?: string;
-    formClassName?: string;
-    textClassName?: string
-}
-const ContactUs: React.FC<Props> = ({  className, formClassName,textClassName}) => {
+const ContactUs = ({ showContactViaProfile }: {
+    showContactViaProfile:boolean}) => {
     const [isActive, setIsActive] = useState<number[]>([]);
     const toggleFAQ = (index: number) => {
         setIsActive((prev) =>
@@ -43,29 +39,70 @@ const ContactUs: React.FC<Props> = ({  className, formClassName,textClassName}) 
 
   return (
       <div>
-
-       
-          <div>
-                  <div className='flex md:flex-row justify-between items-center h-[90vh] w-full'>
-                      <div className={`w-1/2 hidden  md:flex justify-center ${className ?? ""}`}>
-                      <Link href="/">   <Image src={Logo} alt='logo' width={500} height={500} /></Link>
+          {showContactViaProfile && (
+              <div className='flex md:flex-row justify-between items-center h-[92vh] w-full'>
+                 
+                  <div className='flex  flex-col w-full  '>
+                      <div className='flex justify-end mx-6'>
+                          <Link href="/"> <Image src={Cancel} alt='cancel' width={35} height={35} />
+                          </Link>
                       </div>
-                  <div className={`flex  flex-col w-full md:w-1/2 ${formClassName ?? ""}`}>
+                      <h1 className='text-5xl font-custom my-3 px-6 '>
+                          Contact us
+                      </h1>
+                      <form action="" className='flex font-inter flex-col p-6 w-full flex-wrap'>
+                          <div className="flex w-full">
+                              <div className='flex flex-col w-1/2 mr-2'>
+                                  <label htmlFor="name" className='text-lg'>First Name:</label>
+                                  <input type="text" id="name" name="name" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
+                              </div>
+                              <div className='flex flex-col w-1/2'>
+                                  <label htmlFor="name" className='text-lg'>Last name:</label>
+
+                                  <input type="text" id="name" name="name" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
+                              </div>
+
+                          </div>
+
+
+                          <label htmlFor="email" className='text-lg'>Email:</label>
+                          <input type="email" id="email" name="email" placeholder='example@email.com' required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
+
+                          <label htmlFor="number" className='text-lg'>Phone number:</label>
+                          <input type="tel" placeholder=
+                              "08012345678" id="number" name="number" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
+                          <label htmlFor="message" className='text-lg'>Message:</label>
+                          <textarea id="message" className='border-[1px] border-gray-500 rounded-md my-2 mb-4' name="message" rows={4} required></textarea >
+                          <div className='flex justify-center'>
+
+                              <button type="submit" className='my-2 bg-orange-500 rounded-lg py-3 w-4/12 text-white'>Submit</button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          )}
+          {!showContactViaProfile && (
+          <div>
+                  <div className='flex md:flex-row justify-between items-center h-[92vh] w-full'>
+                      <div className='w-1/2 hidden  md:flex justify-center'>
+                          <Image src={Logo} alt='logo' width={500} height={500} />
+                      </div>
+                      <div className='flex  flex-col w-full md:w-1/2 '>
                           <div className='flex justify-end mx-6'>
-                          <Link href="/"> <Image src={Cancel} alt='cancel' width={35} height={35} className={`${className ?? ""}`} />
+                              <Link href="/"> <Image src={Cancel} alt='cancel' width={35} height={35} />
                               </Link>
                           </div>
-                          <h1 className={`text-3xl font-custom my-3 px-6 {${textClassName ?? ""}`}>
+                          <h1 className='text-5xl font-custom my-3 px-6 '>
                               Contact us
                           </h1>
                           <form action="" className='flex font-inter flex-col p-6 w-full flex-wrap'>
                               <div className="flex w-full">
                                   <div className='flex flex-col w-1/2 mr-2'>
-                                      <label htmlFor="name" className='text-lg font-light'>First Name:</label>
+                                      <label htmlFor="name" className='text-lg'>First Name:</label>
                                       <input type="text" id="name" name="name" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
                                   </div>
                                   <div className='flex flex-col w-1/2'>
-                                      <label htmlFor="name" className='text-lg font-light'>Last name:</label>
+                                      <label htmlFor="name" className='text-lg'>Last name:</label>
 
                                       <input type="text" id="name" name="name" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
                                   </div>
@@ -73,13 +110,13 @@ const ContactUs: React.FC<Props> = ({  className, formClassName,textClassName}) 
                               </div>
 
 
-                              <label htmlFor="email" className='text-lg font-light'>Email:</label>
+                              <label htmlFor="email" className='text-lg'>Email:</label>
                               <input type="email" id="email" name="email" placeholder='example@email.com' required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
 
-                              <label htmlFor="number" className='text-lg font-light'>Phone number:</label>
+                              <label htmlFor="number" className='text-lg'>Phone number:</label>
                               <input type="tel" placeholder=
                                   "08012345678" id="number" name="number" required className='border-[1px] border-gray-500 rounded-md p-4 my-2 mb-4' />
-                              <label htmlFor="message" className='text-lg font-light'>Message:</label>
+                              <label htmlFor="message" className='text-lg'>Message:</label>
                               <textarea id="message" className='border-[1px] border-gray-500 rounded-md my-2 mb-4' name="message" rows={4} required></textarea >
                               <div className='flex justify-center'>
 
@@ -89,7 +126,7 @@ const ContactUs: React.FC<Props> = ({  className, formClassName,textClassName}) 
                       </div>
                   </div>
                   
-              </div>
+              </div>)}
           <div className='flex flex-col items-center w-full my-5'>
               <h2 className='my-4 font-custom text-4xl'>FAQs</h2>
               <div className="flex flex-col w-full md:w-10/12 justify-center mx-4 ">
