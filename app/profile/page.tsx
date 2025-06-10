@@ -1,80 +1,172 @@
 "use client";
-import Image, { StaticImageData } from "next/image";
-import React, { useState } from "react";
 import user_icon from "../assets/icons8-user-48.png";
 import bookmark from "../assets/icons8-bookmark-48.png";
 import clock from "../assets/icons8-clock-48.png";
+import Link from "next/link";
+import Image, { StaticImageData } from "next/image";
+import { useState } from "react";
 import User_profile from "../components/user_profile";
 import Order from "../components/order";
 import { useRouter } from "next/navigation";
 import return_btn from "../assets/icons8-left-arrow-50.png";
+import FavoritesPage from "../favorites/page";
+import ContactUs from "../contact_us/page";
+import AlternateHeader from "../components/alternate_header";
+import { motion, AnimatePresence } from "framer-motion";
+
 type SidebarItem = {
   id: string;
   title: string;
   content: React.ReactNode;
   img: StaticImageData;
 };
-const SidebarLink: SidebarItem[] = [
-  {
-    id: "1",
-    title: "Personal Info",
-    content: <User_profile />,
-    img: user_icon,
-  },
-  { id: "2", title: "Order History", content: <Order />, img: clock },
-  {
-    id: "3",
-    title: "Saved Recipes",
-    content: <div>📘 Let’s study Environmental Law together!</div>,
-    img: bookmark,
-  },
-];
+
 const Profile = () => {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const SidebarLink: SidebarItem[] = [
+    {
+      id: "1",
+      title: "Edit profile",
+      content: <User_profile />,
+      img: user_icon,
+    },
+    { id: "2", title: "Order History", content: <Order />, img: clock },
+    {
+      id: "3",
+      title: "Saved Recipes",
+      content: (
+        <div>
+          <FavoritesPage className="md:hidden border-2 border-red-500" />
+        </div>
+      ),
+      img: bookmark,
+    },
+    {
+      id: "4",
+      title: "Contact us",
+      content: (
+        <ContactUs
+          className="md:hidden "
+          formClassName="md:w-full"
+          textClassName="text-2xl font-inter text-gray-700 mt-0"
+        />
+      ),
+      img: clock,
+    },
+    {
+      id: "5",
+      title: "Track delivery",
+      content: <div>Track delivery content</div>,
+      img: clock,
+    },
+    {
+      id: "6",
+      title: "Manage address",
+      content: <div>Manage address content</div>,
+      img: clock,
+    },
+  ];
+
   const [activeElement, setActiveElement] = useState<string>(SidebarLink[0].id);
   const sideBarElement = SidebarLink.find((item) => item.id === activeElement);
+
   return (
     <div>
-      <div className="py-10 px-5">
+      <div className="hidden md:block py-5">
+        <AlternateHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+      </div>
+      <div className="block md:hidden my-5 md:py-10 px-5">
         <button onClick={() => router.back()}>
           <Image src={return_btn} alt="return" width={25} height={25} />
         </button>
       </div>
+
       <div className="flex justify-between">
-        <div className="w-1/4 h-screen flex border-r-[1px] border-solid border-gray-200  upload ml-6">
-          <div className="flex flex-col font-inter text-gray-700 ">
-            <div>
-              <div className="my-3">
-                <Image
-                  src={user_icon}
-                  alt="user icon"
-                  width={40}
-                  height={40}
-                  className="border-[1px] border-gray-700 border-soldi rounded-full p-2 "
-                />
-              </div>
-              <h2 className="text-xl font-inter font-light mb-5">
-                Hi, Username!{" "}
+        <div className="w-full md:w-1/5 h-screen md:flex border-r-[1px] border-solid border-gray-200 upload md:ml-6">
+          <div className="flex flex-col w-full font-inter text-gray-700">
+            <div className="my-5 md:mt-10 mb-5">
+              <h2 className="text-xl text-center md:text-left w-full font-inter font-medium md:mt-2">
+                Hi, Username!
               </h2>
             </div>
-            {SidebarLink.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveElement(item.id)}
-                className={`my-4 text-lg flex  items-center font-medium ${
-                  activeElement === item.id ? "text-blue-500" : "text-gray-700"
-                }`}
-              >
-                <Image src={item.img} alt="icon8 img" width={20} height={20} />{" "}
-                <p className="ml-3">{item.title}</p>
-              </button>
-            ))}
+
+            <div>
+              <div className="hidden md:block">
+                {SidebarLink.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveElement(item.id)}
+                    className={`my-7 md:my-4 text-lg flex items-center ${
+                      activeElement === item.id
+                        ? "text-orange-500"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    <Image
+                      src={item.img}
+                      alt="icon8 img"
+                      width={20}
+                      height={20}
+                    />
+                    <p className="ml-3">{item.title}</p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="block md:hidden">
+                {SidebarLink.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between px-4 items-center"
+                  >
+                    <button
+                      onClick={() => setActiveElement(item.id)}
+                      className={`my-7 md:my-4 text-lg flex items-center ${
+                        activeElement === item.id
+                          ? "text-orange-500"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      <Image
+                        src={item.img}
+                        alt="icon8 img"
+                        width={20}
+                        height={20}
+                      />
+                      <p className="ml-3">{item.title}</p>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="w-3/4 flex flex-col mx-5">
-          <div>
+
+        <div className="hidden md:w-3/4 md:flex flex-col">
+          <div className="my-4"></div>
+          <div className="m-5">
             <div>{sideBarElement?.content}</div>
           </div>
+        </div>
+
+        <div className="w-3/4 relative overflow-hidden md:hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeElement}
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute w-full"
+            >
+              {sideBarElement?.content}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

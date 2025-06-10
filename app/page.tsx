@@ -17,7 +17,7 @@ import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
 import Link from "next/link";
-import Script from "next/script";
+// 
 // import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {
@@ -42,7 +42,12 @@ export default function Home() {
   // Seeding
   return (
     <div>
-      <Nav />
+      <div className="hidden md:block">
+        <Nav />
+    </div>
+      <div className="absolute ">
+        
+    </div>
       <div className="hidden justify-center items-center w-screen h-screen">
         This page is not available for small screen sizes
       </div>

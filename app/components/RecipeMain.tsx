@@ -13,10 +13,10 @@ interface RecipeCardProps {
 const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
-    <div className="relative w-full h-1/2">
+    <div className="relative w-full h-1/2 ">
 
       <div className="w-full"><img src={recipe.displayMedia.url} alt={recipe.name} className="w-full" />  </div>
-      <div className="pt-12 rounded-t-[42px] absolute -bottom-32 bg-white w-full px-6 py-11 h-1/2">
+      <div className="pt-12 rounded-t-[42px] absolute -bottom-32 bg-white w-full px-6 py-11 h-1/2 overflow-y-scroll">
         <div className="">
           <h2 className="font-bold text-lg">{recipe.name}</h2>
           <div className="flex justify-between  py-4">
@@ -48,28 +48,37 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
         <hr />
         <div>
           <h3 className="font-bold text-lg py-2">Steps</h3>
-          <div>
+          <div className="mb-5">
             <div className="flex">
-              <p>1.</p>
+              <p className="mx-2">1.</p>
               <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. </p>
             </div>
             <div className="flex">
-              <p>2.</p>
+              <p className="mx-2">2.</p>
               <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. </p>
             </div>
             <div className="flex">
-              <p>3.</p>
+              <p className="mx-2">3.</p>
               <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. </p>
             </div>
             <div className="flex">
-              <p>4.</p>
+              <p className="mx-2">4.</p>
               <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. </p>
+            </div>
+            <div className="my-2 mt-4 flex justify-center">
+              <button className="bg-orange-400 rounded-lg text-white px-5 py-2" onClick={() => {
+                console.log('hii')
+              }}>
+                Add to bag
+              </button>
+
             </div>
           </div>
         </div>
         {/* {recipe.ingredients}</div>
         <div>{recipe.description}</div> */}
       </div>
+      
     </div>
   )
 }
