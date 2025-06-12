@@ -46,7 +46,7 @@ const ContactUs: React.FC<Props> = ({  className, formClassName,textClassName}) 
 
        
           <div>
-                  <div className='flex md:flex-row justify-between items-center h-[90vh] w-full'>
+                  <div className='flex md:flex-row justify-between items-center md:h-[90vh] w-full'>
                       <div className={`w-1/2 hidden  md:flex justify-center ${className ?? ""}`}>
                       <Link href="/">   <Image src={Logo} alt='logo' width={500} height={500} /></Link>
                       </div>

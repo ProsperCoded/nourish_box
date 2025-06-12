@@ -1,8 +1,6 @@
 'use client'
 import React from 'react'
 import Image from "next/image";
-
-
 import search from "../assets/icons8-search-48.png";
 import back from "../assets/icons8-left-arrow-50.png";
 
