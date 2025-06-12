@@ -1,23 +1,16 @@
 import { Recipe } from "@/app/utils/types/recipe.type";
 import { Transaction } from "@/app/utils/types/transaction.type";
 
-export enum PaymentStatus {
-  PENDING = "pending",
-  COMPLETED = "completed",
-  FAILED = "failed",
-}
-
 export enum DeliveryStatus {
   PENDING = "pending",
   DELIVERED = "delivered",
   FAILED = "failed",
 }
-export type Payment = {
+export type Order = {
   id: string;
   userId?: string; // optional for guest users
   recipeId: string;
   amount: number; //naira
-  status: PaymentStatus;
 
   deliveryId: string;
 
@@ -32,5 +25,4 @@ export type Payment = {
   updatedAt: string; // date in ISO format
 
   recipe?: Recipe;
-  transaction?: Transaction;
 };

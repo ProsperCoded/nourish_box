@@ -7,14 +7,8 @@ import {
 } from "@/app/api/adminUtils/transaction.admin";
 import { createOrder } from "@/app/api/adminUtils/order.admin";
 import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
-import {
-  TransactionStatus,
-} from "@/app/utils/types/transaction.type";
-import {
-  Payment,
-  PaymentStatus,
-  DeliveryStatus,
-} from "@/app/utils/types/order.type";
+import { TransactionStatus } from "@/app/utils/types/transaction.type";
+import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -83,11 +77,10 @@ export async function GET(request: NextRequest) {
               return null;
             }
 
-            const orderData: Partial<Payment> = {
+            const orderData: Partial<Order> = {
               ...(transaction.userId && { userId: transaction.userId }),
               recipeId: recipeId,
               amount: recipe.price, // Individual recipe price
-              status: PaymentStatus.COMPLETED,
               deliveryId: transaction.deliveryId,
               deliveryStatus: DeliveryStatus.PENDING,
               deliveryDate: "", // Will be set when delivered

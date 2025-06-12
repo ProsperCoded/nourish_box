@@ -9,12 +9,12 @@ export type Recipe = {
     variant: string;
     media: { url: string; publicId: string; type: "image" | "video" };
   }[];
-  duration: string; //seconds
+  duration: number; //seconds
   price: number; //naira
   ingredients: string[];
-  difficulty: string;
-  servings: number; // number of servings
-  numberOfIngredients: number; // number of ingredients
+  difficulty?: string;
+  servings?: number; // number of servings
+  numberOfIngredients?: number; // number of ingredients
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage
 

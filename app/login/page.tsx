@@ -62,9 +62,15 @@ const LogIn = () => {
         <p>Loading...</p>
       ) : (
         <div className="flex w-100 justify-between">
-          <div className="w-1/2  items-center justify-center hidden md:flex ">
+          <Link
+            href="/"
+            className="w-1/2  items-center justify-center hidden md:flex "
+          >
             <Image src={logo} alt="jollof rice" width={600} />
-          </div>
+          </Link>
+          {/* <div className="w-1/2  items-center justify-center hidden md:flex ">
+            <Image src={logo} alt="jollof rice" width={600} />
+          </div> */}
           <div className="w-full md:w-1/2">
             {error && <p style={{ color: "red" }}>{error}</p>}
 

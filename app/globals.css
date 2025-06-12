@@ -1,22 +1,20 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @font-face {
-  font-family: 'ibrand';
-  src: url('/font/ibrand.otf') format('opentype');
+  font-family: "ibrand";
+  src: url("/font/ibrand.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
-small{
-
+small {
   font-size: 0.8rem;
 }
-small-header{
+small-header {
   font-size: 1.5rem;
 }
-small-subheader{
+small-subheader {
   font-size: 1rem;
 }
 
@@ -82,5 +80,34 @@ small-subheader{
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Admin Dashboard Loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #016e1b) content-box;
+  -webkit-mask: repeating-conic-gradient(
+      #0000 0deg,
+      #000 1deg 20deg,
+      #0000 21deg 36deg
+    ),
+    radial-gradient(
+      farthest-side,
+      #0000 calc(100% - var(--b) - 1px),
+      #000 calc(100% - var(--b))
+    );
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
   }
 }

@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import { firebaseConfig } from "../utils/config.env";
 
+console.log("firebaseConfig", firebaseConfig);
 if (!admin.apps.length) {
   try {
     admin.initializeApp({

@@ -56,9 +56,14 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Create a proper filename with timestamp
+    const fileExtension = file.name.split(".").pop() || "";
+    const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+    const timestampedFileName = `${fileNameWithoutExt}_${Date.now()}.${fileExtension}`;
+
     const uploadResult = await storageService.uploadMedia(
       buffer,
-      file.name + new Date().getTime().toString(),
+      timestampedFileName,
       "nourish_box/recipes"
     );
 

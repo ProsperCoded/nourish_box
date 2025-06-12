@@ -1,3 +1,5 @@
+import { Delivery } from "@/app/utils/types/delivery.type";
+
 export enum TransactionStatus {
   PENDING = "pending",
   SUCCESS = "success",
@@ -16,4 +18,6 @@ export type Transaction = {
   paymentDate: string; // date in ISO format
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format
+
+  delivery?: Delivery;
 };

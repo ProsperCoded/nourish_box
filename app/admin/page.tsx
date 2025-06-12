@@ -8,7 +8,13 @@ import { Recipe } from "../utils/types/recipe.type";
 import { User } from "../utils/types/user.type";
 import { motion } from "framer-motion";
 import {
-  BookOpen, Users, ShoppingCart, BarChart3, Activity, AlertTriangle, CheckCircle2
+  BookOpen,
+  Users,
+  ShoppingCart,
+  BarChart3,
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 
 interface StatCardProps {
@@ -19,7 +25,13 @@ interface StatCardProps {
   delay?: number;
 }
 
-const StatCard = ({ title, value, icon, colorClass, delay = 0 }: StatCardProps) => (
+const StatCard = ({
+  title,
+  value,
+  icon,
+  colorClass,
+  delay = 0,
+}: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -52,9 +64,13 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const recipesSnapshot = await getDocs(collection(db, COLLECTION.recipes));
+        const recipesSnapshot = await getDocs(
+          collection(db, COLLECTION.recipes)
+        );
         const usersSnapshot = await getDocs(collection(db, COLLECTION.users));
-        const ordersSnapshot = await getDocs(collection(db, COLLECTION.transactions));
+        const ordersSnapshot = await getDocs(
+          collection(db, COLLECTION.transactions)
+        );
 
         setStats({
           totalRecipes: recipesSnapshot.size,
@@ -70,7 +86,9 @@ export default function AdminDashboard() {
         );
         const recentRecipesSnap = await getDocs(recentRecipesQuery);
         setRecentRecipes(
-          recentRecipesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Recipe))
+          recentRecipesSnap.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+          )
         );
 
         // Fetch recent users
@@ -81,9 +99,10 @@ export default function AdminDashboard() {
         );
         const recentUsersSnap = await getDocs(recentUsersQuery);
         setRecentUsers(
-          recentUsersSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User))
+          recentUsersSnap.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() } as User)
+          )
         );
-
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -96,19 +115,11 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-[60vh] w-full bg-gradient-to-br from-white via-gray-50 to-brand-logo_green/10 animate-pulse">
-        <motion.div
-          initial={{ y: -10 }}
-          animate={{ y: [0, -20, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="mb-4"
-        >
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-            <path d="M8 28C16 20 40 36 48 28" stroke="#016e1b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="28" cy="28" r="24" stroke="#f69f1b" strokeWidth="3" fill="none"/>
-          </svg>
-        </motion.div>
-        <p className="text-lg font-semibold text-brand-logo_green animate-pulse">Loading Dashboard...</p>
+      <div className="flex flex-col justify-center items-center min-h-[60vh] w-full bg-gradient-to-br from-white via-gray-50 to-brand-logo_green/10">
+        <div className="loader"></div>
+        <p className="text-lg font-semibold text-brand-logo_green mt-4">
+          Loading Dashboard...
+        </p>
       </div>
     );
   }
@@ -121,8 +132,12 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Welcome back, Admin!</h1>
-        <p className="text-gray-600 mt-1 text-sm sm:text-base">Here's what's happening with Nourish Box today.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+          Welcome back, Admin!
+        </h1>
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">
+          Here's what's happening with Nourish Box today.
+        </p>
       </motion.div>
 
       {/* Stats Cards */}
@@ -162,34 +177,48 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 h-64 sm:h-80 flex flex-col justify-center items-center text-center hover:shadow-2xl transition-shadow duration-300"
           >
             <BarChart3 size={48} className="text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700">Sales Overview</h3>
+            <h3 className="text-xl font-semibold text-gray-700">
+              Sales Overview
+            </h3>
             <p className="text-gray-500 mt-2">Chart coming soon!</p>
-            <p className="text-xs text-gray-400 mt-1">Detailed sales analytics will be displayed here.</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Detailed sales analytics will be displayed here.
+            </p>
           </motion.div>
 
           {/* Recent Recipes */}
           <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.5, delay: 0.5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Recently Added Recipes</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
+              Recently Added Recipes
+            </h3>
             {recentRecipes.length > 0 ? (
               <ul className="space-y-2 sm:space-y-3 max-w-full overflow-x-auto">
                 {recentRecipes.map((recipe, index) => (
-                  <motion.li 
-                    key={recipe.id} 
+                  <motion.li
+                    key={recipe.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
                   >
                     <div className="flex items-center mb-1 sm:mb-0">
-                      <BookOpen size={18} className="mr-2 sm:mr-3 text-brand-logo_green" />
+                      <BookOpen
+                        size={18}
+                        className="mr-2 sm:mr-3 text-brand-logo_green"
+                      />
                       <div>
-                        <p className="text-sm font-medium text-gray-800 break-words max-w-[160px] sm:max-w-none">{recipe.name}</p>
-                        <p className="text-xs text-gray-500">Added on: {new Date(recipe.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm font-medium text-gray-800 break-words max-w-[160px] sm:max-w-none">
+                          {recipe.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Added on:{" "}
+                          {new Date(recipe.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                     <span className="text-sm font-semibold text-brand-btn_orange mt-1 sm:mt-0">
@@ -211,21 +240,30 @@ export default function AdminDashboard() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-3 sm:space-y-4 h-full hover:shadow-2xl transition-shadow duration-300"
         >
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Recent User Activity</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
+            Recent User Activity
+          </h3>
           {recentUsers.length > 0 ? (
             <ul className="space-y-2 sm:space-y-3 max-w-full overflow-x-auto">
               {recentUsers.map((user, index) => (
-                <motion.li 
-                  key={user.id} 
+                <motion.li
+                  key={user.id}
                   className="flex items-center p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
                 >
-                  <Users size={18} className="mr-2 sm:mr-3 text-brand-btn_orange" />
+                  <Users
+                    size={18}
+                    className="mr-2 sm:mr-3 text-brand-btn_orange"
+                  />
                   <div>
-                    <p className="text-sm font-medium text-gray-800 break-words max-w-[120px] sm:max-w-none">{user.name}</p>
-                    <p className="text-xs text-gray-500">Joined on: {new Date(user.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium text-gray-800 break-words max-w-[120px] sm:max-w-none">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Joined on: {new Date(user.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </motion.li>
               ))}
@@ -236,13 +274,15 @@ export default function AdminDashboard() {
 
           {/* Placeholder for notifications or alerts */}
           <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
-             <h4 className="text-md font-semibold text-gray-600 mb-2 sm:mb-3">System Alerts</h4>
-             <div className="flex items-center p-2 sm:p-3 bg-green-50 text-green-700 rounded-lg">
-                <CheckCircle2 size={18} className="mr-2"/>
-                <p className="text-sm">System operating normally.</p>
-             </div>
-             {/* Example of an alert - uncomment or modify as needed */}
-             {/* 
+            <h4 className="text-md font-semibold text-gray-600 mb-2 sm:mb-3">
+              System Alerts
+            </h4>
+            <div className="flex items-center p-2 sm:p-3 bg-green-50 text-green-700 rounded-lg">
+              <CheckCircle2 size={18} className="mr-2" />
+              <p className="text-sm">System operating normally.</p>
+            </div>
+            {/* Example of an alert - uncomment or modify as needed */}
+            {/* 
              <div className="flex items-center p-3 bg-yellow-50 text-yellow-700 rounded-lg mt-2">
                 <AlertTriangle size={18} className="mr-2"/>
                 <p className="text-sm">Low stock on popular ingredient: Tomatoes</p>
@@ -253,4 +293,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-} 
+}

@@ -6,7 +6,14 @@ import { useAuth } from "../contexts/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
-import { LayoutDashboard, BookOpen, Users, ShoppingCart, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  ShoppingCart,
+  Menu,
+  X,
+} from "lucide-react";
 import { cn } from "@/app/lib/utils/cn";
 import { Separator } from "@/app/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
@@ -60,8 +67,8 @@ export default function AdminLayout({
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
     const handler = () => setIsDesktop(mediaQuery.matches);
     handler(); // Check on mount
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   if (!user || user.role !== "admin") {
@@ -71,31 +78,45 @@ export default function AdminLayout({
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Mobile Sidebar Overlay */}
-      <div 
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
-        onClick={() => setSidebarOpen(false)} 
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden ${
+          sidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setSidebarOpen(false)}
       />
-      
+
       {/* Sidebar */}
       <motion.aside
         layout
         initial={false}
-        animate={{ 
+        animate={{
           width: sidebarCollapsed ? 72 : 256,
-          x: isDesktop ? 0 : (sidebarOpen ? 0 : -256) 
+          x: isDesktop ? 0 : sidebarOpen ? 0 : -256,
         }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className={`${isDesktop ? 'relative' : 'fixed left-0'} z-50 h-full bg-white shadow-lg flex flex-col overflow-hidden`}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={`${
+          isDesktop ? "relative" : "fixed left-0"
+        } z-50 h-full bg-white shadow-lg flex flex-col overflow-hidden`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <Link href="/admin">
-            <Image src={logo} alt="Logo" className={`transition-all duration-300 ${sidebarCollapsed && isDesktop ? 'w-8' : 'w-32'}`} />
+          <Link href="/">
+            <Image
+              src={logo}
+              alt="Logo"
+              className={`transition-all duration-300 ${
+                sidebarCollapsed && isDesktop ? "w-8" : "w-32"
+              }`}
+            />
           </Link>
           {/* Collapse/Expand button for desktop */}
           <button
             className="hidden lg:inline-flex items-center justify-center p-2 rounded hover:bg-gray-100 ml-2"
             onClick={() => setSidebarCollapsed((c) => !c)}
-            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={
+              sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            }
           >
             {sidebarCollapsed ? <Menu size={20} /> : <X size={20} />}
           </button>
@@ -108,9 +129,9 @@ export default function AdminLayout({
             <X size={20} />
           </button>
         </div>
-        
+
         <Separator />
-        
+
         <nav className="flex-1 p-2 sm:p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -119,28 +140,42 @@ export default function AdminLayout({
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  `flex items-center gap-2 px-3 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-logo_green transition-colors rounded-lg mb-1 ${(sidebarCollapsed && isDesktop) ? 'justify-center' : ''}`,
+                  `flex items-center gap-2 px-3 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-logo_green transition-colors rounded-lg mb-1 ${
+                    sidebarCollapsed && isDesktop ? "justify-center" : ""
+                  }`,
                   pathname === item.path && "bg-gray-100 text-brand-logo_green"
                 )}
-                onClick={() => { if(!isDesktop) setSidebarOpen(false);}}
+                onClick={() => {
+                  if (!isDesktop) setSidebarOpen(false);
+                }}
               >
                 <Icon className="w-5 h-5" />
-                {!(sidebarCollapsed && isDesktop) && <span className="truncate">{item.title}</span>}
+                {!(sidebarCollapsed && isDesktop) && (
+                  <span className="truncate">{item.title}</span>
+                )}
               </Link>
             );
           })}
         </nav>
-        
+
         <Separator />
-        
-        <div className={`p-2 sm:p-4 flex items-center gap-3 ${(sidebarCollapsed && isDesktop) ? 'justify-center' : ''}`}>
+
+        <div
+          className={`p-2 sm:p-4 flex items-center gap-3 ${
+            sidebarCollapsed && isDesktop ? "justify-center" : ""
+          }`}
+        >
           <Avatar>
             <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
           </Avatar>
           {!(sidebarCollapsed && isDesktop) && (
             <div>
-              <p className="text-sm font-medium truncate max-w-[120px]">{user.name}</p>
-              <p className="text-xs text-gray-500 truncate max-w-[120px]">{user.email}</p>
+              <p className="text-sm font-medium truncate max-w-[120px]">
+                {user.name}
+              </p>
+              <p className="text-xs text-gray-500 truncate max-w-[120px]">
+                {user.email}
+              </p>
             </div>
           )}
         </div>
@@ -157,10 +192,12 @@ export default function AdminLayout({
           >
             <Menu size={24} />
           </button>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Admin Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+            Admin Dashboard
+          </h1>
         </header>
         <main className="flex-1 overflow-auto p-2 sm:p-6">{children}</main>
       </div>
     </div>
   );
-} 
+}
