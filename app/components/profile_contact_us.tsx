@@ -40,7 +40,7 @@ const ContactUs = ({ showContactViaProfile }: {
   return (
       <div>
           {showContactViaProfile && (
-              <div className='flex md:flex-row justify-between items-center h-[92vh] w-full'>
+              <div className='flex md:flex-row justify-between items-center md:h-[92vh] w-full'>
                  
                   <div className='flex  flex-col w-full  '>
                       <div className='flex justify-end mx-6'>

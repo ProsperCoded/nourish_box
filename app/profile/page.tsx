@@ -19,18 +19,18 @@ type SidebarItem = {
     id: string;
     title: string;
     content: React.ReactNode;
-    img: StaticImageData
+    img: StaticImageData;
+    path?: string; // optional for routing
 };
-
 const Profile = () => {
     const router = useRouter();
     const SidebarLink: SidebarItem[] = [
-        { id: '1', title: 'Edit profile', content: <User_profile />, img: user_icon },
-        { id: '2', title: 'Order History', content: <Order />, img: clock },
-        { id: '3', title: 'Saved Recipes', content: <div><FavoritesPage className='md:hidden border-2 border-red-500'/></div>, img: bookmark },
-        { id: '4', title: 'Contact us', content: <ContactUs className="md:hidden " formClassName='md:w-full' textClassName='text-2xl font-inter text-gray-700 mt-0' />, img: clock },
-        { id: '4', title: 'Track delivery', content: '', img: clock },
-        { id: '4', title: 'Manage address', content: '', img: clock },
+        { id: '1', title: 'Edit profile', content: <User_profile />, img: user_icon, path: '/profile/editProfile' },
+        { id: '2', title: 'Order History', content: <Order />, img: clock, path: '/profile/orderHistory' },
+        { id: '3', title: 'Saved Recipes', content: <div><FavoritesPage className='md:hidden border-2 border-red-500' /></div>, img: bookmark, path: '/profile/savedRecipes' },
+        { id: '4', title: 'Contact us', content: <ContactUs className="md:hidden" formClassName='md:w-full' textClassName='text-2xl font-inter text-gray-700 mt-0' />, img: clock, path: '/profile/contactUs' },
+        { id: '5', title: 'Track delivery', content: <div className='p-4'>Track delivery page</div>, img: clock, path: '/profile/trackOrder' },
+        { id: '6', title: 'Manage address', content: <div className='p-4'>Manage address page</div>, img: clock, path: '/profile/manageAddress' },
     ];
     const [activeElement, setActiveElement] = useState<string>(SidebarLink[0].id);
     const sideBarElement = SidebarLink.find(item => item.id === activeElement);
@@ -71,14 +71,13 @@ const Profile = () => {
                                 {
                                     SidebarLink.map((item) => (
                                         <div key={item.id} className='flex justify-between px-4 items-center'>
-                                            <button
-                                                className={`my-7 md:my-4 text-lg flex   items-center ${activeElement === item.id ? 'text-orange-500' : 'text-gray-700'
-                                                    }`}
-                                            >
-                                                <Image src={item.img} alt='icon8 img' width={20} height={20} />  <p className='ml-3'>{item.title}</p>
-                                            </button>
-                                            >
-                                       </div>
+                                            <Link href={item.path || '#'} className='w-full'>
+                                                <div className={`my-7 text-lg flex items-center ${activeElement === item.id ? 'text-orange-500' : 'text-gray-700'}`}>
+                                                    <Image src={item.img} alt='icon' width={20} height={20} />
+                                                    <p className='ml-3'>{item.title}</p>
+                                                </div>
+                                            </Link>
+                                        </div>
                                     ))
                                 }
                           </div>
@@ -89,33 +88,18 @@ const Profile = () => {
 
 
                 </div>
-                <div className='hidden md:w-3/4 md:flex flex-col'>
-                 
-                    <div className='my-4'>
+                <div className="hidden md:flex flex-col w-4/5 px-6 py-8 overflow-y-auto">
+                    <div className="flex items-center gap-3 mb-4">
                        
-                    </div>
-                   
-                    <div className='  m-5'>
-
-                        <div>{sideBarElement?.content}</div>
+                        <h2 className="text-2xl font-semibold text-gray-800">{sideBarElement?.title}</h2>
                     </div>
 
+                    <div className="bg-white p-4 rounded-md shadow-sm w-full max-w-3xl">
+                        {sideBarElement?.content}
+                    </div>
+                </div>
+                
 
-                </div>
-                <div className='w-3/4 relative overflow-hidden'>
-                    <AnimatePresence mode='wait'>
-                        <motion.div
-                            key={activeElement}
-                            initial={{ x: 300, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -300, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className='absolute w-full'
-                        >
-                            {sideBarElement?.content}
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
             </div>
         </div>
 
