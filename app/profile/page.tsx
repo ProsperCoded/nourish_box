@@ -21,6 +21,7 @@ type SidebarItem = {
   img: StaticImageData;
     path?: string; // optional for routing;
 };
+
 const Profile = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");

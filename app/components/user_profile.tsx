@@ -3,7 +3,7 @@ import React from 'react'
 const user_profile = () => {
     return (
         <form action="">
-            <div className="my-2">
+            <div >
                 <h2 className='text-2xl font-inter text-gray-700 '>Personal Information</h2>
                 <div className='flex items-center my-4 border-t-[1px] border-gray'>
                     

@@ -49,13 +49,37 @@ const Page = () => {
 
   return (
     <div className="flex flex-wrap flex-col py-5 lg:px-8">
-  
-      <div className="flex justify-center ">
-      
+      <div className="flex justify-center">
+        {/* <div className="flex flex-row items-center justify-between w-11/12">
+          <Link href="/" className="flex flex-row items-center">
+            <Image src={icon} alt="icon" className="md:hidden block w-[70px]" />{" "}
+            <Image
+              src={logo}
+              alt="nourish box logo"
+              className="hidden lg:block w-[75px] md:w-[150px]"
+            />
+          </Link>
+          <div className="flex  justify-between items-center w-1/6">
+            <div className="flex justify-end items-center px-2 border-[1px] border-gray-400 rounded-md w-3/4 lg:w-3/5">
+              <input
+                type="text"
+                placeholder="Search recipes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="mr-3 p-1 w-full"
+              />
+
+              <Image src={search} alt="search icon" width={20} height={10} />
+            </div>
+            <div className="flex justify-center items-center">
+              <Link href="/favorites" className="text-orange-400 hover:underline"><Image src={Heart} alt="heart icon" width={20} height={20}/></Link>
+            </div>
+          </div>
+        </div> */}
         <Header setSearchQuery={setSearchQuery} searchQuery={ searchQuery} />
       </div>
 
-      <div className="flex justify-center ">
+      <div className="flex justify-center">
         <div className="flex flex-col lg:flex-col lg:justify-between items-center  lg:py-10  pt-16 pb-8 md:pt-4 ">
           <div className="">
             <h2 className="mb-[5px]font-custom font-medium text-3xl lg:text-5xl">
