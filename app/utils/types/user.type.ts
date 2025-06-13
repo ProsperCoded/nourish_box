@@ -1,12 +1,15 @@
 export type User = {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   address: string;
   city: string;
   state: string;
+  lga: string;
   role: "admin" | "user";
-  createdAt: string; // date in ISO format
-  updatedAt: string; // date in ISO format
+  profilePicture?: string; // URL to the profile picture
+  createdAt: string;
+  updatedAt: string;
 };
