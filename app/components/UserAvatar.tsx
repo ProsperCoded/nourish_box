@@ -10,20 +10,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { User } from "@/app/utils/types/user.type";
 interface menuProps {
-  className?: string,
+  className?: string;
 }
 
-export function UserAvatar({ className = ''}:menuProps
-) {
+export function UserAvatar({ className = "" }: menuProps) {
   const { user: authUser, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
   };
 
+  let compolsory_properties = [
+    "firstName",
+    "lastName",
+    "email",
+    "phone",
+    "address",
+    "city",
+    "state",
+    "lga",
+  ];
   // Check if profile is incomplete (no address)
-  const isProfileIncomplete = authUser && !authUser.address;
+  const isProfileIncomplete =
+    authUser &&
+    !compolsory_properties.every(
+      (property) => authUser[property as keyof User]
+    );
 
   if (!authUser) {
     return (
@@ -64,14 +78,14 @@ export function UserAvatar({ className = ''}:menuProps
               )}
             </div>
             <span className="hidden md:inline text-sm font-medium">
-              {authUser.name.split(" ")[0]}
+              {authUser.firstName}
             </span>
           </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-56 bg-white rounded-md shadow-lg py-1 border border-gray-100">
           <div className="px-3 py-2 border-b border-gray-100">
-            <p className="text-sm font-medium">{authUser.name}</p>
+            <p className="text-sm font-medium">{authUser.firstName}</p>
             <p className="text-xs text-gray-500 truncate">{authUser.email}</p>
           </div>
 
@@ -129,7 +143,7 @@ export function UserAvatar({ className = ''}:menuProps
             </Link>
           </DropdownMenuItem>
 
-          {authUser.role === 'admin' && (
+          {authUser.role === "admin" && (
             <DropdownMenuItem className="hover:bg-gray-50 cursor-pointer">
               <Link
                 href="/admin"
