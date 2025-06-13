@@ -23,6 +23,7 @@ type SidebarItem = {
   path?: string;
 };
 
+
 const Profile = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
