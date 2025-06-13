@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [{
+      protocol: 'https',
+      hostname: 'res.cloudinary.com',
+    }],
+    domains: ['res.cloudinary.com'],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    formats: ['image/webp'],
+  },
 };
 
 export default nextConfig;

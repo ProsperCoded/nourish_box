@@ -10,13 +10,15 @@ import RecipeCard from "./components/RecipeCard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Recipe } from "./utils/types/recipe.type";
-import { fetchRecipes } from "./utils/firebase/recipes";
+import { fetchRecipes } from "./utils/firebase/recipes.firebase";
 
 import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
 import Banner from "./components/banner";
 import Footer from "./components/footer";
-import { runSeed } from "@/app/utils/seed/seed-script";
+import Link from "next/link";
+// 
+// import { runSeed } from "@/app/utils/seed/seed-script";
 
 export default function Home() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -38,17 +40,18 @@ export default function Home() {
     loadRecipes();
   }, []);
   // Seeding
-  // useEffect(() => {
-  //   // console.log("seeding into database...");
-  //   runSeed().catch(console.error);
-  // }, []);
   return (
     <div>
+      <div className="hidden md:block">
+        <Nav />
+    </div>
+      <div className="absolute ">
+        
+    </div>
       <div className="hidden justify-center items-center w-screen h-screen">
         This page is not available for small screen sizes
       </div>
-      <div className="block">
-        <Nav />
+      <div className="mt-[5rem] block">
         <div className="flex lg:flex-row flex-col justify-center">
           <div className="flex lg:flex-row flex-col md:flex-col justify-between items-center py-10 lg:py-20 lg:w-10/12">
             <div className="flex flex-col items-center lg:items-start p-4 lg:p-10 lg:w-1/2 lg:text-left text-center">
@@ -60,13 +63,12 @@ export default function Home() {
                 pre-measured, pre-cut ingredients along with guided recipes. We
                 ensure every meal is made with carefully sourced ingredients,
                 delivering farm-to-table goodness in every box.
-              </p>
-              <a href="https://l.instagram.com/?u=https%3A%2F%2Fpaystack.shop%2Fnourish-box%3Ffbclid%3DPAZXh0bgNhZW0CMTEAAadtGBs7PXoH7bl0Q_Q3-h86Ubt9ydzkY01mrRw0kHF7CbGk5yLa7Hox1vS3BA_aem_CVe_2rzSDyuZDGIHNXMEhg&e=AT01o97t6DhSd0Ph0fiFIl4a3GZv79KNc2lQBhy6Z1qF7sJnMTtMWHxHH1t48IxKXLbW0hB0tyYnWxcAJ1qxkeTyuwrV7CocoD_iD6F0Ee3XNSUEUEpCX3o">
-                {" "}
+              </p>{" "}
+              <Link href="/recipes">
                 <button className="bg-brand-btn_orange my-12 mt-4 px-2 lg:px-[30px] py-3 lg:py-[20px] rounded-xl font-inter lg:font-semibold text-white text-xl capitalize">
-                  Order now
+                  Order Now
                 </button>
-              </a>
+              </Link>
             </div>
             <div className="relative flex justify-center items-center m-6 lg:m-0 lg:w-1/2">
               <Image
@@ -129,7 +131,7 @@ export default function Home() {
           {" "}
           <button
             className="bg-brand-btn_orange px-[25px] py-[10px] rounded-xl font-inter text-white text-lg capitalize"
-            onClick={() => router.push("/receipes")}
+            onClick={() => router.push("/recipes")}
           >
             See All
           </button>

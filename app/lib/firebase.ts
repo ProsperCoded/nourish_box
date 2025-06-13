@@ -11,7 +11,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-console.log("testing", firebaseConfig);
+console.log("envs", firebaseConfig);
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
@@ -21,6 +21,7 @@ export const provider = new GoogleAuthProvider();
 
 export { signInWithPopup };
 
+// ! for seeding to the database
 // import { runSeed } from "@/app/utils/seed/seed-script";
 // console.log("seeding into database...");
 // runSeed().catch(console.error);
