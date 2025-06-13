@@ -1,4 +1,4 @@
-import ReturnButton from '@/app/components/return_button'
+import ReturnButton from '../app/components/return_button'
 import React from 'react'
 
 
