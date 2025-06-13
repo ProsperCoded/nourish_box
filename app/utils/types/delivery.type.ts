@@ -7,6 +7,7 @@ export type Delivery = {
   deliveryAddress: string;
   deliveryCity: string;
   deliveryState: string;
+  deliveryLGA: string;
   deliveryNote: string;
   createdAt: string;
   updatedAt: string;

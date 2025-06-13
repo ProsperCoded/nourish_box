@@ -11,7 +11,8 @@ export const useLoginPrompt = () => {
   const getPromptCounter = useCallback((): number => {
     if (typeof window === "undefined") return INITIAL_PROMPT_COUNT;
     const stored = localStorage.getItem(PROMPT_COUNTER_KEY);
-    return stored ? parseInt(stored, 10) : INITIAL_PROMPT_COUNT;
+    // Return stored value, or initial if null/undefined
+    return stored != null ? parseInt(stored, 10) : INITIAL_PROMPT_COUNT;
   }, []);
 
   const setPromptCounter = useCallback((count: number) => {
@@ -19,30 +20,25 @@ export const useLoginPrompt = () => {
     localStorage.setItem(PROMPT_COUNTER_KEY, count.toString());
   }, []);
 
-  const shouldShowPrompt = useCallback((): boolean => {
-    return getPromptCounter() > 0;
-  }, [getPromptCounter]);
-
-  const handleShowPrompt = useCallback(() => {
-    if (shouldShowPrompt()) {
-      setShowPrompt(true);
+  const decrementPromptCounter = useCallback(() => {
+    const currentCount = getPromptCounter();
+    if (currentCount > 0) {
+      const newCount = currentCount - 1;
+      setPromptCounter(newCount);
+      return newCount; // Return new value for immediate use
     }
-  }, [shouldShowPrompt]);
+    return currentCount; // Return current value if already 0
+  }, [getPromptCounter, setPromptCounter]);
 
   const handleNeverMind = useCallback(() => {
-    // Stop showing prompts when user clicks "Never mind"
-    setPromptCounter(0);
+    // Reset counter to initial value when user clicks "Never mind"
+    setPromptCounter(INITIAL_PROMPT_COUNT);
     setShowPrompt(false);
   }, [setPromptCounter]);
 
-  const handleAddToBag = useCallback(() => {
-    // Decrease counter when user successfully adds to bag
-    const currentCount = getPromptCounter();
-    if (currentCount > 0) {
-      setPromptCounter(currentCount - 1);
-    }
-    setShowPrompt(false);
-  }, [getPromptCounter, setPromptCounter]);
+  const triggerPrompt = useCallback(() => {
+    setShowPrompt(true);
+  }, []);
 
   const hidePrompt = useCallback(() => {
     setShowPrompt(false);
@@ -50,11 +46,10 @@ export const useLoginPrompt = () => {
 
   return {
     showPrompt,
-    handleShowPrompt,
-    handleNeverMind,
-    handleAddToBag,
+    triggerPrompt,
     hidePrompt,
-    shouldShowPrompt: shouldShowPrompt(),
-    remainingPrompts: getPromptCounter(),
+    handleNeverMind,
+    decrementPromptCounter,
+    getPromptCounter,
   };
 };

@@ -31,8 +31,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
   const { user, loading: authLoading } = useAuth();
   const { addToCart, loading: cartLoading, isItemLoading } = useCart();
-  const { showPrompt, triggerPrompt, handleAddToBag, hidePrompt } =
-    useManualLoginPrompt();
+  const {
+    showPrompt,
+    triggerPrompt,
+    hidePrompt,
+    decrementPromptCounter,
+    handleNeverMind,
+  } = useManualLoginPrompt();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -108,19 +113,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     e.stopPropagation();
 
     try {
+      // Add to cart for both guests and logged-in users
       await addToCart(recipe, count, option);
+
+      // Single success notification
       toast.success(`${recipe.name} added to cart!`, {
         duration: 3000,
         position: "top-center",
       });
-      setOpen(false); // Close modal after adding to cart
+      setOpen(false); // Close the recipe details modal
 
-      if (user) {
-        // Only update counter for authenticated users
-        handleAddToBag();
-      } else {
-        // Show login prompt for guest users after they've added to cart
-        triggerPrompt();
+      // Only handle prompt logic for guest users
+      if (!user) {
+        const newCount = decrementPromptCounter();
+        // Prompt only when counter reaches 0
+        if (newCount === 0) {
+          triggerPrompt();
+        }
       }
 
       // Reset form state for next time
@@ -359,7 +368,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         >
           <LoginPrompt
             main_text="to save your cart and skip the hassle next time!"
-            onNeverMind={hidePrompt}
+            onNeverMind={handleNeverMind}
             onClose={hidePrompt}
           />
         </Modal>

@@ -14,14 +14,14 @@ export const LoginPromptWrapper: React.FC<LoginPromptWrapperProps> = ({
   children,
   triggerOnClick = false,
 }) => {
-  const { showPrompt, handleShowPrompt, handleNeverMind, hidePrompt } =
+  const { showPrompt, triggerPrompt, handleNeverMind, hidePrompt } =
     useLoginPrompt();
 
   const handleChildClick = (e: React.MouseEvent) => {
     if (triggerOnClick) {
       e.preventDefault();
       e.stopPropagation();
-      handleShowPrompt();
+      triggerPrompt();
     }
   };
 
@@ -45,12 +45,5 @@ export const LoginPromptWrapper: React.FC<LoginPromptWrapperProps> = ({
   );
 };
 
-// Hook to manually trigger login prompt
-export const useManualLoginPrompt = () => {
-  const loginPrompt = useLoginPrompt();
-
-  return {
-    ...loginPrompt,
-    triggerPrompt: loginPrompt.handleShowPrompt,
-  };
-};
+// Hook to manually trigger login prompt - now a direct alias
+export const useManualLoginPrompt = useLoginPrompt;
