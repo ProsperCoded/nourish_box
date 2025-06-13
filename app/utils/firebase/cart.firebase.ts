@@ -68,7 +68,7 @@ export const addToCart = async (
       name: recipe.name,
       price: recipe.price || 0,
       quantity,
-      image: recipe.displayMedia.url,
+      displayMedia: recipe.displayMedia,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       recipe,

@@ -142,13 +142,30 @@ const Cart_tab = () => {
                 <div className="flex items-center justify-between px-3 py-2">
                   <div className="w-3/5 flex items-center">
                     <div className="relative">
-                      <Image
-                        src={item.image || pottage}
-                        alt={item.name}
-                        width={40}
-                        height={60}
-                        className="rounded-md object-cover"
-                      />
+                      {item.displayMedia.type === "video" ? (
+                        <div className="relative w-[40px] h-[60px] rounded-md overflow-hidden">
+                          <Image
+                            src={item.displayMedia.url}
+                            alt={item.name}
+                            width={40}
+                            height={60}
+                            className="rounded-md object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center">
+                              <div className="w-0 h-0 border-l-[8px] border-l-white border-y-[6px] border-y-transparent ml-1" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <Image
+                          src={item.displayMedia.url}
+                          alt={item.name}
+                          width={40}
+                          height={60}
+                          className="rounded-md object-cover"
+                        />
+                      )}
                       {itemLoading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md">
                           <CircularProgress size={16} />

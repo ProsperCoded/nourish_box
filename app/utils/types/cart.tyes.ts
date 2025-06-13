@@ -6,7 +6,7 @@ export type CartItem = {
   name: string;
   price: number; // not a duplicate of recipe.price, since this can suppot discounts
   quantity: number;
-  image: string;
+  displayMedia: { url: string; publicId: string; type: "image" | "video" };
   createdAt: string;
   updatedAt: string;
 
