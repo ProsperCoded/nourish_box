@@ -13,18 +13,19 @@ import FavoritesPage from "../favorites/page";
 import ContactUs from "../contact_us/page";
 import AlternateHeader from "../components/alternate_header";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
 
 type SidebarItem = {
   id: string;
   title: string;
   content: React.ReactNode;
   img: StaticImageData;
-    path?: string; // optional for routing;
+  path?: string; // optional for routing;
 };
 const Profile = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { user } = useAuth();
   const SidebarLink: SidebarItem[] = [
     {
       id: "1",
@@ -89,9 +90,20 @@ const Profile = () => {
       <div className="flex justify-between">
         <div className="w-full md:w-1/5 h-screen md:flex border-r-[1px] border-solid border-gray-200 upload md:ml-6">
           <div className="flex flex-col w-full font-inter text-gray-700">
-            <div className="my-5 md:mt-10 mb-5">
+            <div className="hidden md:block my-5 text-center">
+              <div className="relative mx-auto w-24 h-24 mb-3">
+                <Image
+                  src={user?.profilePicture || user_icon}
+                  alt="Profile Picture"
+                  fill
+                  className="rounded-full object-cover border-2 border-orange-200"
+                />
+              </div>
+            </div>
+
+            <div className="my-5 md:mt-0 mb-5">
               <h2 className="text-xl text-center md:text-left w-full font-inter font-medium md:mt-2">
-                Hi, Username!
+                Hi, {user?.firstName}!
               </h2>
             </div>
 

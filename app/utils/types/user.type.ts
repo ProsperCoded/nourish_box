@@ -9,6 +9,7 @@ export type User = {
   state: string;
   lga: string;
   role: "admin" | "user";
+  profilePicture?: string; // URL to the profile picture
   createdAt: string;
   updatedAt: string;
 };

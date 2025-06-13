@@ -39,6 +39,9 @@ export function UserAvatar({ className = "" }: menuProps) {
       (property) => authUser[property as keyof User]
     );
 
+  // Check if profile picture is missing (less urgent)
+  const hasNoProfilePicture = authUser && !authUser.profilePicture;
+
   if (!authUser) {
     return (
       <div className={`flex gap-4 ${className}`}>
@@ -64,11 +67,11 @@ export function UserAvatar({ className = "" }: menuProps) {
             <div className="relative">
               <div className="bg-brand-btn_orange/20 p-1.5 rounded-full">
                 <Image
-                  src={userIcon}
-                  alt="user icon"
+                  src={authUser.profilePicture || userIcon}
+                  alt="user avatar"
                   width={30}
-                  height={30.11}
-                  className="rounded-full"
+                  height={30}
+                  className="rounded-full object-cover w-[30px] h-[30px]"
                 />
               </div>
               {isProfileIncomplete && (
@@ -85,8 +88,23 @@ export function UserAvatar({ className = "" }: menuProps) {
 
         <DropdownMenuContent className="w-56 bg-white rounded-md shadow-lg py-1 border border-gray-100">
           <div className="px-3 py-2 border-b border-gray-100">
-            <p className="text-sm font-medium">{authUser.firstName}</p>
-            <p className="text-xs text-gray-500 truncate">{authUser.email}</p>
+            <div className="flex items-center gap-3">
+              <Image
+                src={authUser.profilePicture || userIcon}
+                alt="user avatar"
+                width={40}
+                height={40}
+                className="rounded-full object-cover w-[40px] h-[40px]"
+              />
+              <div>
+                <p className="text-sm font-medium">
+                  {authUser.firstName} {authUser.lastName}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {authUser.email}
+                </p>
+              </div>
+            </div>
           </div>
 
           <DropdownMenuItem className="hover:bg-gray-50 cursor-pointer">
