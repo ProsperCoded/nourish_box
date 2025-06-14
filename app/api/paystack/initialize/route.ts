@@ -116,7 +116,9 @@ export async function POST(request: NextRequest) {
           deliveryNote: delivery?.note,
         }
       : {
-          deliveryName: user?.name,
+          deliveryName: `${user?.firstName || ""} ${
+            user?.lastName || ""
+          }`.trim(),
           deliveryEmail: user?.email,
           deliveryPhone: user?.phone,
           deliveryAddress: user?.address,

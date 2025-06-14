@@ -3,9 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
-import { User } from "../utils/types/user.type";
 import { Delivery } from "../utils/types/delivery.type";
-import { Recipe } from "../utils/types/recipe.type";
 import { CartItem } from "../utils/types/cart.tyes";
 import Image from "next/image";
 import { CircularProgress } from "@mui/material";
@@ -42,6 +40,8 @@ const CheckoutPage = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [paymentReference, setPaymentReference] = useState<string>("");
+  const [transactionId, setTransactionId] = useState<string>("");
 
   // Prefill form with user data if logged in
   useEffect(() => {
@@ -139,9 +139,59 @@ const CheckoutPage = () => {
     return isValid && agreedToTerms;
   };
 
+  // Initialize transaction with backend
+  const initializeTransaction = async () => {
+    try {
+      setPaymentLoading(true);
+
+      const payload = {
+        amount: finalTotal,
+        recipes: cartItems.map((item) => item.recipeId),
+        ...(user ? { userId: user.id } : { email: deliveryInfo.deliveryEmail }),
+        delivery: {
+          name: deliveryInfo.deliveryName,
+          email: deliveryInfo.deliveryEmail,
+          phone: deliveryInfo.deliveryPhone,
+          address: deliveryInfo.deliveryAddress,
+          city: deliveryInfo.deliveryCity,
+          state: deliveryInfo.deliveryState,
+          note: deliveryInfo.deliveryNote || "",
+        },
+      };
+
+      const response = await fetch("/api/paystack/initialize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPaymentReference(data.data.reference);
+        setTransactionId(data.data.transactionId);
+        return data.data;
+      } else {
+        setPaymentReference("");
+        setTransactionId("");
+        throw new Error(data.message || "Failed to initialize transaction");
+      }
+    } catch (error) {
+      console.error("Transaction initialization error:", error);
+      setPaymentReference("");
+      setTransactionId("");
+      alert("Failed to initialize payment. Please try again.");
+      throw error;
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   // Paystack configuration
   const config = {
-    reference: generatePaymentReference(),
+    reference: paymentReference || generatePaymentReference(),
     email: deliveryInfo.deliveryEmail || "guest@nourish.com",
     amount: finalTotal * 100, // Amount in kobo
     key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
@@ -153,16 +203,13 @@ const CheckoutPage = () => {
     setPaymentLoading(true);
 
     try {
-      // Verify payment on backend
+      // Verify payment on backend using the reference and transactionId
       const verifyRes = await fetch(
-        `/api/paystack/verify?reference=${reference.reference}`
+        `/api/paystack/verify?reference=${reference.reference}&transactionId=${transactionId}`
       );
       const verifyData = await verifyRes.json();
 
       if (verifyData.success) {
-        // Save delivery information and order details here
-        // You can implement order creation logic
-
         alert(
           `Payment successful! Your order will be delivered to ${deliveryInfo.deliveryAddress}`
         );
@@ -170,7 +217,9 @@ const CheckoutPage = () => {
         router.push("/orders"); // Redirect to orders page
       } else {
         alert(
-          `Payment verification failed: ${verifyData.error || "Unknown error"}`
+          `Payment verification failed: ${
+            verifyData.message || "Unknown error"
+          }`
         );
       }
     } catch (error) {
@@ -184,13 +233,23 @@ const CheckoutPage = () => {
   const handlePaystackCloseAction = () => {
     console.log("Payment dialog closed");
     setPaymentLoading(false);
+    // Reset payment reference so user can try again
+    setPaymentReference("");
+    setTransactionId("");
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!validateForm()) {
       return;
     }
-    // Payment will be handled by PaystackButton
+
+    try {
+      // Initialize transaction before showing payment modal
+      await initializeTransaction();
+    } catch (error) {
+      // Error already handled in initializeTransaction
+      return;
+    }
   };
 
   if (cartLoading || authLoading) {
@@ -567,7 +626,7 @@ const CheckoutPage = () => {
 
             {/* Payment Button */}
             <div className="mt-6">
-              {isFormValid ? (
+              {isFormValid && paymentReference ? (
                 <PaystackButton
                   {...config}
                   text={`Pay NGN ${finalTotal.toLocaleString()}`}
@@ -579,7 +638,7 @@ const CheckoutPage = () => {
               ) : (
                 <button
                   onClick={handlePayment}
-                  disabled={paymentLoading}
+                  disabled={paymentLoading || !isFormValid}
                   className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {paymentLoading ? (
@@ -589,7 +648,7 @@ const CheckoutPage = () => {
                         color="inherit"
                         className="mr-2"
                       />
-                      Processing...
+                      {paymentReference ? "Processing..." : "Initializing..."}
                     </div>
                   ) : (
                     `Pay NGN ${finalTotal.toLocaleString()}`
