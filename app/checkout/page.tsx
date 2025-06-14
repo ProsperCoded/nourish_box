@@ -7,7 +7,7 @@ import { Delivery } from "../utils/types/delivery.type";
 import { CartItem } from "../utils/types/cart.tyes";
 import Image from "next/image";
 import { CircularProgress } from "@mui/material";
-import { PaystackButton } from "react-paystack";
+import PaystackModal from "../components/PaystackModal";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingBag, Clock, Users } from "lucide-react";
 import {
@@ -16,6 +16,7 @@ import {
   generatePaymentReference,
 } from "../utils/checkout.utils";
 import { fetchStates, fetchLGAs } from "../utils/client-api/locationApi";
+import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
   const { cart, getTotalPrice, clearCart, loading: cartLoading } = useCart();
@@ -42,6 +43,7 @@ const CheckoutPage = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [paymentReference, setPaymentReference] = useState<string>("");
   const [transactionId, setTransactionId] = useState<string>("");
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
 
   // Prefill form with user data if logged in
   useEffect(() => {
@@ -167,11 +169,23 @@ const CheckoutPage = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        status: boolean;
+        message: string;
+        data: {
+          authorization_url: string;
+          access_code: string;
+          reference: string;
+          transactionId: string;
+          deliveryId: string;
+        };
+      };
 
-      if (data.success) {
+      if (response.ok) {
         setPaymentReference(data.data.reference);
         setTransactionId(data.data.transactionId);
+        // Show payment modal after successful initialization
+        setShowPaymentModal(true);
         return data.data;
       } else {
         setPaymentReference("");
@@ -189,53 +203,82 @@ const CheckoutPage = () => {
     }
   };
 
-  // Paystack configuration
-  const config = {
-    reference: paymentReference || generatePaymentReference(),
-    email: deliveryInfo.deliveryEmail || "guest@nourish.com",
-    amount: finalTotal * 100, // Amount in kobo
-    key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
-  };
-
-  const handlePaystackSuccessAction = async (reference: any) => {
-    console.log("Payment successful:", reference);
+  const handlePaymentSuccess = async (response: any) => {
+    console.log("Payment successful:", response);
     setPaymentLoading(true);
+    setShowPaymentModal(false);
 
     try {
       // Verify payment on backend using the reference and transactionId
       const verifyRes = await fetch(
-        `/api/paystack/verify?reference=${reference.reference}&transactionId=${transactionId}`
+        `/api/paystack/verify?reference=${response.reference}&transactionId=${transactionId}`
       );
       const verifyData = await verifyRes.json();
 
       if (verifyData.success) {
-        alert(
-          `Payment successful! Your order will be delivered to ${deliveryInfo.deliveryAddress}`
-        );
+        toast.success("Payment successful! Your order has been placed.", {
+          duration: 5000,
+          position: "top-center",
+          style: {
+            background: "#10B981",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "8px",
+          },
+        });
         await clearCart();
-        router.push("/orders"); // Redirect to orders page
+        router.push("/profile?section=orders"); // Updated redirect path
       } else {
-        alert(
+        toast.error(
           `Payment verification failed: ${
             verifyData.message || "Unknown error"
-          }`
+          }`,
+          {
+            duration: 5000,
+            position: "top-center",
+            style: {
+              background: "#EF4444",
+              color: "#fff",
+              padding: "16px",
+              borderRadius: "8px",
+            },
+          }
         );
       }
     } catch (error) {
       console.error("Payment verification error:", error);
-      alert("Payment verification failed. Please contact support.");
+      toast.error("Payment verification failed. Please contact support.", {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
+        },
+      });
     } finally {
       setPaymentLoading(false);
     }
   };
 
-  const handlePaystackCloseAction = () => {
+  const handlePaymentClose = () => {
     console.log("Payment dialog closed");
+    setShowPaymentModal(false);
     setPaymentLoading(false);
     // Reset payment reference so user can try again
     setPaymentReference("");
     setTransactionId("");
+    toast.error("Payment was cancelled. Please try again.", {
+      duration: 4000,
+      position: "top-center",
+      style: {
+        background: "#EF4444",
+        color: "#fff",
+        padding: "16px",
+        borderRadius: "8px",
+      },
+    });
   };
 
   const handlePayment = async () => {
@@ -626,38 +669,37 @@ const CheckoutPage = () => {
 
             {/* Payment Button */}
             <div className="mt-6">
-              {isFormValid && paymentReference ? (
-                <PaystackButton
-                  {...config}
-                  text={`Pay NGN ${finalTotal.toLocaleString()}`}
-                  onSuccess={handlePaystackSuccessAction}
-                  onClose={handlePaystackCloseAction}
-                  className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  disabled={paymentLoading}
-                />
-              ) : (
-                <button
-                  onClick={handlePayment}
-                  disabled={paymentLoading || !isFormValid}
-                  className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {paymentLoading ? (
-                    <div className="flex items-center justify-center">
-                      <CircularProgress
-                        size={20}
-                        color="inherit"
-                        className="mr-2"
-                      />
-                      {paymentReference ? "Processing..." : "Initializing..."}
-                    </div>
-                  ) : (
-                    `Pay NGN ${finalTotal.toLocaleString()}`
-                  )}
-                </button>
-              )}
+              <button
+                onClick={handlePayment}
+                disabled={paymentLoading || !isFormValid}
+                className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {paymentLoading ? (
+                  <div className="flex items-center justify-center">
+                    <CircularProgress
+                      size={20}
+                      color="inherit"
+                      className="mr-2"
+                    />
+                    {paymentReference ? "Processing..." : "Initializing..."}
+                  </div>
+                ) : (
+                  `Pay NGN ${finalTotal.toLocaleString()}`
+                )}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Custom Paystack Modal */}
+        <PaystackModal
+          isOpen={showPaymentModal}
+          onClose={handlePaymentClose}
+          email={deliveryInfo.deliveryEmail || "guest@nourish.com"}
+          amount={finalTotal}
+          reference={paymentReference}
+          onSuccess={handlePaymentSuccess}
+        />
       </div>
     </div>
   );
