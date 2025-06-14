@@ -4,7 +4,7 @@ import bookmark from "../assets/icons8-bookmark-48.png";
 import clock from "../assets/icons8-clock-48.png";
 import Link from "next/link";
 import Image, { StaticImageData } from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import User_profile from "../components/user_profile";
 import Order from "../components/order";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,7 +23,7 @@ type SidebarItem = {
   path?: string;
 };
 
-const Profile = () => {
+const ProfileContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -311,6 +311,21 @@ const Profile = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Loading component for Suspense fallback
+const ProfileLoading = () => (
+  <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+  </div>
+);
+
+const Profile = () => {
+  return (
+    <Suspense fallback={<ProfileLoading />}>
+      <ProfileContent />
+    </Suspense>
   );
 };
 
