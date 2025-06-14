@@ -1,5 +1,4 @@
 import { Recipe } from "@/app/utils/types/recipe.type";
-import { Transaction } from "@/app/utils/types/transaction.type";
 
 export enum DeliveryStatus {
   PENDING = "pending",
