@@ -7,7 +7,7 @@ import Image, { StaticImageData } from "next/image";
 import { useState, useEffect } from "react";
 import User_profile from "../components/user_profile";
 import Order from "../components/order";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import return_btn from "../assets/icons8-left-arrow-50.png";
 import FavoritesPage from "../favorites/page";
 import ContactUs from "../contact_us/page";
@@ -25,10 +25,35 @@ type SidebarItem = {
 
 const Profile = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Map section query parameters to sidebar item IDs
+  const sectionToIdMap: { [key: string]: string } = {
+    "edit-profile": "1",
+    orders: "2",
+    "saved-recipes": "3",
+    "contact-us": "4",
+    "track-delivery": "5",
+    "manage-address": "6",
+  };
+
+  // Get the section from URL query parameter
+  const section = searchParams.get("section");
+  const initialActiveId =
+    section && sectionToIdMap[section] ? sectionToIdMap[section] : "1";
+
+  const [activeElement, setActiveElement] = useState<string>(initialActiveId);
+
+  // Update active element when section query parameter changes
+  useEffect(() => {
+    if (section && sectionToIdMap[section]) {
+      setActiveElement(sectionToIdMap[section]);
+    }
+  }, [section]);
 
   // Handle mobile detection and window resize
   useEffect(() => {
@@ -102,11 +127,17 @@ const Profile = () => {
     },
   ];
 
-  const [activeElement, setActiveElement] = useState<string>(SidebarLink[0].id);
   const sideBarElement = SidebarLink.find((item) => item.id === activeElement);
 
   const handleSidebarItemClick = (id: string) => {
     setActiveElement(id);
+    // Find the section name from the ID
+    const sectionName = Object.entries(sectionToIdMap).find(
+      ([_, value]) => value === id
+    )?.[0];
+    if (sectionName) {
+      router.push(`/profile?section=${sectionName}`);
+    }
     if (isMobile) {
       setIsSidebarOpen(false);
     }
