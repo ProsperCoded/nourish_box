@@ -215,7 +215,7 @@ const CheckoutPage = () => {
       );
       const verifyData = await verifyRes.json();
 
-      if (verifyData.success) {
+      if (verifyRes.ok) {
         toast.success("Payment successful! Your order has been placed.", {
           duration: 5000,
           position: "top-center",
