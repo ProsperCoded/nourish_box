@@ -5,7 +5,7 @@ import { X, CreditCard, Shield, Lock } from "lucide-react";
 
 interface PaystackModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (forcedClose?: boolean) => void;
   email: string;
   amount: number;
   reference: string;
@@ -54,16 +54,17 @@ const PaystackModal: React.FC<PaystackModalProps> = ({
         ref: reference, // Use the reference from backend initialization
         onClose: () => {
           console.log("Payment cancelled");
-          onClose();
+          onClose(true);
         },
         callback: (response: any) => {
           console.log("Payment successful:", response);
           onSuccess(response);
-          onClose();
+          onClose(false);
         },
         onError: (error: any) => {
           console.error("Payment error:", error);
           if (onError) onError(error);
+          onClose(true);
         },
       });
 
@@ -96,7 +97,7 @@ const PaystackModal: React.FC<PaystackModalProps> = ({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => onClose(true)}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X size={24} />

@@ -262,23 +262,25 @@ const CheckoutPage = () => {
     }
   };
 
-  const handlePaymentClose = () => {
+  const handlePaymentClose = (forcedClose: boolean = false) => {
     console.log("Payment dialog closed");
     setShowPaymentModal(false);
     setPaymentLoading(false);
     // Reset payment reference so user can try again
     setPaymentReference("");
     setTransactionId("");
-    toast.error("Payment was cancelled. Please try again.", {
-      duration: 4000,
-      position: "top-center",
-      style: {
-        background: "#EF4444",
-        color: "#fff",
-        padding: "16px",
-        borderRadius: "8px",
-      },
-    });
+    if (!forcedClose) {
+      toast.error("Payment was cancelled. Please try again.", {
+        duration: 4000,
+        position: "top-center",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
+        },
+      });
+    }
   };
 
   const handlePayment = async () => {
