@@ -14,12 +14,14 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserAvatar } from "@/app/components/UserAvatar";
 import CartComponent from "./Cart";
+import { useAuth } from "../contexts/AuthContext";
 
 const Nav = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
+  const { user: authUser } = useAuth();
 
   const mobileMenu = [
     { id: 1, label: "Home", link: "/" },
@@ -77,7 +79,30 @@ const Nav = () => {
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[100px]" />
           </Link>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            {/* Admin Badge for Mobile */}
+            {authUser?.role === "admin" && (
+              <Link href="/admin">
+                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-1.5"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                  <span className="text-xs font-semibold">Admin</span>
+                </div>
+              </Link>
+            )}
             <div>
               <UserAvatar className="flex-row " />
             </div>
@@ -120,33 +145,54 @@ const Nav = () => {
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
 
-          <div className="flex items-center justify-between gap-4 w-1/2  ">
-            <ul className={`flex py-0 font-inter justify-start items-center`}>
-              <Link
-                href="/recipes"
-                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
-              >
-                Recipes{" "}
+          <div className="flex items-center justify-around gap-4 w-1/2   ">
+            <Link
+              href="/recipes"
+              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+            >
+              Recipes{" "}
+            </Link>
+            <Link
+              href="/about_us"
+              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+            >
+              About us
+            </Link>
+            <Link
+              href="/contact_us"
+              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+            >
+              Contact us
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Admin Badge for Desktop */}
+            {authUser?.role === "admin" && (
+              <Link href="/admin">
+                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-2"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                  <span className="text-sm font-semibold">Admin</span>
+                </div>
               </Link>
-              <Link
-                href="/about_us"
-                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
-              >
-                About us
-              </Link>
-              <Link
-                href="/contact_us"
-                className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
-              >
-                Contact us
-              </Link>
-            </ul>
-            <div className="flex">
-              <div className="mx-4">
-                <UserAvatar className="flex-row " />
-              </div>
-              <CartComponent />
+            )}
+            <div className="mx-4">
+              <UserAvatar className="flex-row " />
             </div>
+            <CartComponent />
           </div>
         </div>
       </div>
