@@ -330,7 +330,7 @@ const OrderModal = ({
                       Current Status:
                     </span>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                      className={`px-3 py-1 rounded-full text-sm font-medium border flex ${getStatusColor(
                         order.deliveryStatus
                       )}`}
                     >

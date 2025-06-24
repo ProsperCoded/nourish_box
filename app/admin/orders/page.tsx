@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, AlertTriangle, RefreshCw } from "lucide-react";
+import {
+  ShoppingCart,
+  AlertTriangle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import {
   getAllOrdersWithDetails,
+  getPaginatedOrdersWithDetails,
+  getTotalOrdersCount,
   updateOrderDeliveryStatus,
 } from "@/app/utils/firebase/admin.firebase";
 import { DeliveryStatus } from "@/app/utils/types/order.type";
@@ -21,12 +29,41 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchOrders = async () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState<string | undefined>();
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [allOrdersForStats, setAllOrdersForStats] = useState<
+    OrderWithDetails[]
+  >([]);
+  const pageSize = 5;
+
+  const fetchOrders = async (resetToFirstPage = false) => {
     setLoading(true);
     setError(null);
     try {
-      const ordersData = await getAllOrdersWithDetails();
-      setOrders(ordersData);
+      // Fetch total count and all orders for statistics
+      const [totalCount, allOrdersData] = await Promise.all([
+        getTotalOrdersCount(),
+        getAllOrdersWithDetails(),
+      ]);
+
+      setTotalOrders(totalCount);
+      setAllOrdersForStats(allOrdersData);
+
+      // Fetch paginated orders for display
+      const paginationData = await getPaginatedOrdersWithDetails(
+        pageSize,
+        resetToFirstPage ? undefined : lastOrderId
+      );
+
+      setOrders(paginationData.orders);
+      setHasNextPage(paginationData.hasMore);
+      if (resetToFirstPage) {
+        setCurrentPage(1);
+        setLastOrderId(paginationData.lastOrderId);
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Failed to load orders. Please try again.");
@@ -38,8 +75,7 @@ export default function OrdersPage() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      const ordersData = await getAllOrdersWithDetails();
-      setOrders(ordersData);
+      await fetchOrders(true);
     } catch (error) {
       console.error("Error refreshing orders:", error);
       setError("Failed to refresh orders. Please try again.");
@@ -48,8 +84,40 @@ export default function OrdersPage() {
     }
   };
 
+  const handleNextPage = async () => {
+    if (!hasNextPage) return;
+
+    setLoading(true);
+    try {
+      const paginationData = await getPaginatedOrdersWithDetails(
+        pageSize,
+        lastOrderId
+      );
+
+      setOrders(paginationData.orders);
+      setHasNextPage(paginationData.hasMore);
+      setLastOrderId(paginationData.lastOrderId);
+      setCurrentPage((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error fetching next page:", error);
+      setError("Failed to load next page. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePrevPage = async () => {
+    if (currentPage <= 1) return;
+
+    // For simplicity, we'll reset to first page and then navigate
+    // In a production app, you might want to implement bi-directional pagination
+    setCurrentPage(1);
+    setLastOrderId(undefined);
+    await fetchOrders(true);
+  };
+
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(true);
   }, []);
 
   const handleOrderClick = (order: OrderWithDetails) => {
@@ -63,12 +131,22 @@ export default function OrdersPage() {
   ) => {
     try {
       await updateOrderDeliveryStatus(orderId, status);
-      // Refresh orders data
-      const updatedOrders = await getAllOrdersWithDetails();
-      setOrders(updatedOrders);
+
+      // Refresh all orders for statistics
+      const allOrdersData = await getAllOrdersWithDetails();
+      setAllOrdersForStats(allOrdersData);
+
+      // Refresh current page of orders
+      const paginationData = await getPaginatedOrdersWithDetails(
+        pageSize,
+        currentPage === 1 ? undefined : lastOrderId
+      );
+      setOrders(paginationData.orders);
+      setHasNextPage(paginationData.hasMore);
+
       // Update the selected order if it matches
       if (selectedOrder?.id === orderId) {
-        const updatedOrder = updatedOrders.find(
+        const updatedOrder = paginationData.orders.find(
           (order) => order.id === orderId
         );
         if (updatedOrder) {
@@ -121,7 +199,7 @@ export default function OrdersPage() {
         </p>
         <p className="text-gray-600 mb-4">{error}</p>
         <button
-          onClick={fetchOrders}
+          onClick={() => fetchOrders(true)}
           className="px-4 py-2 bg-brand-logo_green text-white rounded-lg hover:bg-brand-logo_green/90 transition-colors"
         >
           Try Again
@@ -177,7 +255,7 @@ export default function OrdersPage() {
               <p className="text-sm font-medium text-gray-600">Pending</p>
               <p className="text-2xl font-bold text-gray-900">
                 {
-                  orders.filter(
+                  allOrdersForStats.filter(
                     (order) => order.deliveryStatus === DeliveryStatus.PENDING
                   ).length
                 }
@@ -192,7 +270,7 @@ export default function OrdersPage() {
               <p className="text-sm font-medium text-gray-600">Packed</p>
               <p className="text-2xl font-bold text-gray-900">
                 {
-                  orders.filter(
+                  allOrdersForStats.filter(
                     (order) => order.deliveryStatus === DeliveryStatus.PACKED
                   ).length
                 }
@@ -207,7 +285,7 @@ export default function OrdersPage() {
               <p className="text-sm font-medium text-gray-600">In Transit</p>
               <p className="text-2xl font-bold text-gray-900">
                 {
-                  orders.filter(
+                  allOrdersForStats.filter(
                     (order) =>
                       order.deliveryStatus === DeliveryStatus.IN_TRANSIT
                   ).length
@@ -223,7 +301,7 @@ export default function OrdersPage() {
               <p className="text-sm font-medium text-gray-600">Delivered</p>
               <p className="text-2xl font-bold text-gray-900">
                 {
-                  orders.filter(
+                  allOrdersForStats.filter(
                     (order) => order.deliveryStatus === DeliveryStatus.DELIVERED
                   ).length
                 }
@@ -240,6 +318,15 @@ export default function OrdersPage() {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="bg-white rounded-xl shadow-lg p-6"
       >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Orders ({totalOrders} total)
+          </h2>
+          <div className="text-sm text-gray-600">
+            Page {currentPage} • Showing {orders.length} orders
+          </div>
+        </div>
+
         <OrdersTable
           orders={orders}
           loading={false}
@@ -248,6 +335,38 @@ export default function OrdersPage() {
           showFilters={true}
           onOrderClick={handleOrderClick}
         />
+
+        {/* Pagination Controls */}
+        {totalOrders > pageSize && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage <= 1}
+              className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </button>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-700">Page {currentPage}</span>
+              {totalOrders > 0 && (
+                <span className="text-sm text-gray-500">
+                  of {Math.ceil(totalOrders / pageSize)}
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={handleNextPage}
+              disabled={!hasNextPage}
+              className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Order Modal */}

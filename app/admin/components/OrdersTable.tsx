@@ -337,7 +337,7 @@ const OrdersTable = ({
                       #{order.id.slice(-8)}
                     </span>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                      className={`px-2 py-1 rounded-full text-xs font-medium border flex  ${getStatusColor(
                         order.deliveryStatus
                       )}`}
                     >
