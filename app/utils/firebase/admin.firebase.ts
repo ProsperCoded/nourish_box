@@ -557,3 +557,220 @@ export async function getRecentOrders(): Promise<Order[]> {
     return [];
   }
 }
+
+/**
+ * Get paginated users with order counts
+ */
+export async function getPaginatedUsersWithOrderCounts(
+  pageSize: number = 10,
+  lastUserId?: string,
+  searchTerm?: string
+): Promise<{
+  users: (User & { orderCount: number })[];
+  hasMore: boolean;
+  lastUserId?: string;
+}> {
+  try {
+    // 1. Build query for users
+    let usersQuery = query(
+      collection(db, COLLECTION.users),
+      orderBy("createdAt", "desc"),
+      limit(pageSize + 1) // Fetch one extra to check if there are more
+    );
+
+    // If lastUserId is provided, start after that document
+    if (lastUserId) {
+      const lastUserDoc = await getDoc(doc(db, COLLECTION.users, lastUserId));
+      if (lastUserDoc.exists()) {
+        usersQuery = query(
+          collection(db, COLLECTION.users),
+          orderBy("createdAt", "desc"),
+          startAfter(lastUserDoc),
+          limit(pageSize + 1)
+        );
+      }
+    }
+
+    const usersSnapshot = await getDocs(usersQuery);
+    const docs = usersSnapshot.docs;
+
+    // Check if there are more users
+    const hasMore = docs.length > pageSize;
+    const usersToProcess = hasMore ? docs.slice(0, pageSize) : docs;
+
+    let users: User[] = usersToProcess.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as User)
+    );
+
+    // Apply search filter if provided
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      users = users.filter(
+        (user) =>
+          user.firstName.toLowerCase().includes(searchLower) ||
+          user.lastName.toLowerCase().includes(searchLower) ||
+          user.email.toLowerCase().includes(searchLower) ||
+          user.phone.includes(searchTerm) ||
+          user.city.toLowerCase().includes(searchLower) ||
+          user.state.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (users.length === 0) {
+      return { users: [], hasMore: false };
+    }
+
+    // 2. Get order counts for each user
+    const userIds = users.map((user) => user.id);
+    const orderCountsMap = new Map<string, number>();
+
+    // Batch fetch order counts
+    await Promise.all(
+      chunkArray(userIds, 10).map(async (chunk) => {
+        if (chunk.length === 0) return;
+        const ordersQuery = query(
+          collection(db, COLLECTION.orders),
+          where("userId", "in", chunk)
+        );
+        const ordersSnapshot = await getDocs(ordersQuery);
+
+        // Count orders for each user
+        ordersSnapshot.docs.forEach((doc) => {
+          const order = doc.data();
+          const userId = order.userId;
+          orderCountsMap.set(userId, (orderCountsMap.get(userId) || 0) + 1);
+        });
+      })
+    );
+
+    // 3. Combine users with their order counts
+    const usersWithOrderCounts = users.map((user) => ({
+      ...user,
+      orderCount: orderCountsMap.get(user.id) || 0,
+    }));
+
+    return {
+      users: usersWithOrderCounts,
+      hasMore: searchTerm ? false : hasMore, // Disable pagination when searching
+      lastUserId:
+        !searchTerm && usersWithOrderCounts.length > 0
+          ? usersWithOrderCounts[usersWithOrderCounts.length - 1].id
+          : undefined,
+    };
+  } catch (error) {
+    console.error("Error fetching paginated users with order counts:", error);
+    throw new Error("Failed to fetch paginated users with order counts");
+  }
+}
+
+/**
+ * Get all users with search functionality (for search-only results)
+ */
+export async function searchUsers(
+  searchTerm: string
+): Promise<(User & { orderCount: number })[]> {
+  try {
+    // Fetch all users for search
+    const usersQuery = query(
+      collection(db, COLLECTION.users),
+      orderBy("createdAt", "desc")
+    );
+
+    const usersSnapshot = await getDocs(usersQuery);
+    const allUsers: User[] = usersSnapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as User)
+    );
+
+    // Apply search filter
+    const searchLower = searchTerm.toLowerCase();
+    const filteredUsers = allUsers.filter(
+      (user) =>
+        user.firstName.toLowerCase().includes(searchLower) ||
+        user.lastName.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        user.phone.includes(searchTerm) ||
+        user.city.toLowerCase().includes(searchLower) ||
+        user.state.toLowerCase().includes(searchLower)
+    );
+
+    if (filteredUsers.length === 0) {
+      return [];
+    }
+
+    // Get order counts for filtered users
+    const userIds = filteredUsers.map((user) => user.id);
+    const orderCountsMap = new Map<string, number>();
+
+    await Promise.all(
+      chunkArray(userIds, 10).map(async (chunk) => {
+        if (chunk.length === 0) return;
+        const ordersQuery = query(
+          collection(db, COLLECTION.orders),
+          where("userId", "in", chunk)
+        );
+        const ordersSnapshot = await getDocs(ordersQuery);
+
+        ordersSnapshot.docs.forEach((doc) => {
+          const order = doc.data();
+          const userId = order.userId;
+          orderCountsMap.set(userId, (orderCountsMap.get(userId) || 0) + 1);
+        });
+      })
+    );
+
+    return filteredUsers.map((user) => ({
+      ...user,
+      orderCount: orderCountsMap.get(user.id) || 0,
+    }));
+  } catch (error) {
+    console.error("Error searching users:", error);
+    throw new Error("Failed to search users");
+  }
+}
+
+/**
+ * Get total users count
+ */
+export async function getTotalUsersCount(): Promise<number> {
+  try {
+    const usersCountSnapshot = await getCountFromServer(
+      collection(db, COLLECTION.users)
+    );
+    return usersCountSnapshot.data().count;
+  } catch (error) {
+    console.error("Error getting total users count:", error);
+    return 0;
+  }
+}
+
+/**
+ * Get user by ID with order count
+ */
+export async function getUserWithOrderCount(
+  userId: string
+): Promise<(User & { orderCount: number }) | null> {
+  try {
+    const userDoc = await getDoc(doc(db, COLLECTION.users, userId));
+
+    if (!userDoc.exists()) {
+      return null;
+    }
+
+    const user = { id: userDoc.id, ...userDoc.data() } as User;
+
+    // Get order count for this user
+    const ordersQuery = query(
+      collection(db, COLLECTION.orders),
+      where("userId", "==", userId)
+    );
+    const ordersSnapshot = await getDocs(ordersQuery);
+
+    return {
+      ...user,
+      orderCount: ordersSnapshot.size,
+    };
+  } catch (error) {
+    console.error("Error fetching user with order count:", error);
+    throw new Error("Failed to fetch user with order count");
+  }
+}
