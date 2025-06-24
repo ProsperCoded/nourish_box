@@ -12,7 +12,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { Recipe } from "../utils/types/recipe.type";
-import { User } from "../utils/types/user.type";
+import { User as UserType } from "../utils/types/user.type";
 import { Transaction } from "../utils/types/transaction.type";
 import {
   getDashboardStats,
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
     totalFavorites: 0,
   });
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
-  const [recentUsers, setRecentUsers] = useState<User[]>([]);
+  const [recentUsers, setRecentUsers] = useState<UserType[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
   );
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
                   >
                     <div className="flex items-center mb-1 sm:mb-0">
                       <BookOpen
@@ -251,7 +251,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
                     className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
                   >
                     <div className="flex items-center">
                       <TrendingUp
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                     className="flex items-center p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 1.0 + index * 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
                   >
                     <Users
                       size={18}
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
                     className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 1.1 + index * 0.1 }}
+                    transition={{ duration: 0.3, delay: 1.0 + index * 0.1 }}
                   >
                     <div className="flex items-center">
                       <DollarSign

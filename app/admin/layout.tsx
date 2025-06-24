@@ -57,7 +57,11 @@ export default function AdminLayout({
 
   useEffect(() => {
     if (!user) {
-      router.push("/login");
+      setTimeout(() => {
+        if (!user) {
+          router.push("/login");
+        }
+      }, 5000);
     } else if (user.role !== "admin") {
       router.push("/");
     }

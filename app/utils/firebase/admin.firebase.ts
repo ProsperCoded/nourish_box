@@ -6,6 +6,9 @@ import {
   limit,
   where,
   getCountFromServer,
+  doc,
+  getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
@@ -15,6 +18,8 @@ import {
   Transaction,
   TransactionStatus,
 } from "@/app/utils/types/transaction.type";
+import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
+import { Delivery } from "@/app/utils/types/delivery.type";
 
 export interface DashboardStats {
   totalRecipes: number;
@@ -159,6 +164,172 @@ export async function getTopRecipes(): Promise<Recipe[]> {
     );
   } catch (error) {
     console.error("Error fetching top recipes:", error);
+    return [];
+  }
+}
+
+/**
+ * Get all orders with user, recipe, and delivery information for admin
+ */
+export async function getAllOrdersWithDetails(): Promise<
+  (Order & {
+    user?: User;
+    recipe?: Recipe;
+    delivery?: Delivery;
+  })[]
+> {
+  try {
+    const ordersQuery = query(
+      collection(db, COLLECTION.orders),
+      orderBy("createdAt", "desc")
+    );
+
+    const ordersSnapshot = await getDocs(ordersQuery);
+    const ordersWithDetails = [];
+
+    for (const orderDoc of ordersSnapshot.docs) {
+      const orderData = { id: orderDoc.id, ...orderDoc.data() } as Order;
+
+      // Fetch user data
+      let userData: User | undefined;
+      if (orderData.userId) {
+        const userDoc = await getDoc(
+          doc(db, COLLECTION.users, orderData.userId)
+        );
+        if (userDoc.exists()) {
+          userData = { id: userDoc.id, ...userDoc.data() } as User;
+        }
+      }
+
+      // Fetch recipe data
+      let recipeData: Recipe | undefined;
+      if (orderData.recipeId) {
+        const recipeDoc = await getDoc(
+          doc(db, COLLECTION.recipes, orderData.recipeId)
+        );
+        if (recipeDoc.exists()) {
+          recipeData = { id: recipeDoc.id, ...recipeDoc.data() } as Recipe;
+        }
+      }
+
+      // Fetch delivery data
+      let deliveryData: Delivery | undefined;
+      if (orderData.deliveryId) {
+        const deliveryDoc = await getDoc(
+          doc(db, COLLECTION.deliveries, orderData.deliveryId)
+        );
+        if (deliveryDoc.exists()) {
+          deliveryData = {
+            deliveryId: deliveryDoc.id,
+            ...deliveryDoc.data(),
+          } as Delivery;
+        }
+      }
+
+      ordersWithDetails.push({
+        ...orderData,
+        user: userData,
+        recipe: recipeData,
+        delivery: deliveryData,
+      });
+    }
+
+    return ordersWithDetails;
+  } catch (error) {
+    console.error("Error fetching orders with details:", error);
+    throw new Error("Failed to fetch orders with details");
+  }
+}
+
+/**
+ * Update order delivery status
+ */
+export async function updateOrderDeliveryStatus(
+  orderId: string,
+  deliveryStatus: DeliveryStatus
+): Promise<void> {
+  try {
+    const orderRef = doc(db, COLLECTION.orders, orderId);
+    await updateDoc(orderRef, {
+      deliveryStatus,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error updating order delivery status:", error);
+    throw new Error("Failed to update order delivery status");
+  }
+}
+
+/**
+ * Get recent orders for admin dashboard (last 10)
+ */
+export async function getRecentOrdersWithDetails(): Promise<
+  (Order & {
+    user?: User;
+    recipe?: Recipe;
+    delivery?: Delivery;
+  })[]
+> {
+  try {
+    const recentOrdersQuery = query(
+      collection(db, COLLECTION.orders),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
+
+    const ordersSnapshot = await getDocs(recentOrdersQuery);
+    const ordersWithDetails = [];
+
+    for (const orderDoc of ordersSnapshot.docs) {
+      const orderData = { id: orderDoc.id, ...orderDoc.data() } as Order;
+
+      // Fetch user data
+      let userData: User | undefined;
+      if (orderData.userId) {
+        const userDoc = await getDoc(
+          doc(db, COLLECTION.users, orderData.userId)
+        );
+        if (userDoc.exists()) {
+          userData = { id: userDoc.id, ...userDoc.data() } as User;
+        }
+      }
+
+      // Fetch recipe data
+      let recipeData: Recipe | undefined;
+      if (orderData.recipeId) {
+        const recipeDoc = await getDoc(
+          doc(db, COLLECTION.recipes, orderData.recipeId)
+        );
+        if (recipeDoc.exists()) {
+          recipeData = { id: recipeDoc.id, ...recipeDoc.data() } as Recipe;
+        }
+      }
+
+      // Fetch delivery data
+      let deliveryData: Delivery | undefined;
+      if (orderData.deliveryId) {
+        const deliveryDoc = await getDoc(
+          doc(db, COLLECTION.deliveries, orderData.deliveryId)
+        );
+        if (deliveryDoc.exists()) {
+          deliveryData = {
+            deliveryId: deliveryDoc.id,
+            ...deliveryDoc.data(),
+          } as Delivery;
+        }
+      }
+
+      ordersWithDetails.push({
+        ...orderData,
+        user: userData,
+        recipe: recipeData,
+        delivery: deliveryData,
+      });
+    }
+
+    return ordersWithDetails;
+  } catch (error) {
+    console.error("Error fetching recent orders with details:", error);
     return [];
   }
 }
