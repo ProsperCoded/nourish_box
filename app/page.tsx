@@ -1,26 +1,32 @@
-"use client";
-import Nav from "./components/nav";
-import Image from "next/image";
-import hero from "./assets/hero.png";
-import hover_img_one from "./assets/Frame 464.png";
-import hover_img_two from "./assets/Frame 466.png";
-import broccoli from "./assets/Broccoli.png";
-import tomato from "./assets/Tomato.png";
-import RecipeCard from "./components/RecipeCard";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Recipe } from "./utils/types/recipe.type";
-import { fetchRecipes } from "./utils/firebase/recipes.firebase";
+'use client';
 
-import AboutUs from "./components/about_us";
-import CommunityList from "./components/community";
-import Banner from "./components/banner";
-import Footer from "./components/footer";
-import Link from "next/link";
-// 
-// import { runSeed } from "@/app/utils/seed/seed-script";
+import Nav from './components/nav';
+import Image from 'next/image';
+import hero from './assets/hero.png';
+import hover_img_one from './assets/Frame 464.png';
+import hover_img_two from './assets/Frame 466.png';
+import broccoli from './assets/Broccoli.png';
+import tomato from './assets/Tomato.png';
+import RecipeCard from './components/RecipeCard';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Recipe } from './utils/types/recipe.type';
+import { fetchRecipes } from './utils/firebase/recipes.firebase';
+import Logo from './assets/nourish_box_folder/Logo files/Logomark.svg';
+import AboutUs from './components/about_us';
+import CommunityList from './components/community';
+import Banner from './components/banner';
+import Footer from './components/footer';
+import Link from 'next/link';
+import search from './assets/icons8-search-48.png';
 
-export default function Home() {
+export default function Home({
+  searchQuery,
+  setSearchQuery,
+}: {
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -31,7 +37,7 @@ export default function Home() {
         const fetchedRecipes = await fetchRecipes();
         setRecipes(fetchedRecipes);
       } catch (error) {
-        console.error("Error loading recipes:", error);
+        console.error('Error loading recipes:', error);
       } finally {
         setLoading(false);
       }
@@ -39,115 +45,150 @@ export default function Home() {
 
     loadRecipes();
   }, []);
-  // Seeding
+
   return (
-    <div>
+    <div className="min-h-screen">
+      {/* Desktop Nav */}
       <div className="hidden md:block">
         <Nav />
-    </div>
-      <div className="absolute ">
-        
-    </div>
-      <div className="hidden justify-center items-center w-screen h-screen">
-        This page is not available for small screen sizes
       </div>
-      <div className="mt-[5rem] block">
-        <div className="flex lg:flex-row flex-col justify-center">
-          <div className="flex lg:flex-row flex-col md:flex-col justify-between items-center py-10 lg:py-20 lg:w-10/12">
-            <div className="flex flex-col items-center lg:items-start p-4 lg:p-10 lg:w-1/2 lg:text-left text-center">
-              <h1 className="font-custom font-medium text-5xl lg:text-6xl">
-                Cooking Made Fun and Easy: Unleash Your Inner Chef
-              </h1>
-              <p className="mb-4 pt-[37px] font-inter font-extralight text-brand-sub_gray text-lg">
-                Nourish Box removes the hassle of meal prep by delivering
-                pre-measured, pre-cut ingredients along with guided recipes. We
-                ensure every meal is made with carefully sourced ingredients,
-                delivering farm-to-table goodness in every box.
-              </p>{" "}
-              <Link href="/recipes">
-                <button className="bg-brand-btn_orange my-12 mt-4 px-2 lg:px-[30px] py-3 lg:py-[20px] rounded-xl font-inter lg:font-semibold text-white text-xl capitalize">
-                  Order Now
-                </button>
-              </Link>
-            </div>
-            <div className="relative flex justify-center items-center m-6 lg:m-0 lg:w-1/2">
-              <Image
-                src={hero}
-                height={600}
-                width={658}
-                className=""
-                alt="jollof"
-              />
 
-              <Image
-                src={hover_img_one}
-                height={210}
-                width={221}
-                alt="hovering_img"
-                className="bottom-[2px] left-0 absolute"
-              />
+      {/* Mobile header */}
+      <div className="md:hidden flex items-center justify-between gap-4 px-4 py-5">
+        <Image src={Logo} alt="logo" width={120} />
+        <div className="flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange">
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent outline-none text-sm"
+          />
+          <Image src={search} alt="search" width={20} height={20} />
+        </div>
+      </div>
 
-              <Image
-                src={hover_img_two}
-                height={210}
-                width={221}
-                alt="hovering_img"
-                className="top-[12px] right-[10px] bottom-[12px] absolute"
-              />
-              <Image
-                src={broccoli}
-                alt="broccoli"
-                className="right-0 bottom-0 absolute animate-spinSlow"
-              />
-              <Image
-                src={tomato}
-                alt="tomato"
-                className="top-0 left-0 absolute animate-float"
-              />
-            </div>
-          </div>
+
+      {/* Hero Section */}
+      
+      <section className="px-4 lg:px-20 md:pt-20 pb-10">
+        {/* Mobile & Tablet Layout */}
+        <div className="flex flex-col lg:hidden items-center text-center gap-4">
+          <Image
+            src={hero}
+            alt="hero dish"
+            width={400}
+            height={400}
+            className="  animate-fade-in-up"
+          />
+
+          <h1 className="text-5xl font-custom font-medium ">
+            Cooking Made Fun and Easy
+          </h1>
+          <p className="text-lg text-brand-sub_gray font-inter max-w-md">
+            Nourish Box removes the hassle of meal prep by delivering pre-measured,
+            pre-cut ingredients along with guided recipes.
+          </p>
+          <Link href="/recipes">
+            <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
+              Order Now
+            </button>
+          </Link>
         </div>
 
-        <div className="flex justify-center">
-          <div className="flex flex-col lg:flex-col lg:justify-between items-center py-5 lg:py-10 md:w-[85%]">
-            <div className="">
-              <h2 className="mb-[5px] font-custom font-medium text-3xl lg:text-5xl">
-                Discover, Create, Share
-              </h2>
-              <p className="lg:pb-5 font-inter font-light text-brand-sub_gray text-lg lg:text-2xl">
-                {loading
-                  ? "Loading recipes..."
-                  : "Check out our recipes for the week"}
-              </p>
-            </div>
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex justify-between items-center gap-10">
+          <div className="w-1/2 flex flex-col items-start text-left">
+            <h1 className="text-5xl font-custom font-medium leading-tight">
+              Cooking Made Fun and Easy: <br /> Unleash Your Inner Chef
+            </h1>
+            <p className="mt-6 text-lg text-brand-sub_gray font-inter">
+              Nourish Box removes the hassle of meal prep by delivering pre-measured,
+              pre-cut ingredients along with guided recipes. We ensure every meal is
+              made with carefully sourced ingredients, delivering farm-to-table
+              goodness in every box.
+            </p>
+            <Link href="/recipes">
+              <button className="bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform">
+                Order Now
+              </button>
+            </Link>
+          </div>
+
+          <div className="w-1/2 relative flex justify-center items-center">
+            <Image src={hero} alt="hero dish" width={600} height={600} className="z-10" />
+            <Image
+              src={hover_img_one}
+              height={180}
+              width={180}
+              alt="float left"
+              className="absolute bottom-0 left-0 z-0"
+            />
+            <Image
+              src={hover_img_two}
+              height={180}
+              width={180}
+              alt="float right"
+              className="absolute top-0 right-0 z-0"
+            />
+            <Image
+              src={broccoli}
+              alt="broccoli"
+              className="absolute bottom-4 right-4 animate-spinSlow z-0"
+            />
+            <Image
+              src={tomato}
+              alt="tomato"
+              className="absolute top-4 left-4 animate-float z-0"
+            />
           </div>
         </div>
-        <div className="flex flex-wrap justify-center gap-6 p-6 lg:p-10 pt-0">
+      </section>
+
+
+      {/* Recipes Section */}
+      <section className="px-4 lg:px-20">
+        <div className="text-center mb-8">
+          <h2 className="font-custom font-medium text-4xl sm:text-4xl lg:text-5xl mb-2">
+            Discover, Create, Share
+          </h2>
+          <p className="text-brand-sub_gray text-lg">
+            {loading ? 'Loading recipes...' : 'Check out our recipes for the week'}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-6">
           {recipes.map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
-        <div className="flex justify-center items-center">
-          {" "}
+
+        <div className="flex justify-center mt-6">
           <button
-            className="bg-brand-btn_orange px-[25px] py-[10px] rounded-xl font-inter text-white text-lg capitalize"
-            onClick={() => router.push("/recipes")}
+            className="bg-brand-btn_orange px-6 py-3 rounded-xl font-inter text-white text-lg"
+            onClick={() => router.push('/recipes')}
           >
             See All
           </button>
         </div>
-        <AboutUs />
-        <div className="flex justify-center my-24 font-inter">
-          <h1 className="font-custom font-medium text-5xl text-center">
-            From Our Community
-          </h1>
-        </div>
-        <CommunityList />
-        <div className="flex justify-center items-center bg-brand-logo_green lg:mx-16 my-7 p-8 lg:p-10 lg:rounded-3xl lg:w-[92%]">
-          <Banner />
-        </div>
-        <Footer />
+      </section>
+
+      <AboutUs />
+
+      {/* Community Section */}
+      <section className="text-center my-16 px-4">
+        <h1 className="font-custom font-medium text-3xl sm:text-5xl">
+          From Our Community
+        </h1>
+      </section>
+      <CommunityList />
+
+      {/* Banner */}
+      <div className="flex justify-center items-center bg-brand-logo_green mx-4 lg:mx-16 my-7 p-6 lg:p-10 rounded-2xl lg:rounded-3xl">
+        <Banner />
       </div>
+
+      <Footer />
     </div>
   );
 }
