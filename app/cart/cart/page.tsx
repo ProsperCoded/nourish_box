@@ -21,7 +21,7 @@ const Cart_tab = () => {
   } = useCart();
 
   const [paymentLoading, setPaymentLoading] = useState(false);
-
+  const [currentUrl, setCurrentUrl] = useState('');
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     try {
       await updateQuantity(itemId, newQuantity);
@@ -98,7 +98,11 @@ const Cart_tab = () => {
       setPaymentLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.href);
+    }
+  }, []);
   // Payment close callback
   const handlePaystackCloseAction = () => {
     console.log("Payment dialog closed");

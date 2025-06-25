@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import LoginPrompt from "../components/login_prompt";
 import toast from "react-hot-toast";
+import { useManualLoginPrompt } from "../components/LoginPromptWrapper";
+import LoginPrompt from "../components/login_prompt";
 // import clock_green from "../assets/icons8-clock-24.png";
 import {
   Modal,
@@ -29,7 +30,14 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
   const { user, loading: authLoading } = useAuth();
-  const { addToCart, loading: cartLoading } = useCart();
+  const { addToCart, loading: cartLoading, isItemLoading } = useCart();
+  const {
+    showPrompt,
+    triggerPrompt,
+    hidePrompt,
+    decrementPromptCounter,
+    handleNeverMind,
+  } = useManualLoginPrompt();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -53,10 +61,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
     checkFavoriteStatus();
   }, [user, recipe.id, isFavorite]);
-
-  const [showPopUp, setShowPopUp] = useState(false);
-  const handlePopUp = () => setShowPopUp(true);
-  const handleClosePopUp = () => setShowPopUp(false);
 
   const handleFavoriteClick = async (e) => {
     if (!user) {
@@ -108,18 +112,25 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!user) {
-      handlePopUp();
-      return;
-    }
-
     try {
+      // Add to cart for both guests and logged-in users
       await addToCart(recipe, count, option);
+
+      // Single success notification
       toast.success(`${recipe.name} added to cart!`, {
         duration: 3000,
         position: "top-center",
       });
-      setOpen(false); // Close modal after adding to cart
+      setOpen(false); // Close the recipe details modal
+
+      // Only handle prompt logic for guest users
+      if (!user) {
+        const newCount = decrementPromptCounter();
+        // Prompt only when counter reaches 0
+        if (newCount === 0) {
+          triggerPrompt();
+        }
+      }
 
       // Reset form state for next time
       setCount(1);
@@ -350,12 +361,16 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           </div>
         </div>
         <Modal
-          open={showPopUp}
-          onClose={handleClosePopUp}
+          open={showPrompt}
+          onClose={hidePrompt}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <LoginPrompt main_text="Sign in to Skip the hassle " />
+          <LoginPrompt
+            main_text="to save your cart and skip the hassle next time!"
+            onNeverMind={handleNeverMind}
+            onClose={hidePrompt}
+          />
         </Modal>
       </div>
     </div>

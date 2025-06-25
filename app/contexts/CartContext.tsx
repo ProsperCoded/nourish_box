@@ -11,6 +11,16 @@ import {
   clearCart as clearCartFirebase,
   getCartItemsCount,
 } from "@/app/utils/firebase/cart.firebase";
+import {
+  getLocalStorageCart,
+  addToLocalStorageCart,
+  updateLocalStorageCartItem,
+  removeFromLocalStorageCart,
+  clearLocalStorageCart,
+  convertLocalStorageCartToFirebase,
+  getLocalStorageCartItemsCount,
+  getLocalStorageCartTotalPrice,
+} from "@/app/utils/localStorage/cart.localStorage";
 import { useAuth } from "./AuthContext";
 
 interface CartContextType {
@@ -70,25 +80,63 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fetchCart = async () => {
-    if (!user) {
-      setCart(null);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const userCart = await getCart(user.id);
-      setCart(userCart);
+
+      if (user) {
+        // Authenticated user - fetch from Firebase
+        const userCart = await getCart(user.id);
+        setCart(userCart);
+      } else {
+        // Guest user - fetch from localStorage
+        const localCart = getLocalStorageCart();
+        if (localCart) {
+          setCart(localCart);
+        } else {
+          setCart(null);
+        }
+      }
     } catch (error) {
       console.error("Error fetching cart:", error);
+      setCart(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // Function to merge localStorage cart with Firebase cart when user logs in
+  const mergeGuestCartWithUserCart = async () => {
+    if (!user) return;
+
+    const localCart = getLocalStorageCart();
+    if (!localCart || localCart.items.length === 0) return;
+
+    try {
+      // Add all guest cart items to Firebase cart
+      for (const item of localCart.items) {
+        if (item.recipe) {
+          await addToCartFirebase(user.id, item.recipe, item.quantity);
+        }
+      }
+
+      // Clear localStorage cart after successful merge
+      clearLocalStorageCart();
+    } catch (error) {
+      console.error("Error merging guest cart with user cart:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchCart();
+    const handleCartOnUserChange = async () => {
+      if (user) {
+        // User just logged in - merge guest cart if exists
+        await mergeGuestCartWithUserCart();
+      }
+      // Fetch cart for both authenticated and guest users
+      await fetchCart();
+    };
+
+    handleCartOnUserChange();
   }, [user]);
 
   const addToCart = async (
@@ -96,12 +144,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     quantity: number = 1,
     packagingOption?: string
   ): Promise<void> => {
-    if (!user) throw new Error("User must be logged in to add to cart");
-
     const tempItemId = `temp_${recipe.id}`;
+
     try {
       setItemLoading(tempItemId, true);
-      await addToCartFirebase(user.id, recipe, quantity, packagingOption);
+
+      if (user) {
+        // Authenticated user - save to Firebase
+        await addToCartFirebase(user.id, recipe, quantity, packagingOption);
+      } else {
+        // Guest user - save to localStorage
+        addToLocalStorageCart(recipe, quantity, packagingOption);
+      }
+
       await fetchCart(); // Refresh cart after adding
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -115,11 +170,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     itemId: string,
     quantity: number
   ): Promise<void> => {
-    if (!user) throw new Error("User must be logged in");
-
     try {
       setItemLoading(itemId, true);
-      await updateCartItem(user.id, itemId, quantity);
+
+      if (user) {
+        // Authenticated user - update in Firebase
+        await updateCartItem(user.id, itemId, quantity);
+      } else {
+        // Guest user - update in localStorage
+        updateLocalStorageCartItem(itemId, quantity);
+      }
+
       await fetchCart(); // Refresh cart after updating
     } catch (error) {
       console.error("Error updating cart item:", error);
@@ -130,11 +191,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromCart = async (itemId: string): Promise<void> => {
-    if (!user) throw new Error("User must be logged in");
-
     try {
       setItemLoading(itemId, true);
-      await removeFromCartFirebase(user.id, itemId);
+
+      if (user) {
+        // Authenticated user - remove from Firebase
+        await removeFromCartFirebase(user.id, itemId);
+      } else {
+        // Guest user - remove from localStorage
+        removeFromLocalStorageCart(itemId);
+      }
+
       await fetchCart(); // Refresh cart after removing
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -145,14 +212,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCart = async (): Promise<void> => {
-    if (!user) throw new Error("User must be logged in");
-
     try {
       // Set all items as loading when clearing
       const allItemIds = cart?.items.map((item) => item.id) || [];
       allItemIds.forEach((id) => setItemLoading(id, true));
 
-      await clearCartFirebase(user.id);
+      if (user) {
+        // Authenticated user - clear Firebase cart
+        await clearCartFirebase(user.id);
+      } else {
+        // Guest user - clear localStorage cart
+        clearLocalStorageCart();
+      }
+
       await fetchCart(); // Refresh cart after clearing
     } catch (error) {
       console.error("Error clearing cart:", error);
@@ -164,16 +236,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getItemsCount = (): number => {
-    if (!cart) return 0;
-    return cart.items.reduce((total, item) => total + item.quantity, 0);
+    if (cart) {
+      return cart.items.reduce((total, item) => total + item.quantity, 0);
+    }
+
+    // Fallback to localStorage for immediate access (useful for initial renders)
+    if (!user) {
+      return getLocalStorageCartItemsCount();
+    }
+
+    return 0;
   };
 
   const getTotalPrice = (): number => {
-    if (!cart) return 0;
-    return cart.items.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    if (cart) {
+      return cart.items.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+    }
+
+    // Fallback to localStorage for immediate access (useful for initial renders)
+    if (!user) {
+      return getLocalStorageCartTotalPrice();
+    }
+
+    return 0;
   };
 
   const refreshCart = async (): Promise<void> => {

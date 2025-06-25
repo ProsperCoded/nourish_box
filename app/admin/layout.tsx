@@ -55,13 +55,26 @@ export default function AdminLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
+  const [graceExceeded, setGraceExceeded] = useState(false);
   useEffect(() => {
+    if (graceExceeded) return;
     if (!user) {
-      router.push("/login");
+      const timeout = setTimeout(() => {
+        setGraceExceeded(true);
+      }, 5000);
+      return () => clearTimeout(timeout);
     } else if (user.role !== "admin") {
       router.push("/");
     }
   }, [user, router]);
+
+  useEffect(() => {
+    if (graceExceeded) {
+      if (!user) {
+        router.push("/login");
+      }
+    }
+  }, [graceExceeded, router, user]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -71,8 +84,12 @@ export default function AdminLayout({
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  if (!user || user.role !== "admin") {
-    return null;
+  if (!user && !graceExceeded) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-2xl font-bold">Loading...</h1>
+      </div>
+    );
   }
 
   return (

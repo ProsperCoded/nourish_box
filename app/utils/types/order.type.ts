@@ -1,9 +1,16 @@
 import { Recipe } from "@/app/utils/types/recipe.type";
-import { Transaction } from "@/app/utils/types/transaction.type";
 
 export enum DeliveryStatus {
   PENDING = "pending",
   DELIVERED = "delivered",
+  PACKED = "packed",
+  IN_TRANSIT = "in_transit",
+  FAILED = "failed",
+}
+
+export enum ReceivedStatus {
+  PENDING = "pending",
+  RECEIVED = "received",
   FAILED = "failed",
 }
 export type Order = {
@@ -15,6 +22,7 @@ export type Order = {
   deliveryId: string;
 
   deliveryStatus: DeliveryStatus;
+  receivedStatus: ReceivedStatus; // for user, only the user changes this
   deliveryDate: string; // date in ISO format
 
   deliveryDurationRange: string; // e.g. "1-2 days"

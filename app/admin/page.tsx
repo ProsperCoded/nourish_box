@@ -1,21 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { COLLECTION } from "../utils/schema/collection.enum";
-import { Recipe } from "../utils/types/recipe.type";
-import { User } from "../utils/types/user.type";
 import { motion } from "framer-motion";
 import {
   BookOpen,
   Users,
   ShoppingCart,
-  BarChart3,
-  Activity,
   AlertTriangle,
-  CheckCircle2,
+  TrendingUp,
+  Heart,
+  DollarSign,
+  Package,
+  Clock,
 } from "lucide-react";
+import { Recipe } from "../utils/types/recipe.type";
+import { User as UserType } from "../utils/types/user.type";
+import { Transaction } from "../utils/types/transaction.type";
+import { Order } from "../utils/types/order.type";
+import {
+  getDashboardStats,
+  getRecentRecipes,
+  getRecentUsers,
+  getRecentTransactions,
+  getTopRecipes,
+  getRecentOrders,
+  DashboardStats,
+} from "../utils/firebase/admin.firebase";
 
 interface StatCardProps {
   title: string;
@@ -23,6 +33,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   colorClass: string;
   delay?: number;
+  prefix?: string;
 }
 
 const StatCard = ({
@@ -31,6 +42,7 @@ const StatCard = ({
   icon,
   colorClass,
   delay = 0,
+  prefix = "",
 }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -40,71 +52,66 @@ const StatCard = ({
   >
     <div className="flex items-center justify-between">
       <div className={`p-3 rounded-full bg-opacity-20`}>{icon}</div>
-      {/* Placeholder for a small trend icon or percentage change */}
-      {/* <span className="text-xs font-medium text-green-500">+5%</span> */}
     </div>
     <div className="mt-4">
-      <p className="text-3xl font-bold text-gray-800">{value}</p>
+      <p className="text-3xl font-bold text-gray-800">
+        {prefix}
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </p>
       <p className="text-sm text-gray-600 mt-1">{title}</p>
     </div>
   </motion.div>
 );
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalRecipes: 0,
     totalUsers: 0,
-    totalOrders: 0, // Assuming 'transactions' are orders
+    totalOrders: 0,
+    totalRevenue: 0,
+    totalFavorites: 0,
   });
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
-  const [recentUsers, setRecentUsers] = useState<User[]>([]);
+  const [recentUsers, setRecentUsers] = useState<UserType[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
+    []
+  );
+  const [topRecipes, setTopRecipes] = useState<Recipe[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const recipesSnapshot = await getDocs(
-          collection(db, COLLECTION.recipes)
-        );
-        const usersSnapshot = await getDocs(collection(db, COLLECTION.users));
-        const ordersSnapshot = await getDocs(
-          collection(db, COLLECTION.transactions)
-        );
+        // Fetch all data in parallel for better performance
+        const [
+          dashboardStats,
+          recentRecipesData,
+          recentUsersData,
+          recentTransactionsData,
+          topRecipesData,
+          recentOrdersData,
+        ] = await Promise.all([
+          getDashboardStats(),
+          getRecentRecipes(),
+          getRecentUsers(),
+          getRecentTransactions(),
+          getTopRecipes(),
+          getRecentOrders(),
+        ]);
 
-        setStats({
-          totalRecipes: recipesSnapshot.size,
-          totalUsers: usersSnapshot.size,
-          totalOrders: ordersSnapshot.size,
-        });
-
-        // Fetch recent recipes
-        const recentRecipesQuery = query(
-          collection(db, COLLECTION.recipes),
-          orderBy("createdAt", "desc"),
-          limit(5)
-        );
-        const recentRecipesSnap = await getDocs(recentRecipesQuery);
-        setRecentRecipes(
-          recentRecipesSnap.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
-          )
-        );
-
-        // Fetch recent users
-        const recentUsersQuery = query(
-          collection(db, COLLECTION.users),
-          orderBy("createdAt", "desc"),
-          limit(5)
-        );
-        const recentUsersSnap = await getDocs(recentUsersQuery);
-        setRecentUsers(
-          recentUsersSnap.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as User)
-          )
-        );
+        setStats(dashboardStats);
+        setRecentRecipes(recentRecipesData);
+        setRecentUsers(recentUsersData);
+        setRecentTransactions(recentTransactionsData);
+        setTopRecipes(topRecipesData);
+        setRecentOrders(recentOrdersData);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        setError("Failed to load dashboard data. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -120,6 +127,24 @@ export default function AdminDashboard() {
         <p className="text-lg font-semibold text-brand-logo_green mt-4">
           Loading Dashboard...
         </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] w-full bg-gradient-to-br from-white via-gray-50 to-red-50">
+        <AlertTriangle size={48} className="text-red-500 mb-4" />
+        <p className="text-lg font-semibold text-red-600 mb-2">
+          Error Loading Dashboard
+        </p>
+        <p className="text-gray-600">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-brand-logo_green text-white rounded-lg hover:bg-brand-logo_green/90"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -141,7 +166,7 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
         <StatCard
           title="Total Recipes"
           value={stats.totalRecipes}
@@ -163,34 +188,32 @@ export default function AdminDashboard() {
           colorClass="bg-brand-sub_gray/5"
           delay={0.3}
         />
+        <StatCard
+          title="Total Revenue"
+          value={stats.totalRevenue}
+          prefix="₦"
+          icon={<DollarSign size={28} className="text-green-600" />}
+          colorClass="bg-green-50"
+          delay={0.4}
+        />
+        <StatCard
+          title="Total Favorites"
+          value={stats.totalFavorites}
+          icon={<Heart size={28} className="text-red-500" />}
+          colorClass="bg-red-50"
+          delay={0.5}
+        />
       </div>
 
       {/* Main Content Area - Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Left Column - Sales Chart and Recent Recipes */}
+        {/* Left Column - Recent Recipes and Top Recipes */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          {/* Placeholder for Sales Chart */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white rounded-xl shadow-lg p-4 sm:p-6 h-64 sm:h-80 flex flex-col justify-center items-center text-center hover:shadow-2xl transition-shadow duration-300"
-          >
-            <BarChart3 size={48} className="text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700">
-              Sales Overview
-            </h3>
-            <p className="text-gray-500 mt-2">Chart coming soon!</p>
-            <p className="text-xs text-gray-400 mt-1">
-              Detailed sales analytics will be displayed here.
-            </p>
-          </motion.div>
-
           {/* Recent Recipes */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
@@ -204,7 +227,7 @@ export default function AdminDashboard() {
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
                   >
                     <div className="flex items-center mb-1 sm:mb-0">
                       <BookOpen
@@ -222,7 +245,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <span className="text-sm font-semibold text-brand-btn_orange mt-1 sm:mt-0">
-                      NGN {recipe.price}
+                      ₦{recipe.price.toLocaleString()}
                     </span>
                   </motion.li>
                 ))}
@@ -231,65 +254,229 @@ export default function AdminDashboard() {
               <p className="text-gray-500">No recent recipes.</p>
             )}
           </motion.div>
+
+          {/* Top Performing Recipes */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
+          >
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
+              Top Performing Recipes
+            </h3>
+            {topRecipes.length > 0 ? (
+              <ul className="space-y-2 sm:space-y-3">
+                {topRecipes.map((recipe, index) => (
+                  <motion.li
+                    key={recipe.id}
+                    className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                  >
+                    <div className="flex items-center">
+                      <TrendingUp
+                        size={18}
+                        className="mr-2 sm:mr-3 text-green-600"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-800 break-words max-w-[160px] sm:max-w-none">
+                          {recipe.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {recipe.clicks} clicks
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-brand-btn_orange">
+                      ₦{recipe.price.toLocaleString()}
+                    </span>
+                  </motion.li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">No recipe data available.</p>
+            )}
+          </motion.div>
+          <div className="flex gap-4 w-full items-stretch">
+            {/* Recent User Activity */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
+            >
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
+                `Recent User Activity`
+              </h3>
+              {recentUsers.length > 0 ? (
+                <ul className="space-y-2 sm:space-y-3 max-w-full overflow-x-auto">
+                  {recentUsers.map((user, index) => (
+                    <motion.li
+                      key={user.id}
+                      className="flex items-center p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                    >
+                      <Users
+                        size={18}
+                        className="mr-2 sm:mr-3 text-brand-btn_orange"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-800 break-words max-w-[120px] sm:max-w-none">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Joined:{" "}
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">No recent user activity.</p>
+              )}
+            </motion.div>
+
+            {/* Recent Transactions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+              className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
+            >
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
+                Recent Transactions
+              </h3>
+              {recentTransactions.length > 0 ? (
+                <ul className="space-y-2 sm:space-y-3">
+                  {recentTransactions.map((transaction, index) => (
+                    <motion.li
+                      key={transaction.id || transaction.reference}
+                      className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 1.0 + index * 0.1 }}
+                    >
+                      <div className="flex items-center">
+                        <DollarSign
+                          size={18}
+                          className={`mr-2 sm:mr-3 ${
+                            transaction.status === "success"
+                              ? "text-green-600"
+                              : transaction.status === "failed"
+                              ? "text-red-600"
+                              : "text-yellow-600"
+                          }`}
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">
+                            ₦{transaction.amount.toLocaleString()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(
+                              transaction.createdAt
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          transaction.status === "success"
+                            ? "bg-green-100 text-green-800"
+                            : transaction.status === "failed"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {transaction.status}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">No recent transactions.</p>
+              )}
+            </motion.div>
+          </div>
         </div>
 
-        {/* Right Column - Recent Activity / Notifications */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-3 sm:space-y-4 h-full hover:shadow-2xl transition-shadow duration-300"
-        >
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
-            Recent User Activity
-          </h3>
-          {recentUsers.length > 0 ? (
-            <ul className="space-y-2 sm:space-y-3 max-w-full overflow-x-auto">
-              {recentUsers.map((user, index) => (
-                <motion.li
-                  key={user.id}
-                  className="flex items-center p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                >
-                  <Users
-                    size={18}
-                    className="mr-2 sm:mr-3 text-brand-btn_orange"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 break-words max-w-[120px] sm:max-w-none">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Joined on: {new Date(user.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No recent user activity.</p>
-          )}
-
-          {/* Placeholder for notifications or alerts */}
-          <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
-            <h4 className="text-md font-semibold text-gray-600 mb-2 sm:mb-3">
-              System Alerts
-            </h4>
-            <div className="flex items-center p-2 sm:p-3 bg-green-50 text-green-700 rounded-lg">
-              <CheckCircle2 size={18} className="mr-2" />
-              <p className="text-sm">System operating normally.</p>
+        {/* Right Column - Recent Pending Orders */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Recent Pending Orders */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
+          >
+            <div className="flex items-center mb-3 sm:mb-4">
+              <Clock size={20} className="mr-2 text-brand-btn_orange" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700">
+                Recent Pending Orders
+              </h3>
             </div>
-            {/* Example of an alert - uncomment or modify as needed */}
-            {/* 
-             <div className="flex items-center p-3 bg-yellow-50 text-yellow-700 rounded-lg mt-2">
-                <AlertTriangle size={18} className="mr-2"/>
-                <p className="text-sm">Low stock on popular ingredient: Tomatoes</p>
-             </div>
-              */}
-          </div>
-        </motion.div>
+            {recentOrders.length > 0 ? (
+              <ul className="space-y-2 sm:space-y-3">
+                {recentOrders.map((order, index) => (
+                  <motion.li
+                    key={order.id}
+                    className="flex flex-col p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <Package
+                          size={16}
+                          className="mr-2 text-brand-btn_orange"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">
+                            {order.recipe?.name || "Recipe not found"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Order #{order.id.slice(-6)}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-brand-btn_orange">
+                        ₦{order.amount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          order.deliveryStatus === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : order.deliveryStatus === "delivered"
+                            ? "bg-green-100 text-green-800"
+                            : order.deliveryStatus === "in_transit"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {order.deliveryStatus}
+                      </span>
+                      <span>
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-center py-8">
+                <Package size={32} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-gray-500">No recent orders</p>
+              </div>
+            )}
+          </motion.div>
+        </div>
       </div>
     </div>
   );
