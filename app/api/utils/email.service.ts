@@ -6,12 +6,8 @@ const emailSender = {
   email: "enweremproper@gmail.com",
 };
 
-// Brevo API configuration
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-// const BREVO_API_URL = "https://api.brevo.com/v3/";
 const BREVO_API_KEY = config.brevo.apiKey;
-
-console.log("brevo api KEY", BREVO_API_KEY);
 
 export interface ContactEmailData {
   firstName: string;
