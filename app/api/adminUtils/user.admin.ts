@@ -37,3 +37,26 @@ export async function getUserById(userId: string | null) {
   const userDoc = await userDocRef.get();
   return userDoc.data() as User;
 }
+
+/**
+ * Get all admin users for sending notifications
+ */
+export async function getAllAdminUsers(): Promise<User[]> {
+  try {
+    const adminUsersSnapshot = await adminDb
+      .collection(COLLECTION.users)
+      .where("role", "==", "admin")
+      .get();
+
+    return adminUsersSnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as User)
+    );
+  } catch (error) {
+    console.error("Error fetching admin users:", error);
+    return [];
+  }
+}

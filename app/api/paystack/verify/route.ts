@@ -7,6 +7,13 @@ import {
 } from "@/app/api/adminUtils/transaction.admin";
 import { createOrder } from "@/app/api/adminUtils/order.admin";
 import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
+import { getUserById, getAllAdminUsers } from "@/app/api/adminUtils/user.admin";
+import { getDeliveryById } from "@/app/api/adminUtils/delivery.admin";
+import {
+  sendOrderConfirmationToCustomer,
+  sendOrderNotificationToAdmins,
+  OrderEmailData,
+} from "@/app/api/utils/email.service";
 import { TransactionStatus } from "@/app/utils/types/transaction.type";
 import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
 
@@ -115,6 +122,85 @@ export async function GET(request: NextRequest) {
       console.log(
         `Created ${successfulOrders} orders successfully, ${failedOrders} failed`
       );
+
+      // Send email notifications after successful order creation
+      if (successfulOrders > 0) {
+        try {
+          // Get delivery information
+          const delivery = await getDeliveryById(transaction.deliveryId);
+
+          // Get user information if transaction has userId
+          let user: any = null;
+          if (transaction.userId) {
+            user = await getUserById(transaction.userId);
+          }
+
+          // Get recipe details for email
+          const recipePromises = transaction.recipes.map(
+            async (recipeId: string) => {
+              const recipe = await getRecipeById(recipeId);
+              return recipe ? { name: recipe.name, price: recipe.price } : null;
+            }
+          );
+
+          const recipes = (await Promise.all(recipePromises)).filter(
+            (recipe) => recipe !== null
+          );
+
+          if (delivery && recipes.length > 0) {
+            // Prepare order email data
+            const orderEmailData: OrderEmailData = {
+              customerName: delivery.deliveryName,
+              customerEmail: delivery.deliveryEmail,
+              orderId: transaction.id!,
+              orderAmount: transaction.amount,
+              recipes: recipes,
+              deliveryAddress: delivery.deliveryAddress,
+              deliveryCity: delivery.deliveryCity,
+              deliveryState: delivery.deliveryState,
+              createdAt: new Date().toISOString(),
+            };
+
+            // Send customer confirmation email
+            console.log(
+              `Sending order confirmation to customer: ${delivery.deliveryEmail}`
+            );
+            const customerEmailSent = await sendOrderConfirmationToCustomer(
+              orderEmailData
+            );
+
+            if (!customerEmailSent) {
+              console.error("Failed to send order confirmation to customer");
+            }
+
+            // Send admin notification emails
+            const adminUsers = await getAllAdminUsers();
+            if (adminUsers.length > 0) {
+              const adminEmails = adminUsers.map((admin) => admin.email);
+              console.log(
+                `Sending order notification to ${adminEmails.length} admins`
+              );
+              const adminEmailSent = await sendOrderNotificationToAdmins(
+                orderEmailData,
+                adminEmails
+              );
+
+              if (!adminEmailSent) {
+                console.error("Failed to send order notification to admins");
+              }
+            } else {
+              console.warn("No admin users found to send order notification");
+            }
+          } else {
+            console.error(
+              "Missing delivery information or recipes for email notification"
+            );
+          }
+        } catch (emailError) {
+          console.error("Error sending email notifications:", emailError);
+          // Don't fail the entire transaction if email sending fails
+        }
+      }
 
       return ResponseDto.createSuccessResponse(
         "Payment verified successfully",

@@ -3,6 +3,7 @@ interface Config {
   firebase: FirebaseConfig;
   cloudinary: CloudinaryConfig;
   paystack: PaystackConfig;
+  brevo: BrevoConfig;
 }
 
 interface FirebaseConfig {
@@ -28,6 +29,10 @@ interface PaystackConfig {
   publicKey: string;
 }
 
+interface BrevoConfig {
+  apiKey: string;
+}
+
 // Environment variable names
 const ENV_VARS = {
   firebase: {
@@ -49,6 +54,9 @@ const ENV_VARS = {
   paystack: {
     secretKey: "PAYSTACK_SECRETE_KEY",
     publicKey: "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY",
+  },
+  brevo: {
+    apiKey: "BREVO_API_KEY",
   },
 } as const;
 
@@ -153,6 +161,14 @@ class ConfigValidator {
     };
   }
 
+  private static validateBrevoConfig(): BrevoConfig {
+    return {
+      apiKey: this.validateEnvVar(
+        ENV_VARS.brevo.apiKey,
+        process.env[ENV_VARS.brevo.apiKey]
+      ),
+    };
+  }
   public static validate(): Config {
     console.log("🔧 Validating environment variables...");
 
@@ -161,6 +177,7 @@ class ConfigValidator {
         firebase: this.validateFirebaseConfig(),
         cloudinary: this.validateCloudinaryConfig(),
         paystack: this.validatePaystackConfig(),
+        brevo: this.validateBrevoConfig(),
       };
 
       console.log("✅ All environment variables validated successfully");
