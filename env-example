@@ -17,4 +17,5 @@ CLOUDINARY_API_KEY=your_cloudinary_api_key_here
 PAYSTACK_SECRETE_KEY=your_paystack_secret_key_here
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=your_paystack_public_key_here
 
+# BREVO EMAIL SERVICE (Get from: https://app.brevo.com/settings/keys/api)
 BREVO_API_KEY=your_brevo_api_key_here

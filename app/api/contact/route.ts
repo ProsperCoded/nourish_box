@@ -4,7 +4,7 @@ import { getAllAdminUsers } from "@/app/api/adminUtils/user.admin";
 import {
   sendContactNotificationToAdmins,
   ContactEmailData,
-} from "@/app/api/utils/email.service";
+} from "../utils/email.service";
 
 export async function POST(request: NextRequest) {
   try {
