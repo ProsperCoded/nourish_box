@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { useManualLoginPrompt } from "../components/LoginPromptWrapper";
-import LoginPrompt from "../components/login_prompt";
+import LoginPrompt from "./LoginPrompt";
 // import clock_green from "../assets/icons8-clock-24.png";
 import {
   Modal,
@@ -208,9 +208,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <button
             onClick={handleFavoriteClick}
             disabled={isLoading}
-            className={`p-2 rounded-full transition-colors ${
-              isFavorited ? "text-red-500" : "text-gray-400"
-            } hover:text-red-500`}
+            className={`p-2 rounded-full transition-colors ${isFavorited ? "text-red-500" : "text-gray-400"
+              } hover:text-red-500`}
           >
             <Heart className={`w-5 h-5 ${isFavorited ? "fill-current" : ""}`} />
           </button>

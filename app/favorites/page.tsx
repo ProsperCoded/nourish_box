@@ -10,6 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import SearchBar from '../components/Search_bar';
+import { LoginPromptWrapper } from '../components/LoginPromptWrapper';
+import LoginPrompt from '../components/LoginPrompt';
 
 interface Props {
     className?: string;
@@ -21,6 +23,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     const { favorites, isLoading, error } = useFavorites();
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false)
     const router = useRouter();
 
     const searchResult = favorites.filter((recipe) =>
@@ -30,7 +33,8 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     const showSearch = searchQuery.trim() !== '';
 
     if (!user) {
-        return <div className="p-4">Please log in to view your favorites.</div>;
+        setShowLoginPrompt(true);
+        return
     }
 
     if (error) {

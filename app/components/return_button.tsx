@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import React from 'react'
 import { useRouter } from 'next/navigation';
 import Back from "../assets/icons8-left-arrow-50.png";

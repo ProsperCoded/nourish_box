@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal } from "@mui/material";
-import LoginPrompt from "./login_prompt";
+import LoginPrompt from "./LoginPrompt";
 import { useLoginPrompt } from "../hooks/useLoginPrompt";
 
 interface LoginPromptWrapperProps {
