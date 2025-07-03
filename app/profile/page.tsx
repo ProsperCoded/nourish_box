@@ -23,6 +23,7 @@ import locationIcon from "../assets/icons8-location-50.png";
 import deliveryIcon from "../assets/icons8-delivery-time-48.png";
 import backIcon from "../assets/icons8-left-arrow-50.png";
 import OrderHistory from "./orderHistory/page";
+import OrderStatusPage from "./trackOrder/page";
 
 const tabs = [
   { id: "1", title: "Edit profile", icon: userIcon, content: <User_profile /> },
@@ -33,7 +34,7 @@ const tabs = [
     id: "5",
     title: "Track delivery",
     icon: deliveryIcon,
-    content: <div className="p-4">Track delivery page</div>,
+    content: <OrderStatusPage/>
   },
   {
     id: "6",
