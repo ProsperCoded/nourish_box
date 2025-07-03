@@ -19,6 +19,7 @@ import Banner from './components/banner';
 import Footer from './components/footer';
 import Link from 'next/link';
 import search from './assets/icons8-search-48.png';
+import CartComponent from './components/Cart';
 
 export default function Home({
   searchQuery,
@@ -66,6 +67,7 @@ export default function Home({
           />
           <Image src={search} alt="search" width={20} height={20} />
         </div>
+        <CartComponent />
       </div>
 
 
