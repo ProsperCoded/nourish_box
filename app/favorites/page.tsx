@@ -1,11 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useFavorites } from '../contexts/FavContext';
 import { useRouter } from 'next/navigation';
 import RecipeList from '../components/RecipeCard';
 import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
 import search from '../assets/icons8-search-48.png';
-import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -23,8 +23,14 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     const { favorites, isLoading, error } = useFavorites();
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(false);
-    const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!user) {
+            setShowLoginPrompt(true);
+        }
+    }, [user]);
 
     const searchResult = favorites.filter((recipe) =>
         recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -32,9 +38,16 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
 
     const showSearch = searchQuery.trim() !== '';
 
-    if (!user) {
-        setShowLoginPrompt(true);
-        return
+    if (!user && !showLoginPrompt) {
+        return null; // Wait until useEffect sets showLoginPrompt
+    }
+
+    if (showLoginPrompt) {
+        return (
+            <LoginPromptWrapper>
+                <LoginPrompt main_text='Please login' />
+            </LoginPromptWrapper>
+        );
     }
 
     if (error) {
