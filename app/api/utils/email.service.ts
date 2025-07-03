@@ -1,27 +1,17 @@
-import * as brevo from "@getbrevo/brevo";
+import axios from "axios";
 import config from "@/app/api/utils/config.env";
 
-// let defaultClient = brevo.ApiClient.instance;
-
-// let apiKey = defaultClient.authentications["api-key"];
-
-// apiKey.apiKey = config.brevo.apiKey || "";
-
-// const apiKey2 =  brevo.TransactionalEmailsApiApiKeys.apiKey
-// Configure Brevo API with API key
-const apiInstance = new brevo.TransactionalEmailsApi();
-let apiAuth = new brevo.ApiKeyAuth("header", "api-key");
-// apiAuth.apiKey = config.brevo.apiKey || "";
-apiInstance.setDefaultAuthentication(apiAuth);
-console.log("brevo api KEY", config.brevo.apiKey);
-apiInstance.setApiKey(
-  brevo.TransactionalEmailsApiApiKeys.apiKey,
-  config.brevo.apiKey
-);
 const emailSender = {
   name: "Nourish Box",
   email: "enweremproper@gmail.com",
 };
+
+// Brevo API configuration
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+// const BREVO_API_URL = "https://api.brevo.com/v3/";
+const BREVO_API_KEY = config.brevo.apiKey;
+
+console.log("brevo api KEY", BREVO_API_KEY);
 
 export interface ContactEmailData {
   firstName: string;
@@ -47,6 +37,49 @@ export interface OrderEmailData {
 }
 
 /**
+ * Send email using Brevo API directly
+ */
+async function sendBrevoEmail(emailData: {
+  to: Array<{ email: string; name?: string }>;
+  subject: string;
+  htmlContent: string;
+  replyTo?: { email: string; name?: string };
+}): Promise<boolean> {
+  try {
+    if (!BREVO_API_KEY) {
+      throw new Error("Brevo API key is not configured");
+    }
+
+    const response = await axios.post(
+      BREVO_API_URL,
+      {
+        sender: emailSender,
+        to: emailData.to,
+        subject: emailData.subject,
+        htmlContent: emailData.htmlContent,
+        replyTo: emailData.replyTo,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": BREVO_API_KEY,
+        },
+      }
+    );
+
+    console.log("Email sent successfully:", response.status);
+    return true;
+  } catch (error: any) {
+    console.error("Error sending email with Brevo:", error);
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
+    return false;
+  }
+}
+
+/**
  * Send contact form notification to admins
  */
 export async function sendContactNotificationToAdmins(
@@ -56,22 +89,23 @@ export async function sendContactNotificationToAdmins(
   try {
     const htmlContent = generateContactEmailTemplate(contactData);
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `New Contact Form Submission - ${contactData.firstName} ${contactData.lastName}`;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = emailSender;
-    sendSmtpEmail.to = adminEmails.map((email) => ({ email, name: "Admin" }));
-    sendSmtpEmail.replyTo = {
-      email: contactData.email,
-      name: `${contactData.firstName} ${contactData.lastName}`,
+    const emailData = {
+      to: adminEmails.map((email) => ({ email, name: "Admin" })),
+      subject: `New Contact Form Submission - ${contactData.firstName} ${contactData.lastName}`,
+      htmlContent,
+      replyTo: {
+        email: contactData.email,
+        name: `${contactData.firstName} ${contactData.lastName}`,
+      },
     };
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(`Contact notification sent to ${adminEmails.length} admins`);
-    return true;
-  } catch (error) {
+    const success = await sendBrevoEmail(emailData);
+    if (success) {
+      console.log(`Contact notification sent to ${adminEmails.length} admins`);
+    }
+    return success;
+  } catch (error: any) {
     console.error("Error sending contact notification to admins:", error);
-    console.log("error response", error.response.message, "body", error.body);
     return false;
   }
 }
@@ -85,24 +119,26 @@ export async function sendOrderConfirmationToCustomer(
   try {
     const htmlContent = generateCustomerOrderTemplate(orderData);
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `Order Confirmation - #${orderData.orderId
-      .slice(-8)
-      .toUpperCase()}`;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = emailSender;
-    sendSmtpEmail.to = [
-      {
-        email: orderData.customerEmail,
-        name: orderData.customerName,
-      },
-    ];
+    const emailData = {
+      to: [
+        {
+          email: orderData.customerEmail,
+          name: orderData.customerName,
+        },
+      ],
+      subject: `Order Confirmation - #${orderData.orderId
+        .slice(-8)
+        .toUpperCase()}`,
+      htmlContent,
+    };
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(
-      `Order confirmation sent to customer: ${orderData.customerEmail}`
-    );
-    return true;
+    const success = await sendBrevoEmail(emailData);
+    if (success) {
+      console.log(
+        `Order confirmation sent to customer: ${orderData.customerEmail}`
+      );
+    }
+    return success;
   } catch (error) {
     console.error("Error sending order confirmation to customer:", error);
     return false;
@@ -119,17 +155,19 @@ export async function sendOrderNotificationToAdmins(
   try {
     const htmlContent = generateAdminOrderTemplate(orderData);
 
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `New Order Received - #${orderData.orderId
-      .slice(-8)
-      .toUpperCase()}`;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = emailSender;
-    sendSmtpEmail.to = adminEmails.map((email) => ({ email, name: "Admin" }));
+    const emailData = {
+      to: adminEmails.map((email) => ({ email, name: "Admin" })),
+      subject: `New Order Received - #${orderData.orderId
+        .slice(-8)
+        .toUpperCase()}`,
+      htmlContent,
+    };
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(`Order notification sent to ${adminEmails.length} admins`);
-    return true;
+    const success = await sendBrevoEmail(emailData);
+    if (success) {
+      console.log(`Order notification sent to ${adminEmails.length} admins`);
+    }
+    return success;
   } catch (error) {
     console.error("Error sending order notification to admins:", error);
     return false;

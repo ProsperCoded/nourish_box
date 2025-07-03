@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin";
 import { firebaseConfig } from "../utils/config.env";
 
-console.log("firebaseConfig", firebaseConfig);
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
@@ -12,7 +11,6 @@ if (!admin.apps.length) {
       }),
       // databaseURL: `https://${firebaseConfig.projectId}.firebaseio.com` // Optional: if you use Realtime Database
     });
-    console.log("Firebase Admin SDK initialized successfully.");
   } catch (error: any) {
     console.error("Firebase Admin SDK initialization error:", error.message);
     // Log more details if available
