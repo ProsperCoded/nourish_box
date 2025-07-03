@@ -1,18 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useFavorites } from "../contexts/FavContext";
 import { useRouter } from "next/navigation";
 import RecipeList from "../components/RecipeCard";
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 import search from "../assets/icons8-search-48.png";
-import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "../components/Search_bar";
-
-// Disable static generation for this page
-export const dynamic = "force-dynamic";
+import { LoginPromptWrapper } from "../components/LoginPromptWrapper";
+import LoginPrompt from "../components/LoginPrompt";
 
 interface Props {
   className?: string;
@@ -20,35 +19,18 @@ interface Props {
 }
 
 const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const { favorites, isLoading, error } = useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const router = useRouter();
 
-  // Handle client-side mounting
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render until mounted on client
-  if (!mounted) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
-  // Show loading while auth is initializing
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
+    if (!user) {
+      setShowLoginPrompt(true);
+    }
+  }, [user]);
 
   const searchResult = favorites.filter((recipe) =>
     recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -56,39 +38,20 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
 
   const showSearch = searchQuery.trim() !== "";
 
-  if (!user) {
+  if (!user && !showLoginPrompt) {
+    return null; // Wait until useEffect sets showLoginPrompt
+  }
+
+  if (showLoginPrompt) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-4">
-        <h2 className="text-xl font-semibold mb-4">
-          Please log in to view your favorites
-        </h2>
-        <button
-          onClick={() => router.push("/login")}
-          className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-        >
-          Go to Login
-        </button>
-      </div>
+      <LoginPromptWrapper>
+        <LoginPrompt main_text="Please login" />
+      </LoginPromptWrapper>
     );
   }
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-4">
-        <div className="text-red-500 text-center">
-          <h2 className="text-xl font-semibold mb-2">
-            Error Loading Favorites
-          </h2>
-          <p>{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <div className="p-4 text-red-500">{error}</div>;
   }
 
   if (isLoading) {
@@ -100,20 +63,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   }
 
   if (favorites.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-4">
-        <h2 className="text-xl font-semibold mb-4">No favorites yet</h2>
-        <p className="text-gray-600 mb-4">
-          Start exploring recipes and add them to your favorites!
-        </p>
-        <button
-          onClick={() => router.push("/")}
-          className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-        >
-          Browse Recipes
-        </button>
-      </div>
-    );
+    return <div className="p-4">No favorites yet.</div>;
   }
 
   const goBack = () => {
