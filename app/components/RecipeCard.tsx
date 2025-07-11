@@ -4,16 +4,8 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { useManualLoginPrompt } from "../components/LoginPromptWrapper";
 import LoginPrompt from "./LoginPrompt";
-import {
-  Modal,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-} from "@mui/material";
-import { SelectChangeEvent } from "@mui/material/Select";
+import RecipeDetailModal from "./RecipeDetailModal";
+import { Modal } from "@mui/material";
 
 import { useFavorites } from "../contexts/FavContext";
 import { Recipe } from "../utils/types/recipe.type";
@@ -31,18 +23,11 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
   const { user, loading: authLoading } = useAuth();
-  const { addToCart, loading: cartLoading, isItemLoading } = useCart();
-  const {
-    showPrompt,
-    triggerPrompt,
-    hidePrompt,
-    decrementPromptCounter,
-    handleNeverMind,
-  } = useManualLoginPrompt();
+  const { decrementPromptCounter } = useCart();
+  const { showPrompt, triggerPrompt, hidePrompt, handleNeverMind } =
+    useManualLoginPrompt();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [option, setOption] = useState<string>("");
-  const [count, setCount] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -101,10 +86,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     }
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setOption(event.target.value);
-  };
-
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
     setOpen(true);
@@ -125,49 +106,16 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     handleOpen(e);
   };
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleModalAddToCart = () => {
+    setOpen(false);
 
-    try {
-      await addToCart(recipe, count, option);
-
-      toast.success(`${recipe.name} added to cart!`, {
-        duration: 3000,
-        position: "top-center",
-      });
-      setOpen(false);
-
-      if (!user) {
-        const newCount = decrementPromptCounter();
-        if (newCount === 0) {
-          triggerPrompt();
-        }
+    // Handle prompt logic for guest users
+    if (!user) {
+      const newCount = decrementPromptCounter();
+      if (newCount === 0) {
+        triggerPrompt();
       }
-
-      setCount(1);
-      setOption("");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.", {
-        duration: 4000,
-        position: "top-center",
-      });
     }
-  };
-
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "80%",
-    maxWidth: "1000px",
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    p: 4,
-    maxHeight: "90vh",
-    overflow: "auto",
-    outline: "none",
   };
 
   useEffect(() => {
@@ -278,147 +226,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         </div>
 
         {/* Recipe Details Modal */}
-        <Modal
+        <RecipeDetailModal
+          recipe={recipe}
           open={open}
           onClose={handleClose}
-          onClick={(e) => e.stopPropagation()}
-          disableAutoFocus={true}
-          disableEnforceFocus={true}
-        >
-          <Box sx={modalStyle}>
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-50"
-              aria-label="Close modal"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Media */}
-              <div className="md:w-1/2">
-                {recipe.displayMedia.type === "video" ? (
-                  <video
-                    src={recipe.displayMedia.url}
-                    className="rounded-lg w-full max-h-[400px]"
-                    controls
-                    autoPlay
-                  />
-                ) : (
-                  <Image
-                    src={recipe.displayMedia.url}
-                    alt={recipe.name}
-                    className="rounded-lg w-full"
-                    width={500}
-                    height={300}
-                    style={{ objectFit: "contain", maxHeight: "400px" }}
-                  />
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="md:w-1/2 space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                    {recipe.name}
-                  </h2>
-                  {recipe.description && (
-                    <p className="text-gray-600">{recipe.description}</p>
-                  )}
-                </div>
-
-                {/* Ingredients */}
-                {recipe.ingredients && recipe.ingredients.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-700 mb-2">
-                      Ingredients
-                    </h4>
-                    <ul className="space-y-1">
-                      {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="text-gray-600 text-sm">
-                          • {ingredient}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Packaging Options */}
-                <div>
-                  <p className="font-semibold text-gray-700 mb-2">
-                    How do you want it packaged? (if more than one portion
-                    ordered)
-                  </p>
-                  <FormControl fullWidth>
-                    <InputLabel id="dropdown-label">
-                      Choose an option
-                    </InputLabel>
-                    <Select
-                      labelId="dropdown-label"
-                      value={option}
-                      label="Choose an option"
-                      onChange={handleChange}
-                    >
-                      <MenuItem value="separate">Pack separately</MenuItem>
-                      <MenuItem value="together">Pack as one</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-
-                {/* Quantity */}
-                <div className="flex justify-center">
-                  <div className="flex items-center border border-gray-300 rounded-lg">
-                    <button
-                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
-                      onClick={() => setCount(Math.max(1, count - 1))}
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-2 border-x border-gray-300">
-                      {count}
-                    </span>
-                    <button
-                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
-                      onClick={() => setCount(count + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Price and Add to Cart */}
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm text-gray-500">Price</h4>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {formattedPrice}
-                    </p>
-                  </div>
-                  <button
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    onClick={handleAddToCart}
-                    disabled={cartLoading}
-                  >
-                    {cartLoading ? "Adding..." : "Add to Cart"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+          onAddToCart={handleModalAddToCart}
+        />
       </div>
 
       {/* Login Prompt Modal */}
