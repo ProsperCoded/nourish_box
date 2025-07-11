@@ -23,9 +23,13 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
   const { user, loading: authLoading } = useAuth();
-  const { decrementPromptCounter } = useCart();
-  const { showPrompt, triggerPrompt, hidePrompt, handleNeverMind } =
-    useManualLoginPrompt();
+  const {
+    showPrompt,
+    triggerPrompt,
+    hidePrompt,
+    decrementPromptCounter,
+    handleNeverMind,
+  } = useManualLoginPrompt();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);

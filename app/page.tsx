@@ -1,25 +1,26 @@
-'use client';
+"use client";
 
-import Nav from './components/nav';
-import Image from 'next/image';
-import hero from './assets/hero.png';
-import hover_img_one from './assets/Frame 464.png';
-import hover_img_two from './assets/Frame 466.png';
-import broccoli from './assets/Broccoli.png';
-import tomato from './assets/Tomato.png';
-import RecipeCard from './components/RecipeCard';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Recipe } from './utils/types/recipe.type';
-import { fetchRecipes } from './utils/firebase/recipes.firebase';
-import Logo from './assets/nourish_box_folder/Logo files/Logomark.svg';
-import AboutUs from './components/about_us';
-import CommunityList from './components/community';
-import Banner from './components/banner';
-import Footer from './components/footer';
-import Link from 'next/link';
-import search from './assets/icons8-search-48.png';
-import CartComponent from './components/Cart';
+import Nav from "./components/nav";
+import Image from "next/image";
+import hero from "./assets/hero.png";
+import hover_img_one from "./assets/Frame 464.png";
+import hover_img_two from "./assets/Frame 466.png";
+import broccoli from "./assets/Broccoli.png";
+import tomato from "./assets/Tomato.png";
+import RecipeCard from "./components/RecipeCard";
+import RecipeCardSkeleton from "./components/RecipeCardSkeleton";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Recipe } from "./utils/types/recipe.type";
+import { fetchRecipes } from "./utils/firebase/recipes.firebase";
+import Logo from "./assets/nourish_box_folder/Logo files/Logomark.svg";
+import AboutUs from "./components/about_us";
+import CommunityList from "./components/community";
+import Banner from "./components/banner";
+import Footer from "./components/footer";
+import Link from "next/link";
+import search from "./assets/icons8-search-48.png";
+import CartComponent from "./components/Cart";
 
 export default function Home({
   searchQuery,
@@ -38,7 +39,7 @@ export default function Home({
         const fetchedRecipes = await fetchRecipes();
         setRecipes(fetchedRecipes);
       } catch (error) {
-        console.error('Error loading recipes:', error);
+        console.error("Error loading recipes:", error);
       } finally {
         setLoading(false);
       }
@@ -70,9 +71,8 @@ export default function Home({
         <CartComponent />
       </div>
 
-
       {/* Hero Section */}
-      
+
       <section className="px-4 lg:px-20 md:pt-20 pb-10">
         {/* Mobile & Tablet Layout */}
         <div className="flex flex-col lg:hidden items-center text-center gap-4">
@@ -88,8 +88,8 @@ export default function Home({
             Cooking Made Fun and Easy
           </h1>
           <p className="text-lg text-brand-sub_gray font-inter max-w-md">
-            Nourish Box removes the hassle of meal prep by delivering pre-measured,
-            pre-cut ingredients along with guided recipes.
+            Nourish Box removes the hassle of meal prep by delivering
+            pre-measured, pre-cut ingredients along with guided recipes.
           </p>
           <Link href="/recipes">
             <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
@@ -105,10 +105,10 @@ export default function Home({
               Cooking Made Fun and Easy: <br /> Unleash Your Inner Chef
             </h1>
             <p className="mt-6 text-lg text-brand-sub_gray font-inter">
-              Nourish Box removes the hassle of meal prep by delivering pre-measured,
-              pre-cut ingredients along with guided recipes. We ensure every meal is
-              made with carefully sourced ingredients, delivering farm-to-table
-              goodness in every box.
+              Nourish Box removes the hassle of meal prep by delivering
+              pre-measured, pre-cut ingredients along with guided recipes. We
+              ensure every meal is made with carefully sourced ingredients,
+              delivering farm-to-table goodness in every box.
             </p>
             <Link href="/recipes">
               <button className="bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform">
@@ -118,7 +118,13 @@ export default function Home({
           </div>
 
           <div className="w-1/2 relative flex justify-center items-center">
-            <Image src={hero} alt="hero dish" width={600} height={600} className="z-10" />
+            <Image
+              src={hero}
+              alt="hero dish"
+              width={600}
+              height={600}
+              className="z-10"
+            />
             <Image
               src={hover_img_one}
               height={180}
@@ -147,7 +153,6 @@ export default function Home({
         </div>
       </section>
 
-
       {/* Recipes Section */}
       <section className="px-4 lg:px-20">
         <div className="text-center mb-8">
@@ -155,20 +160,28 @@ export default function Home({
             Discover, Create, Share
           </h2>
           <p className="text-brand-sub_gray text-lg">
-            {loading ? 'Loading recipes...' : 'Check out our recipes for the week'}
+            {loading
+              ? "Loading recipes..."
+              : "Check out our recipes for the week"}
           </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-6">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
-          ))}
+          {loading
+            ? // Show skeleton cards while loading
+              Array.from({ length: 6 }).map((_, index) => (
+                <RecipeCardSkeleton key={index} />
+              ))
+            : // Show actual recipe cards when loaded
+              recipes.map((recipe) => (
+                <RecipeCard key={recipe.id} recipe={recipe} />
+              ))}
         </div>
 
         <div className="flex justify-center mt-6">
           <button
             className="bg-brand-btn_orange px-6 py-3 rounded-xl font-inter text-white text-lg"
-            onClick={() => router.push('/recipes')}
+            onClick={() => router.push("/recipes")}
           >
             See All
           </button>
