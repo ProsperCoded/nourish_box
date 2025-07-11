@@ -25,36 +25,41 @@ import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
 
 const tabs = [
-  { id: "1", title: "Edit profile", icon: userIcon, content: <User_profile /> },
   {
-    id: "2",
+    id: "profile",
+    title: "Edit profile",
+    icon: userIcon,
+    content: <User_profile />,
+  },
+  {
+    id: "orders",
     title: "Order History",
     icon: clockIcon,
     content: <OrderHistory />,
   },
   {
-    id: "3",
+    id: "saved",
     title: "Saved Recipes",
     icon: bookmarkIcon,
     content: <FavoritesPage showHeader={false} />,
   },
   {
-    id: "4",
+    id: "contact",
     title: "Contact us",
     icon: phoneIcon,
     content: <ContactUs showIcons={false} />,
   },
   {
-    id: "5",
+    id: "track",
     title: "Track delivery",
     icon: deliveryIcon,
     content: <OrderStatusPage />,
   },
   {
-    id: "6",
+    id: "address",
     title: "Manage address",
     icon: locationIcon,
-    content: <ManageAddress onBack={() => {}} />,
+    content: <ManageAddress />,
   },
 ];
 
@@ -82,6 +87,26 @@ function ProfileContent() {
       document.body.style.overflow = "unset";
     };
   }, [isMobile, isSidebarOpen]);
+
+  // Handle search parameter for active tab
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && tabs.find((tab) => tab.id === tabParam)) {
+      setActiveTabId(tabParam);
+    } else if (!activeTabId) {
+      // Default to profile tab if no valid tab parameter
+      setActiveTabId("profile");
+    }
+  }, [searchParams, activeTabId]);
+
+  const handleTabClick = (tabId: string) => {
+    setActiveTabId(tabId);
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+    // Update URL with search parameter
+    router.push(`/profile?tab=${tabId}`, { scroll: false });
+  };
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
@@ -155,10 +180,7 @@ function ProfileContent() {
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      setActiveTabId(tab.id);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => handleTabClick(tab.id)}
                     className="w-full flex items-center gap-3 p-3 bg-gray-100 rounded-lg text-sm font-medium hover:bg-orange-100"
                   >
                     <Image
@@ -203,7 +225,7 @@ function ProfileContent() {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTabId(tab.id)}
+                  onClick={() => handleTabClick(tab.id)}
                   className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${
                     activeTabId === tab.id
                       ? "bg-orange-100 text-orange-600"

@@ -12,9 +12,11 @@ import {
   ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { UserAvatar } from "@/app/components/UserAvatar";
 import CartComponent from "./Cart";
 import { useAuth } from "../contexts/AuthContext";
+import { useFavorites } from "../contexts/FavContext";
 
 const Nav = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,6 +24,7 @@ const Nav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
   const { user: authUser } = useAuth();
+  const { favorites } = useFavorites();
 
   const mobileMenu = [
     { id: 1, label: "Home", link: "/" },
@@ -71,6 +74,27 @@ const Nav = () => {
   const linkColorClass = scrolled ? "text-black" : "text-black";
   const mobileIconColor = scrolled ? "black" : "black";
 
+  // Favorites component for both mobile and desktop
+  const FavoritesButton = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <Link href="/profile?tab=saved" className="relative">
+      <div className="flex items-center hover:scale-105 transition-transform cursor-pointer">
+        <FavoriteIcon
+          sx={{
+            fontSize: isMobile ? 24 : 28,
+            stroke: "#222",
+            strokeWidth: 2,
+            fill: "none",
+          }}
+        />
+        {favorites.length > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
+            {favorites.length > 99 ? "99+" : favorites.length}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+
   return (
     <div className={`${navBaseClasses} ${navVisibilityClass} ${navStyleClass}`}>
       {/* Mobile Nav */}
@@ -106,6 +130,7 @@ const Nav = () => {
             <div>
               <UserAvatar className="flex-row " />
             </div>
+            {authUser && <FavoritesButton isMobile={true} />}
             <CartComponent />
             <IconButton
               onClick={toggleMobileMenu}
@@ -192,6 +217,7 @@ const Nav = () => {
             <div className="mx-4">
               <UserAvatar className="flex-row " />
             </div>
+            {authUser && <FavoritesButton />}
             <CartComponent />
           </div>
         </div>

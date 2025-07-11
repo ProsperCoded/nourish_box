@@ -7,4 +7,6 @@ export enum COLLECTION {
   transactions = "transactions",
   orders = "orders",
   deliveries = "deliveries",
+  site_content = "site_content",
+  assets = "assets",
 }
