@@ -532,12 +532,13 @@ export async function updateOrderDeliveryStatus(
 }
 
 /**
- * Get recent orders for admin dashboard (last 5) - basic order info only (optimized)
+ * Get recent pending orders for admin dashboard (last 5) - basic order info only (optimized)
  */
 export async function getRecentOrders(): Promise<Order[]> {
   try {
     const recentOrdersQuery = query(
       collection(db, COLLECTION.orders),
+      where("deliveryStatus", "==", "pending"),
       orderBy("createdAt", "desc"),
       limit(5)
     );
@@ -553,7 +554,7 @@ export async function getRecentOrders(): Promise<Order[]> {
 
     return orders;
   } catch (error) {
-    console.error("Error fetching recent orders:", error);
+    console.error("Error fetching recent pending orders:", error);
     return [];
   }
 }

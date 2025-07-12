@@ -18,8 +18,10 @@ import {
 import { DeliveryStatus } from "@/app/utils/types/order.type";
 import OrdersTable, { OrderWithDetails } from "../components/OrdersTable";
 import OrderModal from "../components/OrderModal";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 export default function OrdersPage() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(
     null
@@ -130,7 +132,24 @@ export default function OrdersPage() {
     status: DeliveryStatus
   ) => {
     try {
-      await updateOrderDeliveryStatus(orderId, status);
+      // Use the new API endpoint that includes email notifications
+      const response = await fetch("/api/orders/update-status", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          deliveryStatus: status,
+          userId: user?.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update order status");
+      }
 
       // Refresh all orders for statistics
       const allOrdersData = await getAllOrdersWithDetails();
@@ -153,6 +172,8 @@ export default function OrdersPage() {
           setSelectedOrder(updatedOrder);
         }
       }
+
+      console.log("Order status updated and email sent successfully");
     } catch (error) {
       console.error("Error updating order status:", error);
       throw error;
