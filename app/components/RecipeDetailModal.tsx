@@ -88,14 +88,19 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     setActiveMedia(media);
   };
 
-  const scrollThumbnails = (direction: "left" | "right") => {
-    if (thumbnailsContainerRef.current) {
-      const scrollAmount = direction === "left" ? -200 : 200;
-      thumbnailsContainerRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: "smooth",
-      });
+  const navigateMedia = (direction: "prev" | "next") => {
+    const currentIndex = allMediaItems.findIndex(
+      (item) => item.id === activeMedia.id
+    );
+    let newIndex;
+
+    if (direction === "prev") {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : allMediaItems.length - 1;
+    } else {
+      newIndex = currentIndex < allMediaItems.length - 1 ? currentIndex + 1 : 0;
     }
+
+    setActiveMedia(allMediaItems[newIndex]);
   };
 
   const handleAddToCartClick = async () => {
@@ -161,7 +166,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           {/* Media Section */}
           <div className="space-y-4">
             {/* Main Media Display */}
-            <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-inner">
+            <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-inner group">
               {activeMedia.type === "video" ? (
                 <video
                   key={activeMedia.url}
@@ -180,22 +185,52 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               )}
+
+              {/* Navigation buttons - only show when there are multiple media items */}
+              {allMediaItems.length > 1 && (
+                <>
+                  <button
+                    onClick={() => navigateMedia("prev")}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Previous media"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+
+                  <button
+                    onClick={() => navigateMedia("next")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Next media"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+
+                  {/* Media indicator dots */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {allMediaItems.map((_, index) => {
+                      const currentIndex = allMediaItems.findIndex(
+                        (item) => item.id === activeMedia.id
+                      );
+                      return (
+                        <div
+                          key={index}
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            index === currentIndex ? "bg-white" : "bg-white/50"
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Thumbnails Carousel */}
             {allMediaItems.length > 1 && (
-              <div className="relative flex items-center">
-                <button
-                  onClick={() => scrollThumbnails("left")}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-white/80 hover:bg-white rounded-full shadow-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed -ml-3"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-
+              <div className="relative">
                 <div
                   ref={thumbnailsContainerRef}
-                  className="flex gap-2 overflow-x-auto scroll-smooth scrollbar-hide py-1 px-1 flex-grow"
+                  className="flex gap-2 overflow-x-auto scroll-smooth scrollbar-hide py-1 px-1"
                 >
                   {allMediaItems.map((media) => (
                     <div
@@ -242,14 +277,6 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                     </div>
                   ))}
                 </div>
-
-                <button
-                  onClick={() => scrollThumbnails("right")}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-white/80 hover:bg-white rounded-full shadow-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed -mr-3"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight size={20} />
-                </button>
               </div>
             )}
           </div>
@@ -274,10 +301,6 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                   <span>{Math.floor(recipe.duration / 60)} min</span>
                 </div>
               )}
-              <div className="flex items-center gap-1 text-orange-600 font-semibold">
-                <DollarSign className="w-4 h-4" />
-                <span>{formattedPrice}</span>
-              </div>
             </div>
 
             {/* Ingredients */}

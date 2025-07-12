@@ -99,11 +99,11 @@ export default function Home({
           />
 
           <h1 className="text-5xl font-custom font-medium">
-            {displayContent.heroHeading || "Cooking Made Fun and Easy"}
+            {displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading}
           </h1>
           <p className="text-lg text-brand-sub_gray font-inter max-w-md">
             {displayContent.heroDescription ||
-              "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes."}
+              DEFAULT_SITE_CONTENT.heroDescription}
           </p>
           <Link href="/recipes">
             <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
@@ -116,14 +116,14 @@ export default function Home({
         <div className="hidden lg:flex justify-between items-center gap-10">
           <div className="w-1/2 flex flex-col items-start text-left">
             <h1 className="text-5xl font-custom font-medium leading-tight">
-              {displayContent.heroHeading || "Cooking Made Fun and Easy"}
+              {displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading}
               {(
-                displayContent.heroHeading || "Cooking Made Fun and Easy"
+                displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading
               ).includes("Easy") && ": Unleash Your Inner Chef"}
             </h1>
             <p className="mt-6 text-lg text-brand-sub_gray font-inter">
               {displayContent.heroDescription ||
-                "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes. We ensure every meal is made with carefully sourced ingredients, delivering farm-to-table goodness in every box."}
+                DEFAULT_SITE_CONTENT.heroDescription}
             </p>
             <Link href="/recipes">
               <button className="bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform">

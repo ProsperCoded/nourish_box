@@ -112,6 +112,16 @@ export default function SiteContentPage() {
         return;
       }
 
+      // Check for performance recommendation (200KB)
+      if (file.size > 200 * 1024) {
+        setError(
+          "For better performance, images should be less than 200KB. Current size: " +
+            Math.round(file.size / 1024) +
+            "KB"
+        );
+        return;
+      }
+
       setHeroImageFile(file);
 
       // Create preview URL
@@ -441,7 +451,8 @@ export default function SiteContentPage() {
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB. For
+                better performance, use images less than 200KB.
               </p>
             </div>
 
