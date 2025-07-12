@@ -5,6 +5,7 @@ import {
   DEFAULT_SITE_CONTENT,
 } from "@/app/utils/types/site-content.type";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
+import { storageService } from "@/app/api/storage/storage.service";
 
 const SITE_CONTENT_ID = "main-site-content";
 
@@ -52,6 +53,11 @@ export async function updateSiteContentAdmin(
       .collection(COLLECTION.site_content)
       .doc(SITE_CONTENT_ID);
 
+    // If we're updating the hero image, clean up the old one first
+    if (updates.heroImage) {
+      await cleanupOldHeroImage(updates.heroImage);
+    }
+
     const updateData = {
       ...updates,
       updatedAt: new Date().toISOString(),
@@ -88,5 +94,51 @@ export async function initializeSiteContentAdmin(): Promise<SiteContent> {
   } catch (error) {
     console.error("Error initializing site content (admin):", error);
     throw new Error("Failed to initialize site content");
+  }
+}
+
+/**
+ * Clean up old hero image when updating with a new one
+ */
+async function cleanupOldHeroImage(newHeroImage: {
+  url: string;
+  publicId: string;
+  type: "image" | "video";
+}): Promise<void> {
+  try {
+    // Get current site content to check for existing image
+    const currentContent = await getSiteContentAdmin();
+
+    // Check if there's an existing image that's not the default
+    const currentImage = currentContent.heroImage;
+    const isCurrentImageDefault =
+      currentImage.url === DEFAULT_SITE_CONTENT.heroImage.url ||
+      currentImage.url.includes("/hero.png") ||
+      currentImage.publicId === DEFAULT_SITE_CONTENT.heroImage.publicId;
+
+    // Check if new image is the default
+    const isNewImageDefault =
+      newHeroImage.url === DEFAULT_SITE_CONTENT.heroImage.url ||
+      newHeroImage.url.includes("/hero.png") ||
+      newHeroImage.publicId === DEFAULT_SITE_CONTENT.heroImage.publicId;
+
+    // If we have a non-default current image and we're setting a new one (including default),
+    // clean up the old one
+    if (
+      !isCurrentImageDefault &&
+      currentImage.publicId !== newHeroImage.publicId
+    ) {
+      console.log(`🧹 Cleaning up old hero image: ${currentImage.publicId}`);
+      try {
+        await storageService.deleteMedia(currentImage.publicId, "image");
+        console.log(`✅ Successfully deleted old hero image`);
+      } catch (deleteError) {
+        console.warn(`⚠️ Failed to delete old hero image: ${deleteError}`);
+        // Don't throw error for cleanup failures, just log them
+      }
+    }
+  } catch (error) {
+    console.error("Error in cleanupOldHeroImage:", error);
+    // Don't throw error for cleanup failures to prevent blocking updates
   }
 }

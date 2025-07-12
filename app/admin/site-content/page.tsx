@@ -58,15 +58,51 @@ export default function SiteContentPage() {
     }
   }, [siteContent]);
 
-  const resetToDefaults = () => {
-    setHeroHeading(DEFAULT_SITE_CONTENT.heroHeading);
-    setHeroDescription(DEFAULT_SITE_CONTENT.heroDescription);
-    setHeroImagePreview(DEFAULT_SITE_CONTENT.heroImage.url);
-    setHeroImageFile(null);
-    setIsShowingNewImagePreview(false);
+  const resetToDefaults = async () => {
+    if (!user?.id) {
+      setError("User authentication required");
+      return;
+    }
+
+    setSaving(true);
     setError(null);
-    setSuccess("Reset to defaults completed!");
-    setTimeout(() => setSuccess(null), 2000);
+    setSuccess(null);
+
+    try {
+      // Update site content in Firebase with default values
+      const response = await fetch("/api/site-content", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          heroHeading: DEFAULT_SITE_CONTENT.heroHeading,
+          heroDescription: DEFAULT_SITE_CONTENT.heroDescription,
+          heroImage: DEFAULT_SITE_CONTENT.heroImage,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to reset to defaults");
+      }
+
+      // Update local state with the saved data
+      setSiteContent(data.data);
+      setHeroImageFile(null);
+      setIsShowingNewImagePreview(false);
+      setSuccess("Successfully reset to defaults!");
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      console.error("Error resetting to defaults:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to reset to defaults"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const fetchSiteContent = async () => {
@@ -271,8 +307,10 @@ export default function SiteContentPage() {
             variant="outline"
             className="border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset to Defaults
+            <RotateCcw
+              className={`w-4 h-4 mr-2 ${saving ? "animate-spin" : ""}`}
+            />
+            {saving ? "Resetting..." : "Reset to Defaults"}
           </Button>
           <Button
             onClick={fetchSiteContent}
