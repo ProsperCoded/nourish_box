@@ -308,7 +308,7 @@ export default function AdminDashboard() {
               className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
             >
               <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
-                `Recent User Activity`
+                Recent User Activity
               </h3>
               {recentUsers.length > 0 ? (
                 <ul className="space-y-2 sm:space-y-3 max-w-full overflow-x-auto">
@@ -413,11 +413,32 @@ export default function AdminDashboard() {
             transition={{ duration: 0.5, delay: 0.8 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
-            <div className="flex items-center mb-3 sm:mb-4">
-              <Clock size={20} className="mr-2 text-brand-btn_orange" />
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-700">
-                Recent Pending Orders
-              </h3>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="flex items-center">
+                <Clock size={20} className="mr-2 text-brand-btn_orange" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-700">
+                  Recent Pending Orders
+                </h3>
+              </div>
+              <a
+                href="/admin/orders"
+                className="text-brand-btn_orange text-sm font-medium hover:underline flex items-center gap-1"
+              >
+                See more
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </a>
             </div>
             {recentOrders.length > 0 ? (
               <ul className="space-y-2 sm:space-y-3">
@@ -437,10 +458,16 @@ export default function AdminDashboard() {
                         />
                         <div>
                           <p className="text-sm font-medium text-gray-800">
-                            {order.recipe?.name || "Recipe not found"}
+                            Order ID:{" "}
+                            <span className="font-mono text-gray-700">
+                              {order.id.slice(-6)}
+                            </span>
                           </p>
                           <p className="text-xs text-gray-500">
-                            Order #{order.id.slice(-6)}
+                            Recipe ID:{" "}
+                            <span className="font-mono text-gray-500">
+                              {order.recipeId}
+                            </span>
                           </p>
                         </div>
                       </div>
