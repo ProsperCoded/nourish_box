@@ -380,7 +380,7 @@ export function generateOrderStatusUpdateTemplate(
           title: "Order Confirmed - Preparing Your Recipes",
           message:
             "Your order is being processed and will be prepared shortly.",
-          actionText: "Your recipes are being prepared by our chefs.",
+          actionText: "Your recipes are being prepared.",
         };
       case "packed":
         return {

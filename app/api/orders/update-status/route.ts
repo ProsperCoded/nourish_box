@@ -5,7 +5,10 @@ import {
 } from "@/app/api/adminUtils/order.admin";
 import { isAdmin } from "@/app/api/adminUtils/user.admin";
 import { DeliveryStatus } from "@/app/utils/types/order.type";
-import { OrderStatusUpdateEmailData } from "@/app/api/utils/email.service";
+import {
+  OrderStatusUpdateEmailData,
+  sendOrderStatusUpdateToCustomer,
+} from "@/app/api/utils/email.service";
 
 /**
  * PUT endpoint to update order delivery status and send email notification
@@ -92,26 +95,17 @@ export async function PUT(request: NextRequest) {
         trackingUrl,
       };
 
-      // Send email notification
+      // Send email notification directly
       try {
-        const emailResponse = await fetch(
-          `${domain}/api/email/order-status-update`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(emailData),
-          }
-        );
-
-        if (!emailResponse.ok) {
-          console.warn(
-            "Failed to send email notification, but order status was updated"
+        const emailSent = await sendOrderStatusUpdateToCustomer(emailData);
+        if (!emailSent) {
+          console.log(
+            "Failed to send email notification, but order status was updated",
+            emailData
           );
         }
       } catch (emailError) {
-        console.error("Error sending email notification:", emailError);
+        console.log("Error sending email notification:", emailError);
         // Don't fail the entire request if email fails
       }
     }
