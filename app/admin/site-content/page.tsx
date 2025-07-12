@@ -9,10 +9,13 @@ import {
   Upload,
   AlertTriangle,
   CheckCircle,
-  Image as ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import { useAuth } from "@/app/contexts/AuthContext";
-import { SiteContent } from "@/app/utils/types/site-content.type";
+import {
+  SiteContent,
+  DEFAULT_SITE_CONTENT,
+} from "@/app/utils/types/site-content.type";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import {
@@ -37,6 +40,8 @@ export default function SiteContentPage() {
   const [heroDescription, setHeroDescription] = useState("");
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState<string | null>(null);
+  const [isShowingNewImagePreview, setIsShowingNewImagePreview] =
+    useState(false);
 
   // Fetch site content on mount
   useEffect(() => {
@@ -49,8 +54,20 @@ export default function SiteContentPage() {
       setHeroHeading(siteContent.heroHeading);
       setHeroDescription(siteContent.heroDescription);
       setHeroImagePreview(siteContent.heroImage.url);
+      setIsShowingNewImagePreview(false);
     }
   }, [siteContent]);
+
+  const resetToDefaults = () => {
+    setHeroHeading(DEFAULT_SITE_CONTENT.heroHeading);
+    setHeroDescription(DEFAULT_SITE_CONTENT.heroDescription);
+    setHeroImagePreview(DEFAULT_SITE_CONTENT.heroImage.url);
+    setHeroImageFile(null);
+    setIsShowingNewImagePreview(false);
+    setError(null);
+    setSuccess("Reset to defaults completed!");
+    setTimeout(() => setSuccess(null), 2000);
+  };
 
   const fetchSiteContent = async () => {
     setLoading(true);
@@ -101,6 +118,7 @@ export default function SiteContentPage() {
       const reader = new FileReader();
       reader.onload = (e) => {
         setHeroImagePreview(e.target?.result as string);
+        setIsShowingNewImagePreview(true);
       };
       reader.readAsDataURL(file);
       setError(null);
@@ -112,7 +130,7 @@ export default function SiteContentPage() {
     formData.append("file", file);
     formData.append("userId", user?.id || "");
 
-    const response = await fetch("/api/recipes/upload-media", {
+    const response = await fetch("/api/site-content/upload-hero-image", {
       method: "POST",
       body: formData,
     });
@@ -120,12 +138,12 @@ export default function SiteContentPage() {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || "Failed to upload image");
+      throw new Error(data.message || "Failed to upload hero image");
     }
 
     return {
       url: data.url,
-      publicId: data.public_id,
+      publicId: data.publicId, // Fixed: now matches API expectation
       type: "image" as const,
     };
   };
@@ -172,6 +190,8 @@ export default function SiteContentPage() {
 
       setSiteContent(data.data);
       setHeroImageFile(null);
+      setIsShowingNewImagePreview(false);
+      // Note: heroImagePreview will be updated by the useEffect when siteContent changes
       setSuccess("Site content updated successfully!");
 
       // Clear success message after 3 seconds
@@ -188,7 +208,14 @@ export default function SiteContentPage() {
   };
 
   const hasChanges = () => {
-    if (!siteContent) return false;
+    if (!siteContent) {
+      // Check against defaults if no site content loaded yet
+      return (
+        heroHeading !== DEFAULT_SITE_CONTENT.heroHeading ||
+        heroDescription !== DEFAULT_SITE_CONTENT.heroDescription ||
+        heroImageFile !== null
+      );
+    }
 
     return (
       heroHeading !== siteContent.heroHeading ||
@@ -228,6 +255,15 @@ export default function SiteContentPage() {
         </div>
 
         <div className="flex items-center space-x-3">
+          <Button
+            onClick={resetToDefaults}
+            disabled={loading || saving || uploading}
+            variant="outline"
+            className="border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset to Defaults
+          </Button>
           <Button
             onClick={fetchSiteContent}
             disabled={loading}
@@ -334,41 +370,74 @@ export default function SiteContentPage() {
               {/* Current/Preview Image */}
               {heroImagePreview && (
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">
-                    {heroImageFile ? "Preview:" : "Current Image:"}
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    {isShowingNewImagePreview
+                      ? "🔍 Image Preview:"
+                      : "📷 Current Image:"}
                   </p>
-                  <div className="relative w-full h-64 border border-gray-300 rounded-lg overflow-hidden">
+                  <div className="relative w-full max-w-md h-48 border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
                     <Image
                       src={heroImagePreview}
-                      alt="Hero image preview"
+                      alt={
+                        isShowingNewImagePreview
+                          ? "Selected image preview"
+                          : "Current hero image"
+                      }
                       fill
                       className="object-cover"
+                      unoptimized={isShowingNewImagePreview}
                     />
                   </div>
+                  {isShowingNewImagePreview && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      This is a preview of your selected image. Click "Save
+                      Changes" to apply.
+                    </p>
+                  )}
                 </div>
               )}
 
               {/* File Input */}
-              <div className="flex items-center space-x-4">
-                <label
-                  htmlFor="heroImageInput"
-                  className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Choose New Image</span>
-                </label>
-                <input
-                  id="heroImageInput"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  disabled={saving || uploading}
-                />
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center space-x-4">
+                  <label
+                    htmlFor="heroImageInput"
+                    className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Choose New Image</span>
+                  </label>
+                  <input
+                    id="heroImageInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={saving || uploading}
+                  />
+                  {heroImageFile && isShowingNewImagePreview && (
+                    <Button
+                      onClick={() => {
+                        setHeroImageFile(null);
+                        setHeroImagePreview(
+                          siteContent?.heroImage.url ||
+                            DEFAULT_SITE_CONTENT.heroImage.url
+                        );
+                        setIsShowingNewImagePreview(false);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                    >
+                      Clear Selection
+                    </Button>
+                  )}
+                </div>
                 {heroImageFile && (
-                  <span className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                    <span className="font-medium">Selected:</span>{" "}
                     {heroImageFile.name}
-                  </span>
+                  </div>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-2">
@@ -404,65 +473,6 @@ export default function SiteContentPage() {
           </CardContent>
         </Card>
       </motion.div>
-
-      {/* Preview Section */}
-      {siteContent && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-gray-800">
-                Preview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    Hero Heading:
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {heroHeading || "No heading set"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    Hero Description:
-                  </h3>
-                  <p className="text-gray-600">
-                    {heroDescription || "No description set"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    Hero Image:
-                  </h3>
-                  {heroImagePreview ? (
-                    <div className="relative w-full max-w-md h-48 border border-gray-300 rounded-lg overflow-hidden">
-                      <Image
-                        src={heroImagePreview}
-                        alt="Hero image"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center w-full max-w-md h-48 border border-gray-300 rounded-lg bg-gray-50">
-                      <div className="text-center">
-                        <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500">No image set</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
     </div>
   );
 }

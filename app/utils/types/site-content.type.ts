@@ -30,7 +30,7 @@ export const DEFAULT_SITE_CONTENT: Omit<
   heroDescription:
     "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes.",
   heroImage: {
-    url: "/app/assets/hero.png",
+    url: "/hero.png", // This will be moved to public folder or use the imported asset
     publicId: "hero-default",
     type: "image",
   },

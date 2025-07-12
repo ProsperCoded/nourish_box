@@ -15,6 +15,7 @@ import { Recipe } from "./utils/types/recipe.type";
 import { fetchRecipes } from "./utils/firebase/recipes.firebase";
 import { SiteContent } from "./utils/types/site-content.type";
 import { getSiteContent } from "./utils/firebase/site-content.firebase";
+import { DEFAULT_SITE_CONTENT } from "./utils/types/site-content.type";
 import Logo from "./assets/nourish_box_folder/Logo files/Logomark.svg";
 import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
@@ -35,8 +36,10 @@ export default function Home({
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const [loading, setLoading] = useState(true);
-  const [siteContentLoading, setSiteContentLoading] = useState(true);
   const router = useRouter();
+
+  // Use default content or fetched content
+  const displayContent = siteContent || DEFAULT_SITE_CONTENT;
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,7 +56,6 @@ export default function Home({
         console.error("Error loading data:", error);
       } finally {
         setLoading(false);
-        setSiteContentLoading(false);
       }
     };
 
@@ -89,7 +91,7 @@ export default function Home({
         {/* Mobile & Tablet Layout */}
         <div className="flex flex-col lg:hidden items-center text-center gap-4">
           <Image
-            src={siteContent?.heroImage?.url || hero}
+            src={displayContent.heroImage?.url || hero}
             alt="hero dish"
             width={400}
             height={400}
@@ -97,15 +99,11 @@ export default function Home({
           />
 
           <h1 className="text-5xl font-custom font-medium">
-            {siteContentLoading
-              ? "Loading..."
-              : siteContent?.heroHeading || "Cooking Made Fun and Easy"}
+            {displayContent.heroHeading || "Cooking Made Fun and Easy"}
           </h1>
           <p className="text-lg text-brand-sub_gray font-inter max-w-md">
-            {siteContentLoading
-              ? "Loading description..."
-              : siteContent?.heroDescription ||
-                "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes."}
+            {displayContent.heroDescription ||
+              "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes."}
           </p>
           <Link href="/recipes">
             <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
@@ -118,20 +116,14 @@ export default function Home({
         <div className="hidden lg:flex justify-between items-center gap-10">
           <div className="w-1/2 flex flex-col items-start text-left">
             <h1 className="text-5xl font-custom font-medium leading-tight">
-              {siteContentLoading
-                ? "Loading..."
-                : siteContent?.heroHeading || "Cooking Made Fun and Easy"}
-              {!siteContentLoading &&
-                (
-                  siteContent?.heroHeading || "Cooking Made Fun and Easy"
-                ).includes("Easy") &&
-                ": Unleash Your Inner Chef"}
+              {displayContent.heroHeading || "Cooking Made Fun and Easy"}
+              {(
+                displayContent.heroHeading || "Cooking Made Fun and Easy"
+              ).includes("Easy") && ": Unleash Your Inner Chef"}
             </h1>
             <p className="mt-6 text-lg text-brand-sub_gray font-inter">
-              {siteContentLoading
-                ? "Loading description..."
-                : siteContent?.heroDescription ||
-                  "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes. We ensure every meal is made with carefully sourced ingredients, delivering farm-to-table goodness in every box."}
+              {displayContent.heroDescription ||
+                "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes. We ensure every meal is made with carefully sourced ingredients, delivering farm-to-table goodness in every box."}
             </p>
             <Link href="/recipes">
               <button className="bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform">
@@ -142,7 +134,7 @@ export default function Home({
 
           <div className="w-1/2 relative flex justify-center items-center">
             <Image
-              src={siteContent?.heroImage?.url || hero}
+              src={displayContent.heroImage?.url || hero}
               alt="hero dish"
               width={600}
               height={600}

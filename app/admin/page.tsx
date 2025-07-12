@@ -299,7 +299,7 @@ export default function AdminDashboard() {
               <p className="text-gray-500">No recipe data available.</p>
             )}
           </motion.div>
-          <div className="flex gap-4 w-full items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Recent User Activity */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

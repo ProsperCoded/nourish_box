@@ -11,7 +11,16 @@ import {
   MenuItem,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { X, Clock, DollarSign, ShoppingBag } from "lucide-react";
+import {
+  X,
+  Clock,
+  DollarSign,
+  ShoppingBag,
+  ChevronLeft,
+  ChevronRight,
+  PlayCircle,
+  Image as ImageIcon,
+} from "lucide-react";
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
@@ -24,6 +33,13 @@ interface RecipeDetailModalProps {
   onAddToCart?: () => void;
 }
 
+interface MediaItem {
+  url: string;
+  type: "image" | "video";
+  variant?: string;
+  id: string;
+}
+
 const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   recipe,
   open,
@@ -34,7 +50,28 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   const { addToCart, loading: cartLoading } = useCart();
   const [option, setOption] = useState<string>("");
   const [count, setCount] = useState(1);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [activeMedia, setActiveMedia] = useState<MediaItem>({
+    id: "display",
+    url: recipe.displayMedia.url,
+    type: recipe.displayMedia.type,
+  });
+  const thumbnailsContainerRef = useRef<HTMLDivElement>(null);
+
+  // Create all media items including display and samples
+  const allMediaItems: MediaItem[] = [
+    {
+      id: "display",
+      url: recipe.displayMedia.url,
+      type: recipe.displayMedia.type,
+      variant: "Display",
+    },
+    ...(recipe.samples?.map((sample, index) => ({
+      id: `sample-${index}-${sample.media.publicId || index}`,
+      url: sample.media.url,
+      type: sample.media.type,
+      variant: sample.variant || `Sample ${index + 1}`,
+    })) || []),
+  ];
 
   // Format price in Naira
   const formattedPrice = new Intl.NumberFormat("en-NG", {
@@ -45,6 +82,20 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
   const handleChange = (event: SelectChangeEvent) => {
     setOption(event.target.value);
+  };
+
+  const handleThumbnailClick = (media: MediaItem) => {
+    setActiveMedia(media);
+  };
+
+  const scrollThumbnails = (direction: "left" | "right") => {
+    if (thumbnailsContainerRef.current) {
+      const scrollAmount = direction === "left" ? -200 : 200;
+      thumbnailsContainerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
   const handleAddToCartClick = async () => {
@@ -78,12 +129,12 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "80%",
-    maxWidth: "1000px",
+    width: "90%",
+    maxWidth: "1200px",
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
-    maxHeight: "90vh",
+    maxHeight: "95vh",
     overflow: "auto",
     outline: "none",
     borderRadius: "12px",
@@ -106,31 +157,105 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           <X className="h-6 w-6" />
         </button>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Media Section */}
-          <div className="md:w-1/2">
-            {recipe.displayMedia.type === "video" ? (
-              <video
-                ref={videoRef}
-                src={recipe.displayMedia.url}
-                className="rounded-lg w-full max-h-[400px]"
-                controls
-                autoPlay
-              />
-            ) : (
-              <Image
-                src={recipe.displayMedia.url}
-                alt={recipe.name}
-                className="rounded-lg w-full"
-                width={500}
-                height={300}
-                style={{ objectFit: "contain", maxHeight: "400px" }}
-              />
+          <div className="space-y-4">
+            {/* Main Media Display */}
+            <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-inner">
+              {activeMedia.type === "video" ? (
+                <video
+                  key={activeMedia.url}
+                  src={activeMedia.url}
+                  controls
+                  className="w-full h-full object-contain bg-black"
+                  autoPlay
+                />
+              ) : (
+                <Image
+                  key={activeMedia.url}
+                  src={activeMedia.url}
+                  alt={activeMedia.variant || recipe.name}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              )}
+            </div>
+
+            {/* Thumbnails Carousel */}
+            {allMediaItems.length > 1 && (
+              <div className="relative flex items-center">
+                <button
+                  onClick={() => scrollThumbnails("left")}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-white/80 hover:bg-white rounded-full shadow-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed -ml-3"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+
+                <div
+                  ref={thumbnailsContainerRef}
+                  className="flex gap-2 overflow-x-auto scroll-smooth scrollbar-hide py-1 px-1 flex-grow"
+                >
+                  {allMediaItems.map((media) => (
+                    <div
+                      key={media.id}
+                      className={`relative h-16 w-24 sm:h-20 sm:w-28 flex-shrink-0 rounded-md overflow-hidden cursor-pointer border-2 transition-all duration-200 hover:opacity-80 ${
+                        activeMedia.id === media.id
+                          ? "border-orange-500 shadow-lg scale-105"
+                          : "border-gray-200 hover:border-gray-400"
+                      }`}
+                      onClick={() => handleThumbnailClick(media)}
+                      title={
+                        media.variant ||
+                        (media.type === "video" ? "Video" : "Image")
+                      }
+                    >
+                      {media.type === "video" ? (
+                        <>
+                          <video
+                            src={media.url}
+                            className="w-full h-full object-cover bg-black"
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <PlayCircle
+                              size={24}
+                              className="text-white opacity-90"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <Image
+                          src={media.url}
+                          alt={media.variant || "Thumbnail"}
+                          fill
+                          className="object-cover"
+                          sizes="120px"
+                        />
+                      )}
+                      {media.variant && media.variant !== "Display" && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 truncate text-center">
+                          {media.variant}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => scrollThumbnails("right")}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-white/80 hover:bg-white rounded-full shadow-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed -mr-3"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
             )}
           </div>
 
           {/* Content Section */}
-          <div className="md:w-1/2 space-y-4">
+          <div className="space-y-4 lg:max-h-[calc(95vh-100px)] lg:overflow-y-auto lg:pr-2">
             {/* Title and Description */}
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -163,8 +288,14 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 </h4>
                 <ul className="space-y-1">
                   {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="text-gray-600 text-sm">
-                      • {ingredient}
+                    <li
+                      key={index}
+                      className="text-gray-600 text-sm flex items-start"
+                    >
+                      <span className="bg-green-100 text-green-700 text-xs font-bold p-1 rounded-full mr-2 mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                        ✓
+                      </span>
+                      <span>{ingredient}</span>
                     </li>
                   ))}
                 </ul>
