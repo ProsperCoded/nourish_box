@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   updateOrderDeliveryStatus,
-  getAllOrdersWithDetails,
-} from "@/app/utils/firebase/admin.firebase";
+  getOrderWithDetailsById,
+} from "@/app/api/adminUtils/order.admin";
 import { isAdmin } from "@/app/api/adminUtils/user.admin";
 import { DeliveryStatus } from "@/app/utils/types/order.type";
 import { OrderStatusUpdateEmailData } from "@/app/api/utils/email.service";
@@ -44,8 +44,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get current order details before updating
-    const allOrders = await getAllOrdersWithDetails();
-    const currentOrder = allOrders.find((order) => order.id === orderId);
+    const currentOrder = await getOrderWithDetailsById(orderId);
 
     if (!currentOrder) {
       return NextResponse.json(
