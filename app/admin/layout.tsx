@@ -11,6 +11,7 @@ import {
   BookOpen,
   Users,
   ShoppingCart,
+  Settings,
   Menu,
   X,
 } from "lucide-react";
@@ -40,6 +41,11 @@ const menuItems = [
     title: "Orders",
     path: "/admin/orders",
     icon: ShoppingCart,
+  },
+  {
+    title: "Site Content",
+    path: "/admin/site-content",
+    icon: Settings,
   },
 ];
 

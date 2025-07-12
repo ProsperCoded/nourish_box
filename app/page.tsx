@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Recipe } from "./utils/types/recipe.type";
 import { fetchRecipes } from "./utils/firebase/recipes.firebase";
+import { SiteContent } from "./utils/types/site-content.type";
+import { getSiteContent } from "./utils/firebase/site-content.firebase";
 import Logo from "./assets/nourish_box_folder/Logo files/Logomark.svg";
 import AboutUs from "./components/about_us";
 import CommunityList from "./components/community";
@@ -21,6 +23,7 @@ import Footer from "./components/footer";
 import Link from "next/link";
 import search from "./assets/icons8-search-48.png";
 import CartComponent from "./components/Cart";
+import { seedSiteContent } from "@/app/utils/seed/site-content.seed";
 
 export default function Home({
   searchQuery,
@@ -30,22 +33,31 @@ export default function Home({
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [siteContentLoading, setSiteContentLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const loadRecipes = async () => {
+    const loadData = async () => {
       try {
-        const fetchedRecipes = await fetchRecipes();
+        // Load recipes and site content in parallel
+        const [fetchedRecipes, fetchedSiteContent] = await Promise.all([
+          fetchRecipes(),
+          getSiteContent(),
+        ]);
+
         setRecipes(fetchedRecipes);
+        setSiteContent(fetchedSiteContent);
       } catch (error) {
-        console.error("Error loading recipes:", error);
+        console.error("Error loading data:", error);
       } finally {
         setLoading(false);
+        setSiteContentLoading(false);
       }
     };
 
-    loadRecipes();
+    loadData();
   }, []);
 
   return (
@@ -77,19 +89,23 @@ export default function Home({
         {/* Mobile & Tablet Layout */}
         <div className="flex flex-col lg:hidden items-center text-center gap-4">
           <Image
-            src={hero}
+            src={siteContent?.heroImage?.url || hero}
             alt="hero dish"
             width={400}
             height={400}
-            className="  animate-fade-in-up"
+            className="animate-fade-in-up"
           />
 
-          <h1 className="text-5xl font-custom font-medium ">
-            Cooking Made Fun and Easy
+          <h1 className="text-5xl font-custom font-medium">
+            {siteContentLoading
+              ? "Loading..."
+              : siteContent?.heroHeading || "Cooking Made Fun and Easy"}
           </h1>
           <p className="text-lg text-brand-sub_gray font-inter max-w-md">
-            Nourish Box removes the hassle of meal prep by delivering
-            pre-measured, pre-cut ingredients along with guided recipes.
+            {siteContentLoading
+              ? "Loading description..."
+              : siteContent?.heroDescription ||
+                "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes."}
           </p>
           <Link href="/recipes">
             <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
@@ -102,13 +118,20 @@ export default function Home({
         <div className="hidden lg:flex justify-between items-center gap-10">
           <div className="w-1/2 flex flex-col items-start text-left">
             <h1 className="text-5xl font-custom font-medium leading-tight">
-              Cooking Made Fun and Easy: <br /> Unleash Your Inner Chef
+              {siteContentLoading
+                ? "Loading..."
+                : siteContent?.heroHeading || "Cooking Made Fun and Easy"}
+              {!siteContentLoading &&
+                (
+                  siteContent?.heroHeading || "Cooking Made Fun and Easy"
+                ).includes("Easy") &&
+                ": Unleash Your Inner Chef"}
             </h1>
             <p className="mt-6 text-lg text-brand-sub_gray font-inter">
-              Nourish Box removes the hassle of meal prep by delivering
-              pre-measured, pre-cut ingredients along with guided recipes. We
-              ensure every meal is made with carefully sourced ingredients,
-              delivering farm-to-table goodness in every box.
+              {siteContentLoading
+                ? "Loading description..."
+                : siteContent?.heroDescription ||
+                  "Nourish Box removes the hassle of meal prep by delivering pre-measured, pre-cut ingredients along with guided recipes. We ensure every meal is made with carefully sourced ingredients, delivering farm-to-table goodness in every box."}
             </p>
             <Link href="/recipes">
               <button className="bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform">
@@ -119,7 +142,7 @@ export default function Home({
 
           <div className="w-1/2 relative flex justify-center items-center">
             <Image
-              src={hero}
+              src={siteContent?.heroImage?.url || hero}
               alt="hero dish"
               width={600}
               height={600}

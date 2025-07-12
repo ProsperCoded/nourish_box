@@ -10,7 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         custom: ["ibrand", "sans-serif"],
-        inter: ["var(--font-inter)"],
+        inter: ["var(--font-jakarta)"],
       },
       colors: {
         brand: {

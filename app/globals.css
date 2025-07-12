@@ -1,6 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Fallback font styles in case Google Fonts fail to load */
+@layer base {
+  :root {
+    --font-jakarta-fallback: "Inter", "system-ui", "-apple-system",
+      "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial",
+      sans-serif;
+  }
+
+  /* Ensure font fallbacks work properly */
+  .font-inter {
+    font-family: var(--font-jakarta), var(--font-jakarta-fallback);
+  }
+
+  .font-custom {
+    font-family: "ibrand", var(--font-jakarta-fallback);
+  }
+}
 @font-face {
   font-family: "ibrand";
   src: url("/font/ibrand.otf") format("opentype");

@@ -8,5 +8,4 @@ export enum COLLECTION {
   orders = "orders",
   deliveries = "deliveries",
   site_content = "site_content",
-  assets = "assets",
 }

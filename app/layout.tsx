@@ -7,11 +7,12 @@ import FavContext from "./contexts/FavContext";
 import { Toaster } from "react-hot-toast";
 import MobileNav from "./components/mobile_nav";
 
-// If loading a variable font, you don't need to specify the font weight
+// Configure Plus Jakarta Sans font - simplified for Turbopack compatibility
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-jakarta",
+  fallback: ["Inter", "system-ui", "sans-serif"],
 });
 
 export default function RootLayout({
@@ -26,7 +27,9 @@ export default function RootLayout({
           <CartProvider>
             <FavContext>
               <Toaster position="top-center" reverseOrder={false} />
-              <div>{children} <MobileNav/></div>
+              <div>
+                {children} <MobileNav />
+              </div>
             </FavContext>
           </CartProvider>
         </AuthProvider>
