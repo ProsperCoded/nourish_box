@@ -1,11 +1,11 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-// import Nav from "@/app/components/nav";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import FavContext from "./contexts/FavContext";
 import { Toaster } from "react-hot-toast";
 import MobileNav from "./components/mobile_nav";
+import { metadata } from "./metadata";
 
 // Configure Plus Jakarta Sans font - simplified for Turbopack compatibility
 const jakarta = Plus_Jakarta_Sans({
@@ -14,6 +14,8 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   fallback: ["Inter", "system-ui", "sans-serif"],
 });
+
+export { metadata };
 
 export default function RootLayout({
   children,
