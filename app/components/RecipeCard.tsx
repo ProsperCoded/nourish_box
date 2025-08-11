@@ -206,14 +206,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       <div className="p-4 space-y-3">
         {/* Title */}
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-bold text-gray-800 line-clamp-1 pr-2 flex-grow">
+          <h3 className="text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow">
             {recipe.name}
           </h3>
         </div>
 
         {/* Description */}
         {recipe.description && (
-          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed">
             {recipe.description}
           </p>
         )}
@@ -222,7 +222,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         <div className="pt-2">
           <button
             onClick={handleOpen}
-            className="w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white py-2.5 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
+            className="w-full bg-gradient-to-r from-orange-400 to-[#F15A28] hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             <ShoppingBag className="w-4 h-4" />
             Add to Cart
@@ -246,7 +246,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         aria-describedby="modal-modal-description"
       >
         <LoginPrompt
-          main_text="to save your cart and skip the hassle next time!"
+          main_text="to add to favorites, add to cart and save time on your next order!"
           onNeverMind={handleNeverMind}
           onClose={hidePrompt}
         />

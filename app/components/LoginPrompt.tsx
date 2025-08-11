@@ -45,7 +45,7 @@ const login_prompt = (props: inputProps) => {
           </button>
         </div>
         <h1 className="text-black font-semibold font-inter text-2xl text-center">
-          Skip the hassle next time
+          Oh! you need to sign in.
         </h1>
         <p className="text-center font-inter my-5">
           <span className="font-semibold">Sign up</span> {props.main_text}

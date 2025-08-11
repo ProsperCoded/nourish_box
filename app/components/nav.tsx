@@ -68,7 +68,7 @@ const Nav = () => {
     "fixed w-full top-0 left-0 z-50 transition-all duration-300 ease-in-out";
   const navVisibilityClass = navVisible ? "translate-y-0" : "-translate-y-full";
   const navStyleClass = scrolled
-    ? "bg-white shadow-lg text-black"
+    ? "bg-white shadow-md text-black"
     : " backdrop-blur-sm";
 
   const linkColorClass = scrolled ? "text-black" : "text-black";
@@ -107,7 +107,7 @@ const Nav = () => {
             {/* Admin Badge for Mobile */}
             {authUser?.role === "admin" && (
               <Link href="/admin">
-                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -165,27 +165,27 @@ const Nav = () => {
 
       {/* Desktop Nav */}
       <div className="hidden lg:flex justify-between ">
-        <div className="w-full max-w-screen-xl mx-auto flex justify-between items-center p-4 font-sans  ">
+        <div className="w-full mx-10 flex justify-between items-center p-4 font-sans  ">
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
 
-          <div className="flex items-center justify-around gap-4 w-1/2   ">
+          <div className="flex items-left  font-inter justify-around gap-4 w-1/3   ">
             <Link
               href="/recipes"
-              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
             >
               Recipes{" "}
             </Link>
             <Link
               href="/about_us"
-              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
             >
               About us
             </Link>
             <Link
               href="/contact_us"
-              className={`px-4 font-medium text-lg ${linkColorClass}  hover:text-gray-600 `}
+              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
             >
               Contact us
             </Link>
@@ -194,7 +194,7 @@ const Nav = () => {
             {/* Admin Badge for Desktop */}
             {authUser?.role === "admin" && (
               <Link href="/admin">
-                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="18"
