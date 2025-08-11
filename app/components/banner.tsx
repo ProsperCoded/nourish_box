@@ -1,8 +1,6 @@
 import React from 'react'
 import Image from "next/image";
 import Iphone from "../assets/iPhone.png";
-import google_store from '../assets/google_play.png';
-import app_store from '../assets/app_store.png';
 const banner = () => {
     return (
         <div className='flex flex-col lg:flex-row items-center  lg:w-11/12 '>

@@ -43,12 +43,12 @@ export function UserAvatar({ className = "" }: menuProps) {
     return (
       <div className={`flex gap-4 ${className}`}>
         <Link href="/login">
-          <button className="text-brand-btn_orange hover:text-gray-600 transition-colors duration-300 px-4 py-2 font-medium text-lg">
+          <button className="text-brand-btn_orange font-inter hover:text-gray-600 transition-colors duration-300 px-4 py-2 font-medium text-md">
             Login
           </button>
         </Link>
         <Link href="/sign_up">
-          <button className="bg-brand-btn_orange text-white hover:bg-opacity-90 transition-colors duration-300 px-5 py-2 rounded-lg font-medium text-lg shadow-md hover:shadow-lg">
+          <button className="bg-brand-btn_orange font-inter text-white hover:bg-opacity-90 transition-colors duration-300 px-5 py-2 rounded-lg font-medium text-md shadow-md hover:shadow-lg">
             Sign Up
           </button>
         </Link>

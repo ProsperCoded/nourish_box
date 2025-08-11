@@ -3,7 +3,7 @@ import colorful_banner from '../assets/nourish_box_folder/DPs and Banners/Twitte
 import bread from "../assets/Bread.png";
 export default function AboutUs() {
   return (
-    <div className="relative w-full  h-[400px] overflow-hidden my-16">
+    <div className="relative w-full h-[400px] overflow-hidden my-16">
       {/* Background Image */}
       <Image
         src={colorful_banner}

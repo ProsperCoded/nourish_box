@@ -1,65 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import passwordView from "../assets/icons8-eye-48.png";
 import Image from "next/image";
-import google_logo from "../assets/icons8-google-48.png";
 import Link from "next/link";
-import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider, db } from "../lib/firebase";
-import { FirebaseError } from "firebase/app";
-import { doc, setDoc } from "firebase/firestore";
-import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import {
+  TextField,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
-  TextField,
+  CircularProgress,
 } from "@mui/material";
+
+import Nav from "../components/nav";
+import passwordViewIcon from "../assets/icons8-eye-48.png";
+import googleLogo from "../assets/icons8-google-48.png";
+import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
+
+import { auth, db } from "../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
+import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
 
 // Nigerian states
 const nigerianStates = [
-  "Abia",
-  "Adamawa",
-  "Akwa Ibom",
-  "Anambra",
-  "Bauchi",
-  "Bayelsa",
-  "Benue",
-  "Borno",
-  "Cross River",
-  "Delta",
-  "Ebonyi",
-  "Edo",
-  "Ekiti",
-  "Enugu",
-  "FCT",
-  "Gombe",
-  "Imo",
-  "Jigawa",
-  "Kaduna",
-  "Kano",
-  "Katsina",
-  "Kebbi",
-  "Kogi",
-  "Kwara",
-  "Lagos",
-  "Nasarawa",
-  "Niger",
-  "Ogun",
-  "Ondo",
-  "Osun",
-  "Oyo",
-  "Plateau",
-  "Rivers",
-  "Sokoto",
-  "Taraba",
-  "Yobe",
-  "Zamfara",
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River",
+  "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Federal Capital Territory (FCT)", "Gombe", "Imo",
+  "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger",
+  "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
 ];
 
 const SignUp = () => {
@@ -69,235 +43,163 @@ const SignUp = () => {
     password: "",
     phone: "",
     address: "",
-    country: "Nigeria", // Default to Nigeria
+    country: "Nigeria",
     state: "",
-    role: "user", // Default role
+    role: "user",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleInputChange = (
+  const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name as string]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name as string]: value }));
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (
-      !formData.email ||
-      !formData.password ||
-      !formData.name ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.state
-    ) {
-      setError("All fields are required.");
+    const { name, email, password, phone, address, state } = formData;
+
+    if (!name || !email || !password || !phone || !address || !state) {
+      setError("Please fill in all required fields.");
       return;
     }
 
     try {
       setLoading(true);
-      // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const { password: _, ...userDetails } = formData;
 
-      const { password, ...userProfile } = formData;
-      // Create user profile in Firestore
-      await setDoc(doc(db, COLLECTION.users, userCredential.user.uid), {
-        ...userProfile,
+      await setDoc(doc(db, COLLECTION.users, userCred.user.uid), {
+        ...userDetails,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
 
       router.push("/");
     } catch (err: unknown) {
-      console.error("Sign up failed", err);
       setLoading(false);
       if (err instanceof FirebaseError) {
-        switch (err.code) {
-          case "auth/email-already-in-use":
-            setError("This email is already registered. Please log in.");
-            break;
-          case "auth/invalid-email":
-            setError("Invalid email format. Please enter a valid email.");
-            break;
-          case "auth/weak-password":
-            setError("Password should be at least 6 characters.");
-            break;
-          default:
-            setError("An error occurred during sign-up. Please try again.");
-        }
+        const messages: Record<string, string> = {
+          "auth/email-already-in-use": "Email is already registered.",
+          "auth/invalid-email": "Invalid email format.",
+          "auth/weak-password": "Password must be at least 6 characters.",
+        };
+        setError(messages[err.code] || "Signup failed. Please try again.");
       }
     }
   };
 
   return (
-    <div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="flex w-100 justify-between">
-          <div className="hidden w-1/2 md:flex items-center justify-center ">
-              <Link href="/"> <Image src={logo} alt="jollof rice" width={600} /></Link>
+    <>
+      <Nav />
+      <main className="min-h-screen flex items-center justify-center px-4 py-10 bg-white">
+        <div className=" max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
+          <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
+            <Link href="/">
+              <Image src={logo} alt="logo" width={400} />
+            </Link>
           </div>
-          <div className="w-full md:w-1/2">
-            {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-            <div className="flex w-full items-center justify-center bg-brand-bg_white_clr h-screen overflow-y-auto">
-              <div className="flex flex-col items-center justify-center w-10/12 py-8">
-                <form
-                  className="flex flex-col w-full space-y-4"
-                  onSubmit={handleSignUp}
-                >
-                  <h1 className="font-bold text-3xl text-black text-center md:text-left">
-                    Sign Up
-                  </h1>
 
-                  <TextField
-                    label="Full Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    fullWidth
-                    required
-                  />
+          <div className="w-full md:w-1/2 md:my-10 bg-white shadow-md p-6 rounded-xl">
+            <h2 className="text-3xl font-bold mb-6 text-center md:text-left">Create Account</h2>
 
-                  <TextField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    fullWidth
-                    required
-                  />
+            {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+            {loading && (
+              <div className="flex justify-center my-4">
+                <CircularProgress />
+              </div>
+            )}
 
-                  <div className="relative">
-                    <TextField
-                      label="Password"
-                      name="password"
-                      type={view ? "text" : "password"}
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      fullWidth
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setView(!view)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                    >
-                      <Image
-                        src={passwordView}
-                        alt="view password"
-                        width={20}
-                        height={20}
-                      />
-                    </button>
-                  </div>
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <TextField label="Full Name" name="name" fullWidth required value={formData.name} onChange={handleChange} />
+              <TextField label="Email" name="email" type="email" fullWidth required value={formData.email} onChange={handleChange} />
 
-                  <TextField
-                    label="Phone Number"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    fullWidth
-                    required
-                  />
-
-                  <FormControl fullWidth>
-                    <InputLabel>State</InputLabel>
-                    <Select
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      label="State"
-                      required
-                    >
-                      {nigerianStates.map((state) => (
-                        <MenuItem key={state} value={state}>
-                          {state}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <TextField
-                    label="Address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    fullWidth
-                    multiline
-                    rows={2}
-                    required
-                  />
-
-                  <button
-                    type="submit"
-                    className="bg-[#004C30] text-white py-3 px-16 rounded-xl mx-auto my-3"
-                  >
-                    Sign Up
-                  </button>
-                </form>
-
-                <div className="flex w-full items-center my-4">
-                  <div className="bg-gray-400 h-[1px] flex-1"></div>
-                  <p className="mx-4 text-gray-400">OR</p>
-                  <div className="bg-gray-400 h-[1px] flex-1"></div>
-                </div>
-
+              <div className="relative">
+                <TextField
+                  label="Password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  fullWidth
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                />
                 <button
                   type="button"
-                  className="flex items-center bg-gray-200 text-gray-500 py-3 px-8 rounded-xl"
-                  onClick={(e) =>
-                    handleGoogleSignIn(
-                      () => {
-                        router.push("/");
-                      },
-                      (error: string) => {
-                        setError(error);
-                      }
-                    )
-                  }
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  onClick={() => setShowPassword((prev) => !prev)}
                 >
-                  <Image
-                    src={google_logo}
-                    alt="google logo"
-                    className="mr-2"
-                    width={20}
-                    height={20}
-                  />
-                  <span>Sign in with Google</span>
+                  <Image src={passwordViewIcon} alt="Toggle visibility" width={20} height={20} />
                 </button>
-
-                <p className="mt-4 text-brand-text_gray">
-                  Already have an account?{" "}
-                  <Link
-                    href="/login"
-                    className="text-brand-brand_black font-semibold"
-                  >
-                    Log In
-                  </Link>
-                </p>
               </div>
+
+              <TextField label="Phone Number" name="phone" fullWidth required value={formData.phone} onChange={handleChange} />
+
+              <FormControl fullWidth required>
+                <InputLabel>State</InputLabel>
+                <Select name="state" value={formData.state} onChange={handleChange} label="State">
+                  {nigerianStates.map((state) => (
+                    <MenuItem key={state} value={state}>{state}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <TextField
+                label="Address"
+                name="address"
+                multiline
+                rows={2}
+                fullWidth
+                required
+                value={formData.address}
+                onChange={handleChange}
+              />
+
+              <button
+                type="submit"
+                className="bg-[#004C30] text-white font-semibold py-3 px-6 rounded-lg w-full"
+              >
+                Sign Up
+              </button>
+            </form>
+
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-grow h-px bg-gray-300"></div>
+              <span className="text-gray-400">OR</span>
+              <div className="flex-grow h-px bg-gray-300"></div>
             </div>
+
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 bg-gray-100 py-3 px-4 rounded-lg w-full"
+              onClick={() =>
+                handleGoogleSignIn(
+                  () => router.push("/"),
+                  (errMsg) => setError(errMsg)
+                )
+              }
+            >
+              <Image src={googleLogo} alt="Google logo" width={20} height={20} />
+              <span>Continue with Google</span>
+            </button>
+
+            <p className="mt-6 text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link href="/login" className="text-[#004C30] font-medium">
+                Log In
+              </Link>
+            </p>
           </div>
         </div>
-      )}
-    </div>
+      </main>
+    </>
   );
 };
 
