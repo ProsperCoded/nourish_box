@@ -5,8 +5,7 @@ import Image from "next/image";
 import hero from "./assets/hero.png";
 import hover_img_one from "./assets/Frame 464.png";
 import hover_img_two from "./assets/Frame 466.png";
-import broccoli from "./assets/Broccoli.png";
-import tomato from "./assets/Tomato.png";
+
 import RecipeCard from "./components/RecipeCard";
 import RecipeCardSkeleton from "./components/RecipeCardSkeleton";
 import { useRouter } from "next/navigation";
@@ -22,7 +21,7 @@ import Footer from "./components/footer";
 import Link from "next/link";
 import search from "./assets/icons8-search-48.png";
 import CartComponent from "./components/Cart";
-import hero_main from "./assets/_img.webp";
+import hero_main from "./assets/Nourish Box62470.jpg";
 import { seedSiteContent } from "@/app/utils/seed/site-content.seed";
 
 export default function Home({
@@ -69,9 +68,11 @@ export default function Home({
       </div>
 
       {/* Mobile header */}
-      <div className="md:hidden flex items-center justify-between gap-4 px-4 py-5">
-        <Image src={Logo} alt="logo" width={120} />
-        <div className="flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange">
+      <div className="md:hidden flex flex-col items-center justify-between gap-4 mb-10 px-4 py-5">
+        <div className="flex justify-between w-full"> <Image src={Logo} alt="logo" width={120} />
+
+          <CartComponent /></div>
+        <div className="flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange w-full">
           <input
             type="text"
             placeholder="Search recipes..."
@@ -81,7 +82,6 @@ export default function Home({
           />
           <Image src={search} alt="search" width={20} height={20} />
         </div>
-        <CartComponent />
       </div>
 
       {/* Hero Section */}
@@ -90,26 +90,30 @@ export default function Home({
         <section className="px-4  md:pt-20 pb-10  mx-10 max-w-7xl lg:mt-24 ">
           {/* Mobile & Tablet Layout */}
           <div className="flex flex-col lg:hidden items-center text-center gap-4">
-            <Image
+            {/* <Image
               src={displayContent.heroImage?.url || hero}
               alt="hero dish"
               width={400}
               height={400}
               className="animate-fade-in-up"
-            />
-
-            <h1 className="lg:text-4xl xl:text-5xl font-custom font-medium">
+            /> */}
+            <h1 className="text-5xl font-medium font-custom">
               {displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading}
             </h1>
             <p className="xl:text-lg text-brand-sub_gray font-inter max-w-md">
               {displayContent.heroDescription ||
                 DEFAULT_SITE_CONTENT.heroDescription}
             </p>
-            <Link href="/recipes">
+            <Link href="/recipes" className="mb-6">
               <button className="bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform">
                 Order Now
               </button>
             </Link>
+            <Image src={hero_main} width={400}
+              height={400} alt="hero img" className="rounded-lg  " />
+           
+            
+            
           </div>
 
           {/* Desktop Layout */}
@@ -196,14 +200,14 @@ export default function Home({
                 <RecipeCardSkeleton key={index} />
               ))
               : // Show actual recipe cards when loaded
-              recipes.map((recipe) => (
+              recipes.slice(0, 3).map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />
               ))}
           </div>
 
           <div className="flex justify-center mt-6">
             <button
-              className="bg-brand-btn_orange px-6 py-3 rounded-xl font-inter text-white text-lg"
+              className="bg-brand-btn_orange px-6 py-3 my-6 rounded-xl font-inter text-white text-lg"
               onClick={() => router.push("/recipes")}
             >
               See All

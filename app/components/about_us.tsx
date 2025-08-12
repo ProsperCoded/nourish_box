@@ -24,8 +24,9 @@ export default function AboutUs() {
           <Image src={bread} alt="bread emoji" className="absolute top-0 right-[22px] w-[80px]" />
           <a href="#"><button className="bg-brand-btn_orange font-inter  w-1/3 py-2 px-1 rounded-xl text-white  my-4" > Learn more</button></a>
         </div>
-
+        
       </div>
+     
     </div>
   );
 }
