@@ -3,6 +3,7 @@ import Nav from "../components/nav";
 // import Link from 'next/link';
 import target from "../assets/icons8-target-100.png";
 import vision from '../assets/icons8-vision-100.png'
+import FooterMain from "../components/footer";
 
 import Image from 'next/image';
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
@@ -43,8 +44,10 @@ const page = () => {
                         easy recipes, and unmatched convenience.</p>
                 </div>
             </div>
-           
-            
+            <div >
+
+                <FooterMain />
+            </div>
         </div>
     )
 }

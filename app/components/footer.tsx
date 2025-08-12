@@ -8,23 +8,18 @@ import Link from 'next/link';
 import logo from '../assets/nourish_box_folder/Logo files/Logomark.svg';
 const footer = () => {
     return (
-        <div className='flex flex-col lg:flex-row items-center justify-between  lg:mx-16 mt-16 mb-32 px-3  '>
+        <div className='flex flex-col lg:flex-row items-center justify-between  lg:mx-16 mt-16 mb-32 px-3  text-white bg-[#004c30] '>
             <Image src={logo} alt='logo' width={150} className='my-5 mb-12' />
             <div className='flex flex-col justify-between items-center lg:flex-row lg:justify-between text-center lg:text-start w-10/12 '>
                 <ul className='font-inter mb-5 lg:mb-0'>
                     <li className='text-xl font-semibold mb-4'>Menu</li>
-                    <li className='text-base font-light'>Home</li>
-                    <li className='text-base font-light'>Recipe</li>
-                    <li className='text-base font-light'>Community</li>
-                    <li className='text-base font-light'>About Us</li>
+                    <li className='text-base font-light'><Link href="/">Home</Link></li>
+                    <li className='text-base font-light'>
+                        <Link href="/recipes" >Recipes </Link>
+                        </li>
+                    <li className='text-base font-light'><Link href="/about_us">About us</Link></li>
                 </ul>
-                <ul className='font-inter mb-5 lg:mb-0'>
-                    <li className='text-xl font-semibold mb-4'>Categories</li>
-                    <li className='text-base font-light'>Breakfast</li>
-                    <li className='text-base font-light'>Lunch</li>
-                    <li className='text-base font-light'>Dessert</li>
-                    <li className='text-base font-light'>Dinner</li>
-                </ul>
+               
                 <ul className='font-inter mb-5 lg:mb-0'>
                     <li className='text-xl font-semibold mb-4'>Socials</li>
                     <li className='text-base font-light'><Link href="https://www.instagram.com/nourishbox.co/">Instagram</Link></li>
