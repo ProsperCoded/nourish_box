@@ -3,7 +3,7 @@
 export type Recipe = {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   displayMedia: { url: string; publicId: string; type: "image" | "video" };
   samples: {
     variant: string;
@@ -11,10 +11,10 @@ export type Recipe = {
   }[];
   duration: number; //seconds
   price: number; //naira
-  ingredients: string[];
+  ingredients?: string | string[] | null;
+  numberOfIngredients?: number | null;
+  servings?: number | string | null;
   difficulty?: string;
-  servings?: number; // number of servings
-  numberOfIngredients?: number; // number of ingredients
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage
 

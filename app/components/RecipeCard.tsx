@@ -10,8 +10,7 @@ import { Modal } from "@mui/material";
 import { useFavorites } from "../contexts/FavContext";
 import { Recipe } from "../utils/types/recipe.type";
 import { useAuth } from "../contexts/AuthContext";
-import { useCart } from "../contexts/CartContext";
-import { Heart, Play, Clock, DollarSign, ShoppingBag } from "lucide-react";
+import { Heart, Play, Clock, ShoppingBag } from "lucide-react";
 import useMobileVs from "../hooks/useMobileVs";
 import { useRouter } from "next/navigation";
 import { cn } from "../lib/utils/cn";
@@ -22,7 +21,7 @@ interface RecipeCardProps {
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const { addFavorite, deleteFavorite, isFavorite } = useFavorites();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const {
     showPrompt,
     triggerPrompt,
@@ -38,17 +37,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const isMobile = useMobileVs();
   const router = useRouter();
 
-  // Use the optimistic favorite state directly
   const isFavorited = isFavorite(recipe.id.toString());
 
-  // Format price in Naira
   const formattedPrice = new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
     minimumFractionDigits: 0,
   }).format(recipe.price);
 
-  // Format duration
   const formattedDuration = recipe.duration
     ? `${Math.floor(recipe.duration / 60)} min`
     : "Quick";
@@ -67,23 +63,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
       if (isFavorited) {
         await deleteFavorite(recipe.id.toString());
-        toast.success("Removed from favorites", {
-          duration: 2000,
-          position: "top-center",
-        });
+        toast.success("Removed from favorites", { duration: 2000, position: "top-center" });
       } else {
         await addFavorite(recipe);
-        toast.success("Added to favorites", {
-          duration: 2000,
-          position: "top-center",
-        });
+        toast.success("Added to favorites", { duration: 2000, position: "top-center" });
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      toast.error("Failed to update favorites", {
-        duration: 3000,
-        position: "top-center",
-      });
+      toast.error("Failed to update favorites", { duration: 3000, position: "top-center" });
     } finally {
       setIsLoading(false);
       setTimeout(() => setIsHeartAnimating(false), 300);
@@ -92,7 +79,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setOpen(true);
+
+    if (isMobile) {
+      router.push(`/recipes/${recipe.id}`);
+    } else {
+      setOpen(true);
+    }
   };
 
   const handleClose = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -100,20 +92,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     setOpen(false);
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (isMobile) {
-      router.push(`/recipes/${recipe.id}`);
-      e.stopPropagation();
-      return;
-    }
-    e.stopPropagation();
-    handleOpen(e);
-  };
-
   const handleModalAddToCart = () => {
     setOpen(false);
 
-    // Handle prompt logic for guest users
     if (!user) {
       const newCount = decrementPromptCounter();
       if (newCount === 0) {
@@ -134,8 +115,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
     <div
-      className="relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group"
-      onClick={handleCardClick}
+      className="relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -147,7 +127,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               ref={videoRef}
               src={recipe.displayMedia.url}
               className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-              controls={false}
               muted
               loop
             />
@@ -204,14 +183,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
       {/* Content Section */}
       <div className="p-4 space-y-3">
-        {/* Title */}
         <div className="flex justify-between items-start">
           <h3 className="text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow">
             {recipe.name}
           </h3>
         </div>
 
-        {/* Description */}
         {recipe.description && (
           <p className="text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed">
             {recipe.description}
@@ -222,14 +199,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         <div className="pt-2">
           <button
             onClick={handleOpen}
-            className="w-full bg-brand-btn_orange hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
+            className="w-full bg-brand-btn_orange hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium font-inter transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             <ShoppingBag className="w-4 h-4" />
             Add to Cart
           </button>
         </div>
 
-        {/* Recipe Details Modal */}
         <RecipeDetailModal
           recipe={recipe}
           open={open}
@@ -238,12 +214,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         />
       </div>
 
-      {/* Login Prompt Modal */}
       <Modal
         open={showPrompt}
         onClose={hidePrompt}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
       >
         <LoginPrompt
           main_text="to add to favorites, add to cart and save time on your next order!"
