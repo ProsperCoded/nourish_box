@@ -3,6 +3,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import React, { useState, useEffect } from "react";
 import { updateUserProfile } from "@/app/utils/firebase/users.firebase";
 import { fetchStates, fetchLGAs } from "@/app/utils/client-api/locationApi";
+
 import { User } from "@/app/utils/types/user.type";
 import { AlertTriangle } from "lucide-react";
 import ProfilePictureUpload from "./ProfilePictureUpload";
@@ -155,6 +156,7 @@ const UserProfile = () => {
     const isEmpty = required && !formData[name as keyof FormData];
     return (
       <div>
+         
         <label className="block text-gray-700 mb-2 font-inter font-light">
           {label} {required && "*"}
         </label>

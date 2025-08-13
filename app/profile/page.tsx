@@ -6,7 +6,7 @@ import return_btn from "../assets/icons8-left-arrow-50.png";
 import AlternateHeader from "../components/alternate_header";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
-
+import logo from '../assets/nourish_box_folder/Logo files/Logomark.svg';
 // Page Components
 import User_profile from "../components/user_profile";
 // import Order from "../components/order";
@@ -23,7 +23,9 @@ import locationIcon from "../assets/icons8-location-50.png";
 import deliveryIcon from "../assets/icons8-delivery-time-48.png";
 import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
-
+import Link from "next/link";
+import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
+import Heart from '../assets/icons8-heart-32.png';
 const tabs = [
   {
     id: "profile",
@@ -112,6 +114,25 @@ function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="flex justify-between my-4 items-center  gap-2 w-full max-w-md  px-4">
+        <Link href="/" className="flex items-center">
+          {/* Show icon on mobile */}
+          <Image
+            src={icon}
+            alt="nourish icon"
+            className="block md:hidden w-[50px]"
+          />
+          {/* Show full logo on desktop */}
+          <Image
+            src={logo}
+            alt="nourish logo"
+            className="hidden md:block w-[130px] lg:w-[160px]"
+          />
+        </Link>
+        <Link href="/favorites" className="shrink-0">
+          <Image src={Heart} alt="favorites" width={24} height={24} />
+        </Link>
+      </div>
       <div className="hidden md:block py-5">
         <AlternateHeader
           searchQuery={searchQuery}
@@ -126,7 +147,7 @@ function ProfileContent() {
           initial={false}
           animate={{ paddingBottom: isSidebarOpen ? "0.75rem" : "0" }}
         >
-          <div className="flex items-center h-16">
+          <div className="hidden md:flex items-center h-16">
             {!isSidebarOpen && (
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -161,12 +182,13 @@ function ProfileContent() {
             {/* Sidebar Tabs */}
             <div className="w-full p-4">
               <div className="flex flex-col items-center mb-6">
-                <div className="relative w-20 h-20">
+                <div className="relative w-120 h-120">
                   <Image
                     src={user?.profilePicture || userIcon}
                     alt="User"
-                    fill
-                    className="rounded-full object-cover border-2 border-orange-200 shadow"
+                    
+                    width={80} height={80}
+                    className="rounded-full p-2 object-cover border-2 border-orange-200 shadow"
                   />
                 </div>
                 <h2 className="text-lg font-semibold mt-2">
@@ -226,11 +248,10 @@ function ProfileContent() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${
-                    activeTabId === tab.id
+                  className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id
                       ? "bg-orange-100 text-orange-600"
                       : ""
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Image

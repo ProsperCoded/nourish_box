@@ -87,7 +87,7 @@ export default function Home({
       {/* Hero Section */}
 
       <div className="flex justify-center">
-        <section className="px-4  md:pt-20 pb-10  mx-10 max-w-7xl lg:mt-24 ">
+        <section className="  md:pt-20 pb-10  mx-10 max-w-7xl lg:mt-24 ">
           {/* Mobile & Tablet Layout */}
           <div className="flex flex-col lg:hidden items-center text-center gap-4">
             {/* <Image
