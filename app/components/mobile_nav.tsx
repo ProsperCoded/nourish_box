@@ -15,7 +15,7 @@ const navItems = [
   { name: "Home", href: "/", icon: FaHome },
   { name: "Recipes", href: "/recipes", icon: FaUtensils },
   { name: "Profile", href: "/profile", icon: FaUser },
-  { name: "Orders", href: "/orders", icon: FaShoppingBag },
+  { name: "Orders", href: "/profile/orderHistory", icon: FaShoppingBag },
   { name: "Favorite", href: "/favorites", icon: FaHeart },
 ];
 

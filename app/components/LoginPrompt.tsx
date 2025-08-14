@@ -18,10 +18,7 @@ const modalStyle = {
   outline: "none",
 };
 
-const popUpStyle = {
-  ...modalStyle,
-  width: { xs: 370, lg: 500 },
-};
+
 
 export interface inputProps {
   main_text: string;
@@ -31,9 +28,10 @@ export interface inputProps {
 
 const login_prompt = (props: inputProps) => {
   return (
-    <div>
-      <Box sx={popUpStyle}>
-        <div>
+    <div className="h-screen flex justify-center items-center">
+      <div className="w-[370px] lg:w-[500px] shadow-md border-2 border-solid border-grey-50 px-4 rounded-lg">
+        {/* <Box sx={popUpStyle}> */}
+        <div className="w-full flex justify-end my-4">
           <button
             onClick={() => {
               if (props.onClose) {
@@ -41,11 +39,13 @@ const login_prompt = (props: inputProps) => {
               }
             }}
           >
-            <Image src={cancel_icon} alt="cancel icon" />
+
+            <Image src={cancel_icon} alt="cancel icon" width={20} height={20} />
+
           </button>
         </div>
         <h1 className="text-black font-semibold font-inter text-2xl text-center">
-          Oh! you need to sign in.
+          Oh! You need to sign in.
         </h1>
         <p className="text-center font-inter my-5">
           <span className="font-semibold">Sign up</span> {props.main_text}
@@ -68,8 +68,9 @@ const login_prompt = (props: inputProps) => {
             Sign up
           </Link>
         </div>
-      </Box>
-    </div>
+        {/* </Box> */}
+      </div>
+  </div>
   );
 };
 
