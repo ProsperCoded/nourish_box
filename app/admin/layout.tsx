@@ -28,7 +28,7 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Recipes",
+    title: "Shops",
     path: "/admin/recipes",
     icon: BookOpen,
   },

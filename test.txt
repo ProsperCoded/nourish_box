@@ -1,0 +1,5 @@
+I need you to make a large change , by extending recipies to have cateories, and saving categories to another table where the admin can perform CRUD functionlities on categories, Modify the @recipe.type.ts to have the category property and add another collection and functionality for CATEGORIES in the admin page @admin/(the functionality should be possible within the  admin recipe(shop) section @recipes/  ) . This category will be choosen at the time of creating/updating a particular recipe by the admin, the should be displayed on the @RecipeCard.tsx @RecipeCard.tsx @RecipeDetailModal.tsx @RecipeDetailModal.tsx . In a proper way. please implement this category feature. 
+
+The categories can be a a custom select element at the top that allows them create, update, delete categories (i can imagin it as a select that has delete and pencil icon for each item when it's expanded, and a create just at the very buttom, but when anyone is choosen the content in the recipies page is filterd based on selection) .
+
+Please make intuitive decisions where it matters, just create a great experience. @layout.tsx.
