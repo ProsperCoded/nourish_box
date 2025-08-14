@@ -21,7 +21,7 @@ export default function AboutUs() {
             and convenient. It simplifies home cooking by
             providing pre-portioned, pre-cut ingredients and
             step-by-step recipes. </p>
-          <Image src={bread} alt="bread emoji" className="absolute top-0 right-[22px] w-[80px]" />
+          <Image src={bread} alt="bread emoji" className="absolute top-0 right-[22px] w-[80px] animate-pulse" />
           <a href="#"><button className="bg-brand-btn_orange font-inter  w-1/3 py-2 px-1 rounded-xl text-white  my-4" > Learn more</button></a>
         </div>
         
