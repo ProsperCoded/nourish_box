@@ -16,7 +16,6 @@ export type Recipe = {
   servings?: number | string | null;
   difficulty?: string;
   categoryId?: string | null; // reference to category
-  category?: string | null; // reference to category
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage
 

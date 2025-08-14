@@ -7,7 +7,6 @@ import {
   Clock,
   DollarSign,
   Edit,
-  Eye,
   Film,
   ImageIcon,
   Tag,
@@ -57,11 +56,33 @@ export function RecipeCard({
     }
   }, [isHovered]);
 
+  // Handle card click to view recipe
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on action buttons
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) {
+      return;
+    }
+    onView(recipe);
+  };
+
+  // Handle action button clicks
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit(recipe);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(recipe);
+  };
+
   return (
     <div
-      className='bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col'
+      className='bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col cursor-pointer'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div className='relative aspect-[4/3] overflow-hidden group'>
         {recipe.displayMedia ? (
@@ -113,21 +134,14 @@ export function RecipeCard({
           )}
         >
           <button
-            onClick={() => onView(recipe)}
-            className='bg-white text-gray-800 p-2.5 rounded-full hover:bg-gray-100 transition-colors shadow-md'
-            title='View Recipe'
-          >
-            <Eye size={20} />
-          </button>
-          <button
-            onClick={() => onEdit(recipe)}
+            onClick={handleEditClick}
             className='bg-brand-logo_green text-white p-2.5 rounded-full hover:bg-opacity-90 transition-colors shadow-md'
             title='Edit Recipe'
           >
             <Edit size={20} />
           </button>
           <button
-            onClick={() => onDelete(recipe)}
+            onClick={handleDeleteClick}
             className='bg-red-500 text-white p-2.5 rounded-full hover:bg-opacity-90 transition-colors shadow-md'
             title='Delete Recipe'
           >

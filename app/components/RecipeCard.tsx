@@ -18,7 +18,6 @@ import { Recipe } from '../utils/types/recipe.type';
 
 interface RecipeCardProps {
   recipe: Recipe;
-  categoryName?: string; // Optional category name to display
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
@@ -100,6 +99,16 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     }
   };
 
+  // Handle card click to open modal
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) {
+      return;
+    }
+    handleOpen(e);
+  };
+
   const handleClose = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     setOpen(false);
@@ -128,9 +137,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
     <div
-      className='relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group'
+      className='relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group cursor-pointer'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       {/* Media Section */}
       <div className='relative h-48 overflow-hidden'>
@@ -213,7 +223,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         {categoryName && (
           <div className='flex items-center gap-1.5 text-xs text-gray-500'>
             <Tag className='w-3 h-3' />
-            <span className='px-2 py-1 bg-gray-100 text-gray-700 rounded-md font-medium'>
+            <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium'>
               {categoryName}
             </span>
           </div>
@@ -222,7 +232,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         {/* Add to Cart Button */}
         <div className='pt-2'>
           <button
-            onClick={handleOpen}
+            onClick={e => {
+              e.stopPropagation();
+              handleOpen(e);
+            }}
             className='w-full bg-brand-btn_orange hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium font-inter transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]'
           >
             <ShoppingBag className='w-4 h-4' />

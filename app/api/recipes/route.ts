@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/app/api/lib/firebase-admin";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { isAdmin } from "@/app/api/adminUtils/user.admin";
-import { FieldValue } from "firebase-admin/firestore";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
+import { isAdmin } from '@/app/api/adminUtils/user.admin';
+import { adminDb } from '@/app/api/lib/firebase-admin';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { Recipe } from '@/app/utils/types/recipe.type';
+import { FieldValue } from 'firebase-admin/firestore';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User ID is required for authorization." },
+        { success: false, message: 'User ID is required for authorization.' },
         { status: 401 }
       );
     }
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Forbidden: User does not have admin privileges.",
+          message: 'Forbidden: User does not have admin privileges.',
         },
         { status: 403 }
       );
@@ -40,35 +40,35 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message:
-            "Missing required recipe fields (name, description, displayMedia).",
+            'Missing required recipe fields (name, description, displayMedia).',
         },
         { status: 400 }
       );
     }
 
-    const newRecipe: Omit<Recipe, "id" | "image"> & {
+    const newRecipe: Omit<Recipe, 'id' | 'image'> & {
       createdAt: FieldValue;
       updatedAt: FieldValue;
     } = {
-      ...recipeData,
       // Ensure all fields from Recipe type are handled, converting data types if necessary
       name: recipeData.name as string,
       description: recipeData.description as string,
       displayMedia: recipeData.displayMedia as {
         url: string;
         publicId: string;
-        type: "image" | "video";
+        type: 'image' | 'video';
       },
       samples:
         (recipeData.samples as {
           variant: string;
-          media: { url: string; publicId: string; type: "image" | "video" };
+          media: { url: string; publicId: string; type: 'image' | 'video' };
         }[]) || [],
       duration: Number(recipeData.duration) || 0,
       price: Number(recipeData.price) || 0,
       ingredients: Array.isArray(recipeData.ingredients)
         ? recipeData.ingredients
         : [],
+      categoryId: recipeData.categoryId || null, // Explicitly handle categoryId
       order: Number(recipeData.order) || 0,
       featured: Boolean(recipeData.featured) || false,
       clicks: 0, // Initialize clicks
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Recipe created successfully",
+        message: 'Recipe created successfully',
         recipeId: docRef.id,
         recipe: {
           id: docRef.id,
@@ -97,13 +97,13 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Create recipe error:", error);
+    console.error('Create recipe error:', error);
     const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+      error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       {
         success: false,
-        message: "Error creating recipe.",
+        message: 'Error creating recipe.',
         error: errorMessage,
       },
       { status: 500 }
@@ -115,21 +115,21 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const recipesSnapshot = await adminDb
-      .collection("recipes")
-      .orderBy("order")
-      .orderBy("createdAt", "desc")
+      .collection('recipes')
+      .orderBy('order')
+      .orderBy('createdAt', 'desc')
       .get();
-    const recipes = recipesSnapshot.docs.map((doc) => {
+    const recipes = recipesSnapshot.docs.map(doc => {
       const data = doc.data();
       // Perform a safer conversion to Recipe type
       const recipe: Recipe = {
         id: doc.id,
-        name: data.name || "",
-        description: data.description || "",
+        name: data.name || '',
+        description: data.description || '',
         displayMedia: data.displayMedia || {
-          url: "",
-          publicId: "",
-          type: "image",
+          url: '',
+          publicId: '',
+          type: 'image',
         }, // Provide default for displayMedia
         samples: data.samples || [],
         duration: data.duration || 0,
@@ -147,13 +147,13 @@ export async function GET(request: NextRequest) {
     });
     return NextResponse.json({ success: true, recipes });
   } catch (error) {
-    console.error("Fetch recipes error:", error);
+    console.error('Fetch recipes error:', error);
     const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+      error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       {
         success: false,
-        message: "Error fetching recipes.",
+        message: 'Error fetching recipes.',
         error: errorMessage,
       },
       { status: 500 }
