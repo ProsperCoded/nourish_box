@@ -162,6 +162,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             src={recipe.displayMedia.url}
             alt={recipe.name}
             fill
+            loading="lazy"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
         )}
