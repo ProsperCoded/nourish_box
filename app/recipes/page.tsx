@@ -1,120 +1,145 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useMemo } from "react";
-import RecipeCard from "../components/RecipeCard";
-import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
-import { fetchRecipes } from "../utils/firebase/recipes.firebase";
-import { Recipe } from "../utils/types/recipe.type";
-import Header from "../components/header";
-
-const CATEGORIES = ["Proteins", "Meal kits", "Special combos", ] as const;
-type Category = typeof CATEGORIES[number];
+import { useEffect, useMemo, useState } from 'react';
+import Header from '../components/header';
+import RecipeCard from '../components/RecipeCard';
+import RecipeCardSkeleton from '../components/RecipeCardSkeleton';
+import { useCategories } from '../contexts/CategoryContext';
+import { fetchRecipes } from '../utils/firebase/recipes.firebase';
+import { Recipe } from '../utils/types/recipe.type';
 
 const Page = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<Category>("Proteins");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategoryId, setActiveCategoryId] = useState<string>('');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { categoriesArray: categories, isLoading: categoriesLoading } =
+    useCategories();
+
   useEffect(() => {
-    const loadRecipes = async () => {
+    const loadData = async () => {
       try {
-        setIsLoading(true);
         const fetchedRecipes = await fetchRecipes();
         setRecipes(fetchedRecipes);
       } catch (err) {
-        console.error("Error loading recipes:", err);
-        setError("Failed to load recipes. Please try again later.");
+        console.error('Error loading data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
-    loadRecipes();
+    loadData();
   }, []);
 
-  const normalized = (v?: string) => (v || "").toLowerCase().trim();
+  const normalized = (v?: string | null) => (v || '').toLowerCase().trim();
 
   const visibleRecipes = useMemo(() => {
     const byCategory = (r: Recipe) =>
-      activeCategory === "Proteins" // 
-        ? true
-        : normalized(r.category) === normalized(activeCategory);
+      !activeCategoryId || r.categoryId === activeCategoryId;
 
     const bySearch = (r: Recipe) =>
-      normalized(r.name).includes(normalized(searchQuery));
+      normalized(r.name).includes(normalized(searchQuery)) ||
+      normalized(r.description).includes(normalized(searchQuery));
 
-    return recipes.filter((r) => byCategory(r) && bySearch(r));
-  }, [recipes, activeCategory, searchQuery]);
+    return recipes.filter(r => byCategory(r) && bySearch(r));
+  }, [recipes, activeCategoryId, searchQuery]);
+
+  // No need for categoryMap - getCategoryName provides O(1) lookup
 
   return (
-    <main className="min-h-screen ">
+    <main className='min-h-screen '>
       {/* Top area like the mock: green header + search */}
-      <div className="px-4 md:px-8 lg:px-16 pt-6 pb-4">
+      <div className='px-4 md:px-8 lg:px-16 pt-6 pb-4'>
         {/* Header (kept) */}
-        <div className="flex justify-center mb-4">
+        <div className='flex justify-center mb-4'>
           <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
 
         {/* Title / Subtitle */}
-        <section className="text-left max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-custom font-medium text-center mb-1">
-           Fresh meal kit crafted for you 
+        <section className='text-left max-w-3xl mx-auto'>
+          <h2 className='text-3xl sm:text-4xl lg:text-5xl font-custom font-medium text-center mb-1'>
+            Fresh meal kit crafted for you
           </h2>
-          <p className="text-brand-sub_gray text-center text-base sm:text-lg font-inter">
+          <p className='text-brand-sub_gray text-center text-base sm:text-lg font-inter'>
             Check out our recipes for the week
           </p>
         </section>
 
         {/* Category Tabs */}
-        <nav
-          aria-label="recipe categories"
-          className="mt-6 max-w-3xl  mx-auto"
-        >
-          <ul className="flex gap-6  justify-center overflow-x-auto no-scrollbar text-sm sm:text-base">
-            {CATEGORIES.map((cat) => {
-              const isActive = cat === activeCategory;
-              return (
-                <li key={cat}>
-                  <button
-                    onClick={() => setActiveCategory(cat)}
-                    className={[
-                      "pb-2 transition-colors whitespace-nowrap",
-                      isActive
-                        ? "text-green-600 border-b-2 border-green-500 font-semibold"
-                        : "text-gray-400 hover:text-gray-600 border-b-2 border-transparent",
-                    ].join(" ")}
-                  >
-                    {cat}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+        <nav aria-label='recipe categories' className='mt-6 max-w-3xl mx-auto'>
+          {categoriesLoading ? (
+            <div className='flex gap-6 justify-center'>
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className='h-6 w-20 bg-gray-200 rounded animate-pulse'
+                />
+              ))}
+            </div>
+          ) : (
+            <ul className='flex gap-6 justify-center overflow-x-auto no-scrollbar text-sm sm:text-base'>
+              {/* All Categories Tab */}
+              <li>
+                <button
+                  onClick={() => setActiveCategoryId('')}
+                  className={[
+                    'pb-2 transition-colors whitespace-nowrap',
+                    !activeCategoryId
+                      ? 'text-green-600 border-b-2 border-green-500 font-semibold'
+                      : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent',
+                  ].join(' ')}
+                >
+                  All Categories
+                </button>
+              </li>
+
+              {/* Dynamic Category Tabs */}
+              {categories.map(category => {
+                const isActive = category.id === activeCategoryId;
+                return (
+                  <li key={category.id}>
+                    <button
+                      onClick={() => setActiveCategoryId(category.id)}
+                      className={[
+                        'pb-2 transition-colors whitespace-nowrap',
+                        isActive
+                          ? 'text-green-600 border-b-2 border-green-500 font-semibold'
+                          : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent',
+                      ].join(' ')}
+                    >
+                      {category.name}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </nav>
       </div>
 
       {/* Recipes */}
-      <div className="px-4 md:px-8 lg:px-16 pb-10">
+      <div className='px-4 md:px-8 lg:px-16 pb-10'>
         {error ? (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <p className="text-red-600 text-center text-lg">{error}</p>
+          <div className='flex justify-center items-center min-h-[300px]'>
+            <p className='text-red-600 text-center text-lg'>{error}</p>
           </div>
         ) : isLoading ? (
-          <section className="flex flex-wrap justify-center gap-6 lg:gap-8">
+          <section className='flex flex-wrap justify-center gap-6 lg:gap-8'>
             {Array.from({ length: 8 }).map((_, index) => (
               <RecipeCardSkeleton key={index} />
             ))}
           </section>
         ) : visibleRecipes.length === 0 ? (
-          <div className="max-w-2xl mx-auto text-center py-20">
-            <p className="text-gray-500">
+          <div className='max-w-2xl mx-auto text-center py-20'>
+            <p className='text-gray-500'>
               No recipes match your filters. Try a different category or search.
             </p>
           </div>
         ) : (
-          <section className="flex flex-wrap justify-center gap-6 lg:gap-8">
-            {visibleRecipes.map((recipe) => (
+          <section className='flex flex-wrap justify-center gap-6 lg:gap-8'>
+            {visibleRecipes.map(recipe => (
               <RecipeCard key={recipe.id} recipe={recipe} />
             ))}
           </section>

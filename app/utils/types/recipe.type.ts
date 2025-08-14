@@ -4,10 +4,10 @@ export type Recipe = {
   id: string;
   name: string;
   description: string | null;
-  displayMedia: { url: string; publicId: string; type: "image" | "video" };
+  displayMedia: { url: string; publicId: string; type: 'image' | 'video' };
   samples: {
     variant: string;
-    media: { url: string; publicId: string; type: "image" | "video" };
+    media: { url: string; publicId: string; type: 'image' | 'video' };
   }[];
   duration: number; //seconds
   price: number; //naira
@@ -15,6 +15,8 @@ export type Recipe = {
   numberOfIngredients?: number | null;
   servings?: number | string | null;
   difficulty?: string;
+  categoryId?: string | null; // reference to category
+  category?: string | null; // reference to category
   order: number; // used for sorting
   featured: boolean; // used for filtering recipe that that should appear on homepage
 

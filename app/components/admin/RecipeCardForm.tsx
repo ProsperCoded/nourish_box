@@ -15,12 +15,14 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Recipe } from "@/app/utils/types/recipe.type";
+import { Category } from "@/app/utils/types/category.type";
 import { cn } from "@/app/lib/utils/cn";
 import toast, { Toaster } from "react-hot-toast";
 import { useAuth } from "@/app/contexts/AuthContext";
 
 interface RecipeCardFormProps {
   recipe?: Recipe | null;
+  categories?: Category[];
   onSuccess: (recipe: Recipe) => void;
   onCancel: () => void;
 }
@@ -58,6 +60,7 @@ const DURATION_PRESETS = [
 
 export function RecipeCardForm({
   recipe,
+  categories = [],
   onSuccess,
   onCancel,
 }: RecipeCardFormProps) {
@@ -69,6 +72,7 @@ export function RecipeCardForm({
     duration: 0,
     price: 0,
     ingredients: [""],
+    categoryId: "",
     order: 0,
     featured: false,
     displayMedia: undefined,
@@ -110,6 +114,7 @@ export function RecipeCardForm({
         duration: recipe.duration,
         price: recipe.price,
         ingredients: recipe.ingredients?.length > 0 ? recipe.ingredients : [""],
+        categoryId: recipe.categoryId || "",
         order: recipe.order,
         featured: recipe.featured,
         displayMedia: recipe.displayMedia,
@@ -135,6 +140,7 @@ export function RecipeCardForm({
         duration: 0,
         price: 0,
         ingredients: [""],
+        categoryId: "",
         order: 0,
         featured: false,
         displayMedia: undefined,
@@ -427,6 +433,11 @@ export function RecipeCardForm({
       setCurrentTab("basic");
       return;
     }
+    if (!formData.categoryId?.trim()) {
+      toast.error("Please select a category for this recipe.");
+      setCurrentTab("basic");
+      return;
+    }
 
     setLoading(true);
     const saveToastId = toast.loading(
@@ -606,6 +617,37 @@ export function RecipeCardForm({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
               />
             </div>
+            
+            {/* Category Selection */}
+            <div>
+              <label
+                htmlFor="categoryId"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Category *
+              </label>
+              <select
+                id="categoryId"
+                name="categoryId"
+                value={formData.categoryId || ""}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {categories.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  No categories available. Please create categories first.
+                </p>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label
