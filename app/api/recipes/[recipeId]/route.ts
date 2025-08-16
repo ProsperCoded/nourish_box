@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/app/api/lib/firebase-admin";
-import { storageService } from "@/app/api/storage/storage.service";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { isAdmin } from "@/app/api/adminUtils/user.admin";
-import { FieldValue } from "firebase-admin/firestore";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
+import { isAdmin } from '@/app/api/adminUtils/user.admin';
+import { adminDb } from '@/app/api/lib/firebase-admin';
+import { storageService } from '@/app/api/storage/storage.service';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { Recipe } from '@/app/utils/types/recipe.type';
+import { FieldValue } from 'firebase-admin/firestore';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface RouteParams {
   params: {
@@ -21,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User ID is required for authorization." },
+        { success: false, message: 'User ID is required for authorization.' },
         { status: 401 }
       );
     }
@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          message: "Forbidden: User does not have admin privileges.",
+          message: 'Forbidden: User does not have admin privileges.',
         },
         { status: 403 }
       );
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (!recipeId) {
       return NextResponse.json(
-        { success: false, message: "Recipe ID is required." },
+        { success: false, message: 'Recipe ID is required.' },
         { status: 400 }
       );
     }
@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (!recipeDoc.exists) {
       return NextResponse.json(
-        { success: false, message: "Recipe not found." },
+        { success: false, message: 'Recipe not found.' },
         { status: 404 }
       );
     }
@@ -67,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         {
           success: false,
           message:
-            "Missing required recipe fields (name, description, displayMedia).",
+            'Missing required recipe fields (name, description, displayMedia).',
         },
         { status: 400 }
       );
@@ -81,18 +81,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       displayMedia: recipeData.displayMedia as {
         url: string;
         publicId: string;
-        type: "image" | "video";
+        type: 'image' | 'video';
       },
       samples:
         (recipeData.samples as {
           variant: string;
-          media: { url: string; publicId: string; type: "image" | "video" };
+          media: { url: string; publicId: string; type: 'image' | 'video' };
         }[]) || [],
       duration: Number(recipeData.duration) || 0,
       price: Number(recipeData.price) || 0,
       ingredients: Array.isArray(recipeData.ingredients)
         ? recipeData.ingredients
         : [],
+      categoryId: recipeData.categoryId || null, // Include categoryId in updates
       order: Number(recipeData.order) || 0,
       featured: Boolean(recipeData.featured) || false,
       // Preserve existing fields that shouldn't be updated
@@ -121,19 +122,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       {
         success: true,
-        message: "Recipe updated successfully",
+        message: 'Recipe updated successfully',
         recipe: updatedRecipe,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Update recipe error:", error);
+    console.error('Update recipe error:', error);
     const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+      error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       {
         success: false,
-        message: "Error updating recipe.",
+        message: 'Error updating recipe.',
         error: errorMessage,
       },
       { status: 500 }
@@ -148,11 +149,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // For this implementation, we'll expect it in the request body (though not standard for DELETE).
     // Alternatively, it could be passed as a query parameter if preferred for simplicity here.
     // Let's try to get it from a custom header first, then query, then body for flexibility.
-    let userId = request.headers.get("x-user-id");
+    let userId = request.headers.get('x-user-id');
 
     if (!userId) {
       const { searchParams } = new URL(request.url);
-      userId = searchParams.get("userId");
+      userId = searchParams.get('userId');
     }
 
     if (!userId) {
@@ -169,7 +170,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         {
           success: false,
           message:
-            "User ID is required for authorization (provide as x-user-id header, userId query param, or in body).",
+            'User ID is required for authorization (provide as x-user-id header, userId query param, or in body).',
         },
         { status: 401 }
       );
@@ -180,7 +181,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          message: "Forbidden: User does not have admin privileges.",
+          message: 'Forbidden: User does not have admin privileges.',
         },
         { status: 403 }
       );
@@ -188,17 +189,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if (!recipeId) {
       return NextResponse.json(
-        { success: false, message: "Recipe ID is required." },
+        { success: false, message: 'Recipe ID is required.' },
         { status: 400 }
       );
     }
 
-    const recipeDocRef = adminDb.collection("recipes").doc(recipeId);
+    const recipeDocRef = adminDb.collection('recipes').doc(recipeId);
     const recipeDoc = await recipeDocRef.get();
 
     if (!recipeDoc.exists) {
       return NextResponse.json(
-        { success: false, message: "Recipe not found." },
+        { success: false, message: 'Recipe not found.' },
         { status: 404 }
       );
     }
@@ -208,22 +209,22 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Delete associated media from Cloudinary
     const mediaToDelete: {
       publicId: string;
-      type: "image" | "video" | "raw";
+      type: 'image' | 'video' | 'raw';
     }[] = [];
 
     if (recipeData.displayMedia && recipeData.displayMedia.publicId) {
       mediaToDelete.push({
         publicId: recipeData.displayMedia.publicId,
-        type: recipeData.displayMedia.type || "image", // Default to image if type is somehow missing
+        type: recipeData.displayMedia.type || 'image', // Default to image if type is somehow missing
       });
     }
 
     if (recipeData.samples && recipeData.samples.length > 0) {
-      recipeData.samples.forEach((sample) => {
+      recipeData.samples.forEach(sample => {
         if (sample.media && sample.media.publicId) {
           mediaToDelete.push({
             publicId: sample.media.publicId,
-            type: sample.media.type || "image", // Default to image
+            type: sample.media.type || 'image', // Default to image
           });
         }
       });
@@ -252,18 +253,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       {
         success: true,
-        message: "Recipe and associated media deleted successfully.",
+        message: 'Recipe and associated media deleted successfully.',
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Delete recipe error:", error);
+    console.error('Delete recipe error:', error);
     const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+      error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       {
         success: false,
-        message: "Error deleting recipe.",
+        message: 'Error deleting recipe.',
         error: errorMessage,
       },
       { status: 500 }

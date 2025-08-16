@@ -4,50 +4,98 @@ import { useState } from "react";
 import Image from "next/image";
 import { Grid, List, Search, Plus, Eye, Edit, Trash2 } from "lucide-react";
 import { Recipe } from "@/app/utils/types/recipe.type";
+import { Category } from "@/app/utils/types/category.type";
 import { RecipeCard } from "./RecipeCard";
+import { CategoryManager } from "./CategoryManager";
 import { cn } from "@/app/lib/utils/cn";
 
 interface RecipeGridProps {
   recipes: Recipe[];
+  categories: Category[];
   onEdit: (recipe: Recipe) => void;
   onDelete: (recipe: Recipe) => void;
   onView: (recipe: Recipe) => void;
   onAdd: () => void;
+  onCategoryCreate: (name: string, description?: string) => Promise<void>;
+  onCategoryUpdate: (categoryId: string, name: string, description?: string) => Promise<void>;
+  onCategoryDelete: (categoryId: string) => Promise<void>;
+  categoriesLoading?: boolean;
 }
 
 export function RecipeGrid({
   recipes,
+  categories,
   onEdit,
   onDelete,
   onView,
   onAdd,
+  onCategoryCreate,
+  onCategoryUpdate,
+  onCategoryDelete,
+  categoriesLoading = false,
 }: RecipeGridProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
-  // Filter recipes based on search term
-  const filteredRecipes = recipes.filter(
-    (recipe) =>
+  // Filter recipes based on search term and category
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesSearch = 
       recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recipe.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      recipe.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = 
+      !selectedCategoryId || recipe.categoryId === selectedCategoryId;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-6">
+      {/* Category Manager */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CategoryManager
+            categories={categories}
+            selectedCategoryId={selectedCategoryId}
+            onCategorySelect={setSelectedCategoryId}
+            onCategoryCreate={onCategoryCreate}
+            onCategoryUpdate={onCategoryUpdate}
+            onCategoryDelete={onCategoryDelete}
+            loading={categoriesLoading}
+          />
+          
+          {/* Search bar */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search Recipes
+            </label>
+            <div className="relative">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="Search recipes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        {/* Search bar */}
-        <div className="relative w-full md:w-96">
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent"
-          />
+        {/* Results count */}
+        <div className="text-sm text-gray-600">
+          Showing {filteredRecipes.length} of {recipes.length} recipes
+          {selectedCategoryId && (
+            <span className="ml-2 px-2 py-1 bg-brand-logo_green bg-opacity-10 text-brand-logo_green rounded-md text-xs">
+              {categories.find(cat => cat.id === selectedCategoryId)?.name}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -119,6 +167,7 @@ export function RecipeGrid({
               onEdit={onEdit}
               onDelete={onDelete}
               onView={onView}
+              categories={categories}
             />
           ))}
         </div>
@@ -145,6 +194,12 @@ export function RecipeGrid({
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Duration
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Category
                   </th>
                   <th
                     scope="col"
@@ -200,6 +255,9 @@ export function RecipeGrid({
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {Math.floor(recipe.duration / 60)} min
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {categories.find(cat => cat.id === recipe.categoryId)?.name || "Uncategorized"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {recipe.order}
