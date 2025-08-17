@@ -16,6 +16,7 @@ import CartComponent from './components/Cart';
 import Footer from './components/footer';
 import RecipeCard from './components/RecipeCard';
 import RecipeCardSkeleton from './components/RecipeCardSkeleton';
+import OneTap from './lib/OneTap/OneTap';
 import { fetchRecipes } from './utils/firebase/recipes.firebase';
 import { getSiteContent } from './utils/firebase/site-content.firebase';
 import { Recipe } from './utils/types/recipe.type';
@@ -66,6 +67,7 @@ export default function Home({
       <div className='hidden md:block'>
         <Nav />
       </div>
+      <OneTap />
 
       {/* Mobile header */}
       <div className='md:hidden flex flex-col items-center justify-between gap-4 mb-10 px-4 py-5'>
