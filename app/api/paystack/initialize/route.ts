@@ -1,17 +1,17 @@
 import {
   Transaction,
   TransactionStatus,
-} from "@/app/utils/types/transaction.type";
-import { NextRequest, NextResponse } from "next/server";
-import { getUserById } from "@/app/api/adminUtils/user.admin";
-import { createTransaction } from "@/app/api/adminUtils/transaction.admin";
-import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
+} from '@/app/utils/types/transaction.type';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserById } from '@/app/api/adminUtils/user.admin';
+import { createTransaction } from '@/app/api/adminUtils/transaction.admin';
+import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
 import {
   hasCompleteDeliveryInfo,
   createDelivery,
-} from "@/app/api/adminUtils/delivery.admin";
-import { paystackConfig } from "../../utils/config.env";
-import { ResponseDto } from "@/app/api/response.dto";
+} from '@/app/api/adminUtils/delivery.admin';
+import { configService, ENV } from '../../utils/config.env';
+import { ResponseDto } from '@/app/api/response.dto';
 
 interface PaystackResponse {
   status: boolean;
@@ -25,17 +25,17 @@ interface PaystackResponse {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  console.log("request body:", body);
+  console.log('request body:', body);
   const { email, amount, recipes, userId, delivery } = body;
   try {
     const user = await getUserById(userId);
     if (!user && !email) {
-      return ResponseDto.createErrorResponse("Guest user must provide email", {
+      return ResponseDto.createErrorResponse('Guest user must provide email', {
         statusCode: 404,
       });
     }
     if (!recipes || recipes.length === 0) {
-      return ResponseDto.createErrorResponse("No recipes selected", {
+      return ResponseDto.createErrorResponse('No recipes selected', {
         statusCode: 400,
       });
     }
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
     if ((isGuestUser || !hasCompleteProfile) && !hasDeliveryObject) {
       return ResponseDto.createErrorResponse(
         isGuestUser
-          ? "Guest user must provide complete delivery information (name, email, phone, address, city, state)"
-          : "User with incomplete profile must provide complete delivery information (name, email, phone, address, city, state)",
+          ? 'Guest user must provide complete delivery information (name, email, phone, address, city, state)'
+          : 'User with incomplete profile must provide complete delivery information (name, email, phone, address, city, state)',
         { statusCode: 400 }
       );
     }
@@ -70,25 +70,25 @@ export async function POST(request: NextRequest) {
 
     const recipeValidationResults = await Promise.all(recipeValidationPromises);
     const invalidRecipes = recipeValidationResults.filter(
-      (result) => !result.exists
+      result => !result.exists
     );
 
     if (invalidRecipes.length > 0) {
       return ResponseDto.createErrorResponse(
         `Invalid recipes found: ${invalidRecipes
-          .map((r) => r.recipeId)
-          .join(", ")}`,
+          .map(r => r.recipeId)
+          .join(', ')}`,
         { statusCode: 400 }
       );
     }
 
     const paystackRes = await fetch(
-      "https://api.paystack.co/transaction/initialize",
+      'https://api.paystack.co/transaction/initialize',
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${paystackConfig.secretKey}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRETE_KEY)}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: email || user?.email,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     );
 
     const paystackResponse = (await paystackRes.json()) as PaystackResponse;
-    console.log("paystack response:", paystackResponse);
+    console.log('paystack response:', paystackResponse);
 
     // Create delivery document first when needed
     let deliveryId: string | null = null;
@@ -116,15 +116,15 @@ export async function POST(request: NextRequest) {
           deliveryNote: delivery?.note,
         }
       : {
-          deliveryName: `${user?.firstName || ""} ${
-            user?.lastName || ""
+          deliveryName: `${user?.firstName || ''} ${
+            user?.lastName || ''
           }`.trim(),
           deliveryEmail: user?.email,
           deliveryPhone: user?.phone,
           deliveryAddress: user?.address,
           deliveryCity: user?.city,
           deliveryState: user?.state,
-          deliveryNote: "",
+          deliveryNote: '',
         };
 
     try {
@@ -132,9 +132,9 @@ export async function POST(request: NextRequest) {
       deliveryId = deliveryResult.id;
       console.log(`Delivery document created with ID: ${deliveryId}`);
     } catch (deliveryError) {
-      console.error("Error creating delivery document:", deliveryError);
+      console.error('Error creating delivery document:', deliveryError);
       return ResponseDto.createErrorResponse(
-        "Failed to create delivery document",
+        'Failed to create delivery document',
         {
           statusCode: 500,
         }
@@ -154,14 +154,14 @@ export async function POST(request: NextRequest) {
     };
     const { id: transactionId } = await createTransaction(transaction);
 
-    return ResponseDto.createSuccessResponse("Transaction initialized", {
+    return ResponseDto.createSuccessResponse('Transaction initialized', {
       ...paystackResponse.data,
       transactionId,
       deliveryId,
     });
   } catch (error) {
-    console.error("Error initializing paystack transaction:", error);
-    return ResponseDto.createErrorResponse("Failed to initialize transaction", {
+    console.error('Error initializing paystack transaction:', error);
+    return ResponseDto.createErrorResponse('Failed to initialize transaction', {
       statusCode: 500,
     });
   }

@@ -1,29 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import { paystackConfig } from "../../utils/config.env";
-import { ResponseDto } from "@/app/api/response.dto";
+import { NextRequest, NextResponse } from 'next/server';
+import { configService, ENV } from '../../utils/config.env';
+import { ResponseDto } from '@/app/api/response.dto';
 import {
   getTransactionByReference,
   updateTransaction,
-} from "@/app/api/adminUtils/transaction.admin";
-import { createOrder } from "@/app/api/adminUtils/order.admin";
-import { getRecipeById } from "@/app/api/adminUtils/recipie.admin";
-import { getUserById, getAllAdminUsers } from "@/app/api/adminUtils/user.admin";
-import { getDeliveryById } from "@/app/api/adminUtils/delivery.admin";
+} from '@/app/api/adminUtils/transaction.admin';
+import { createOrder } from '@/app/api/adminUtils/order.admin';
+import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
+import { getUserById, getAllAdminUsers } from '@/app/api/adminUtils/user.admin';
+import { getDeliveryById } from '@/app/api/adminUtils/delivery.admin';
 import {
   sendOrderConfirmationToCustomer,
   sendOrderNotificationToAdmins,
   OrderEmailData,
-} from "@/app/api/utils/email.service";
-import { TransactionStatus } from "@/app/utils/types/transaction.type";
-import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
+} from '@/app/api/utils/email.service';
+import { TransactionStatus } from '@/app/utils/types/transaction.type';
+import { Order, DeliveryStatus } from '@/app/utils/types/order.type';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const reference = searchParams.get("reference");
-  const transactionId = searchParams.get("transactionId");
+  const reference = searchParams.get('reference');
+  const transactionId = searchParams.get('transactionId');
   if (!reference || !transactionId) {
     return ResponseDto.createErrorResponse(
-      "reference or transactionId is required",
+      'reference or transactionId is required',
       {
         statusCode: 400,
       }
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     // Get transaction from database by reference
     const transaction = await getTransactionByReference(reference);
     if (!transaction) {
-      return ResponseDto.createErrorResponse("Transaction not found", {
+      return ResponseDto.createErrorResponse('Transaction not found', {
         statusCode: 404,
       });
     }
@@ -43,10 +43,10 @@ export async function GET(request: NextRequest) {
     const paystackRes = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${paystackConfig.secretKey}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRETE_KEY)}`,
+          'Content-Type': 'application/json',
         },
       }
     );
@@ -54,22 +54,22 @@ export async function GET(request: NextRequest) {
     const paystackData = await paystackRes.json();
 
     if (!paystackRes.ok) {
-      console.error("Paystack verification failed:", paystackData);
+      console.error('Paystack verification failed:', paystackData);
       return ResponseDto.createErrorResponse(
-        paystackData.message || "Payment verification failed",
+        paystackData.message || 'Payment verification failed',
         { statusCode: 400 }
       );
     }
 
     // Check if payment was successful
     const isSuccessful =
-      paystackData.status && paystackData.data.status === "success";
+      paystackData.status && paystackData.data.status === 'success';
 
     if (isSuccessful) {
       // Update transaction status to successful
       await updateTransaction(transaction.id!, {
         status: TransactionStatus.SUCCESS,
-        paymentMethod: paystackData.data.channel || "card",
+        paymentMethod: paystackData.data.channel || 'card',
         paymentDate: paystackData.data.paid_at || new Date().toISOString(),
       });
 
@@ -90,8 +90,8 @@ export async function GET(request: NextRequest) {
               amount: recipe.price, // Individual recipe price
               deliveryId: transaction.deliveryId,
               deliveryStatus: DeliveryStatus.PENDING,
-              deliveryDate: "", // Will be set when delivered
-              deliveryDurationRange: "2-3 days",
+              deliveryDate: '', // Will be set when delivered
+              deliveryDurationRange: '2-3 days',
               transactionId: transaction.id!,
             };
 
@@ -112,11 +112,11 @@ export async function GET(request: NextRequest) {
 
       const orderResults = await Promise.allSettled(orderPromises);
       const successfulOrders = orderResults.filter(
-        (result) => result.status === "fulfilled" && result.value !== null
+        result => result.status === 'fulfilled' && result.value !== null
       ).length;
 
       const failedOrders = orderResults.filter(
-        (result) => result.status === "rejected" || result.value === null
+        result => result.status === 'rejected' || result.value === null
       ).length;
 
       console.log(
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           );
 
           const recipes = (await Promise.all(recipePromises)).filter(
-            (recipe) => recipe !== null
+            recipe => recipe !== null
           );
 
           if (delivery && recipes.length > 0) {
@@ -165,18 +165,17 @@ export async function GET(request: NextRequest) {
             console.log(
               `Sending order confirmation to customer: ${delivery.deliveryEmail}`
             );
-            const customerEmailSent = await sendOrderConfirmationToCustomer(
-              orderEmailData
-            );
+            const customerEmailSent =
+              await sendOrderConfirmationToCustomer(orderEmailData);
 
             if (!customerEmailSent) {
-              console.error("Failed to send order confirmation to customer");
+              console.error('Failed to send order confirmation to customer');
             }
 
             // Send admin notification emails
             const adminUsers = await getAllAdminUsers();
             if (adminUsers.length > 0) {
-              const adminEmails = adminUsers.map((admin) => admin.email);
+              const adminEmails = adminUsers.map(admin => admin.email);
               console.log(
                 `Sending order notification to ${adminEmails.length} admins`
               );
@@ -186,24 +185,24 @@ export async function GET(request: NextRequest) {
               );
 
               if (!adminEmailSent) {
-                console.error("Failed to send order notification to admins");
+                console.error('Failed to send order notification to admins');
               }
             } else {
-              console.warn("No admin users found to send order notification");
+              console.warn('No admin users found to send order notification');
             }
           } else {
             console.error(
-              "Missing delivery information or recipes for email notification"
+              'Missing delivery information or recipes for email notification'
             );
           }
         } catch (emailError) {
-          console.error("Error sending email notifications:", emailError);
+          console.error('Error sending email notifications:', emailError);
           // Don't fail the entire transaction if email sending fails
         }
       }
 
       return ResponseDto.createSuccessResponse(
-        "Payment verified successfully",
+        'Payment verified successfully',
         {
           reference: paystackData.data.reference,
           amount: paystackData.data.amount / 100, // Convert back from kobo to naira
@@ -228,12 +227,12 @@ export async function GET(request: NextRequest) {
         status: TransactionStatus.FAILED,
       });
 
-      return ResponseDto.createErrorResponse("Payment verification failed", {
+      return ResponseDto.createErrorResponse('Payment verification failed', {
         statusCode: 400,
       });
     }
   } catch (error) {
-    console.error("Error verifying payment:", error);
+    console.error('Error verifying payment:', error);
 
     // Try to update transaction status to failed if we have the transaction
     try {
@@ -245,12 +244,12 @@ export async function GET(request: NextRequest) {
       }
     } catch (updateError) {
       console.error(
-        "Error updating transaction status to failed:",
+        'Error updating transaction status to failed:',
         updateError
       );
     }
 
-    return ResponseDto.createErrorResponse("Internal server error", {
+    return ResponseDto.createErrorResponse('Internal server error', {
       statusCode: 500,
     });
   }

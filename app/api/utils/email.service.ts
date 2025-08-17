@@ -1,19 +1,19 @@
-import axios from "axios";
-import config from "@/app/api/utils/config.env";
 import {
+  generateAdminOrderTemplate,
   generateContactEmailTemplate,
   generateCustomerOrderTemplate,
-  generateAdminOrderTemplate,
   generateOrderStatusUpdateTemplate,
-} from "@/app/api/email/templates";
+} from '@/app/api/email/templates';
+import { configService, ENV } from '@/app/api/utils/config.env';
+import axios from 'axios';
 
 const emailSender = {
-  name: "Nourish Box",
-  email: "enweremproper@gmail.com",
+  name: 'Nourish Box',
+  email: 'enweremproper@gmail.com',
 };
 
-const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-const BREVO_API_KEY = config.brevo.apiKey;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const BREVO_API_KEY = configService.get(ENV.BREVO_API_KEY);
 
 export interface ContactEmailData {
   firstName: string;
@@ -67,7 +67,7 @@ async function sendBrevoEmail(emailData: {
 }): Promise<boolean> {
   try {
     if (!BREVO_API_KEY) {
-      throw new Error("Brevo API key is not configured");
+      throw new Error('Brevo API key is not configured');
     }
 
     const response = await axios.post(
@@ -81,19 +81,19 @@ async function sendBrevoEmail(emailData: {
       },
       {
         headers: {
-          "Content-Type": "application/json",
-          "api-key": BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          'api-key': BREVO_API_KEY,
         },
       }
     );
 
-    console.log("Email sent successfully:", response.status);
+    console.log('Email sent successfully:', response.status);
     return true;
   } catch (error: any) {
-    console.error("Error sending email with Brevo:", error);
+    console.error('Error sending email with Brevo:', error);
     if (error.response) {
-      console.error("Response status:", error.response.status);
-      console.error("Response data:", error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
     }
     return false;
   }
@@ -110,7 +110,7 @@ export async function sendContactNotificationToAdmins(
     const htmlContent = generateContactEmailTemplate(contactData);
 
     const emailData = {
-      to: adminEmails.map((email) => ({ email, name: "Admin" })),
+      to: adminEmails.map(email => ({ email, name: 'Admin' })),
       subject: `New Contact Form Submission - ${contactData.firstName} ${contactData.lastName}`,
       htmlContent,
       replyTo: {
@@ -125,7 +125,7 @@ export async function sendContactNotificationToAdmins(
     }
     return success;
   } catch (error: any) {
-    console.error("Error sending contact notification to admins:", error);
+    console.error('Error sending contact notification to admins:', error);
     return false;
   }
 }
@@ -160,7 +160,7 @@ export async function sendOrderConfirmationToCustomer(
     }
     return success;
   } catch (error) {
-    console.error("Error sending order confirmation to customer:", error);
+    console.error('Error sending order confirmation to customer:', error);
     return false;
   }
 }
@@ -176,7 +176,7 @@ export async function sendOrderNotificationToAdmins(
     const htmlContent = generateAdminOrderTemplate(orderData);
 
     const emailData = {
-      to: adminEmails.map((email) => ({ email, name: "Admin" })),
+      to: adminEmails.map(email => ({ email, name: 'Admin' })),
       subject: `New Order Received - #${orderData.orderId
         .slice(-8)
         .toUpperCase()}`,
@@ -189,7 +189,7 @@ export async function sendOrderNotificationToAdmins(
     }
     return success;
   } catch (error) {
-    console.error("Error sending order notification to admins:", error);
+    console.error('Error sending order notification to admins:', error);
     return false;
   }
 }
@@ -224,7 +224,7 @@ export async function sendOrderStatusUpdateToCustomer(
     }
     return success;
   } catch (error) {
-    console.error("Error sending order status update to customer:", error);
+    console.error('Error sending order status update to customer:', error);
     return false;
   }
 }
