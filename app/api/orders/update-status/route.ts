@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
 import {
-  updateOrderDeliveryStatus,
   getOrderWithDetailsById,
-} from "@/app/api/adminUtils/order.admin";
-import { isAdmin } from "@/app/api/adminUtils/user.admin";
-import { DeliveryStatus } from "@/app/utils/types/order.type";
-import {
-  OrderStatusUpdateEmailData,
-  sendOrderStatusUpdateToCustomer,
-} from "@/app/api/utils/email.service";
+  updateOrderDeliveryStatus,
+} from '@/app/api/adminUtils/order.admin';
+import { isAdmin } from '@/app/api/adminUtils/user.admin';
+import { DeliveryStatus } from '@/app/utils/types/order.type';
+import { NextRequest, NextResponse } from 'next/server';
+import { EmailType } from '../../utils/notification/email/email-notification.dto';
+import { sendEmailNotification } from '../../utils/notification/email/email-notification.service';
 
 /**
  * PUT endpoint to update order delivery status and send email notification
@@ -23,7 +21,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Missing required fields: orderId, deliveryStatus, userId",
+          message: 'Missing required fields: orderId, deliveryStatus, userId',
         },
         { status: 400 }
       );
@@ -33,7 +31,7 @@ export async function PUT(request: NextRequest) {
     const userIsAdmin = await isAdmin(userId);
     if (!userIsAdmin) {
       return NextResponse.json(
-        { success: false, message: "Forbidden: Admin access required" },
+        { success: false, message: 'Forbidden: Admin access required' },
         { status: 403 }
       );
     }
@@ -41,7 +39,7 @@ export async function PUT(request: NextRequest) {
     // Validate delivery status
     if (!Object.values(DeliveryStatus).includes(deliveryStatus)) {
       return NextResponse.json(
-        { success: false, message: "Invalid delivery status" },
+        { success: false, message: 'Invalid delivery status' },
         { status: 400 }
       );
     }
@@ -51,7 +49,7 @@ export async function PUT(request: NextRequest) {
 
     if (!currentOrder) {
       return NextResponse.json(
-        { success: false, message: "Order not found" },
+        { success: false, message: 'Order not found' },
         { status: 404 }
       );
     }
@@ -59,7 +57,7 @@ export async function PUT(request: NextRequest) {
     // Check if status is actually changing
     if (currentOrder.deliveryStatus === deliveryStatus) {
       return NextResponse.json(
-        { success: false, message: "Order already has this status" },
+        { success: false, message: 'Order already has this status' },
         { status: 400 }
       );
     }
@@ -72,10 +70,10 @@ export async function PUT(request: NextRequest) {
     // Send email notification to customer
     if (currentOrder.user && currentOrder.recipe && currentOrder.delivery) {
       const domain =
-        process.env.NEXT_PUBLIC_DOMAIN || "https://nourish-box.vercel.app";
+        process.env.NEXT_PUBLIC_DOMAIN || 'https://nourish-box.vercel.app';
       const trackingUrl = `${domain}/profile?tab=track`;
 
-      const emailData: OrderStatusUpdateEmailData = {
+      const emailData = {
         customerName: `${currentOrder.user.firstName} ${currentOrder.user.lastName}`,
         customerEmail: currentOrder.user.email,
         orderId: currentOrder.id,
@@ -97,15 +95,19 @@ export async function PUT(request: NextRequest) {
 
       // Send email notification directly
       try {
-        const emailSent = await sendOrderStatusUpdateToCustomer(emailData);
+        const emailSent = await sendEmailNotification({
+          type: EmailType.ORDER_STATUS_UPDATE,
+          to: [currentOrder.user.email],
+          context: emailData,
+        });
         if (!emailSent) {
           console.log(
-            "Failed to send email notification, but order status was updated",
+            'Failed to send email notification, but order status was updated',
             emailData
           );
         }
       } catch (emailError) {
-        console.log("Error sending email notification:", emailError);
+        console.log('Error sending email notification:', emailError);
         // Don't fail the entire request if email fails
       }
     }
@@ -113,7 +115,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Order status updated and notification sent successfully",
+        message: 'Order status updated and notification sent successfully',
         data: {
           orderId,
           previousStatus,
@@ -123,12 +125,12 @@ export async function PUT(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating order status:", error);
+    console.error('Error updating order status:', error);
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to update order status",
-        error: error instanceof Error ? error.message : "Unknown error",
+        message: 'Failed to update order status',
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

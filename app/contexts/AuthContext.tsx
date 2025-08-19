@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, db } from "@/app/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { User } from "../utils/types/user.type";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
+import { auth, db } from '@/app/lib/firebase';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { User } from '../utils/types/user.type';
 
 interface AuthContextType {
   user: User | null;
@@ -29,10 +29,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (firebaseUser: any) => {
     if (firebaseUser) {
-      // Get user profile from Firestore
-      const userDoc = await getDoc(doc(db, COLLECTION.users, firebaseUser.uid));
-      if (userDoc.exists()) {
-        setUser({ ...(userDoc.data() as User), id: userDoc.id });
+      try {
+        // Get user profile from Firestore
+        const userDoc = await getDoc(
+          doc(db, COLLECTION.users, firebaseUser.uid)
+        );
+        if (userDoc.exists()) {
+          const userData = { ...(userDoc.data() as User), id: userDoc.id };
+          setUser(userData);
+          console.log('✅ User data loaded from Firestore:', userData.email);
+        } else {
+          console.warn(
+            '⚠️ User document not found in Firestore for:',
+            firebaseUser.email
+          );
+          // If user document doesn't exist, we'll keep the user as null
+          // The OneTap component or other auth methods should create the document
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching user data:', error);
+        setUser(null);
       }
     } else {
       setUser(null);
@@ -61,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await signOut(auth);
       setUser(null);
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error('Error signing out:', error);
     }
   };
 

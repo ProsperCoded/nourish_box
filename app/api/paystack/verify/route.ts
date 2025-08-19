@@ -1,21 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { configService, ENV } from '../../utils/config.env';
-import { ResponseDto } from '@/app/api/response.dto';
+import { getDeliveryById } from '@/app/api/adminUtils/delivery.admin';
+import { createOrder } from '@/app/api/adminUtils/order.admin';
+import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
 import {
   getTransactionByReference,
   updateTransaction,
 } from '@/app/api/adminUtils/transaction.admin';
-import { createOrder } from '@/app/api/adminUtils/order.admin';
-import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
-import { getUserById, getAllAdminUsers } from '@/app/api/adminUtils/user.admin';
-import { getDeliveryById } from '@/app/api/adminUtils/delivery.admin';
-import {
-  sendOrderConfirmationToCustomer,
-  sendOrderNotificationToAdmins,
-  OrderEmailData,
-} from '@/app/api/utils/email.service';
+import { getAllAdminUsers, getUserById } from '@/app/api/adminUtils/user.admin';
+import { ResponseDto } from '@/app/api/response.dto';
+import { EmailType } from '@/app/api/utils/notification/email/email-notification.dto';
+import { sendEmailNotification } from '@/app/api/utils/notification/email/email-notification.service';
+import { DeliveryStatus, Order } from '@/app/utils/types/order.type';
 import { TransactionStatus } from '@/app/utils/types/transaction.type';
-import { Order, DeliveryStatus } from '@/app/utils/types/order.type';
+import { NextRequest } from 'next/server';
+import { configService, ENV } from '../../utils/config.env';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -149,7 +146,7 @@ export async function GET(request: NextRequest) {
 
           if (delivery && recipes.length > 0) {
             // Prepare order email data
-            const orderEmailData: OrderEmailData = {
+            const orderEmailData = {
               customerName: delivery.deliveryName,
               customerEmail: delivery.deliveryEmail,
               orderId: transaction.id!,
@@ -165,8 +162,11 @@ export async function GET(request: NextRequest) {
             console.log(
               `Sending order confirmation to customer: ${delivery.deliveryEmail}`
             );
-            const customerEmailSent =
-              await sendOrderConfirmationToCustomer(orderEmailData);
+            const customerEmailSent = await sendEmailNotification({
+              type: EmailType.ORDER,
+              to: [delivery.deliveryEmail],
+              context: orderEmailData,
+            });
 
             if (!customerEmailSent) {
               console.error('Failed to send order confirmation to customer');
@@ -179,10 +179,11 @@ export async function GET(request: NextRequest) {
               console.log(
                 `Sending order notification to ${adminEmails.length} admins`
               );
-              const adminEmailSent = await sendOrderNotificationToAdmins(
-                orderEmailData,
-                adminEmails
-              );
+              const adminEmailSent = await sendEmailNotification({
+                type: EmailType.ADMIN_ORDER,
+                to: adminEmails,
+                context: orderEmailData,
+              });
 
               if (!adminEmailSent) {
                 console.error('Failed to send order notification to admins');

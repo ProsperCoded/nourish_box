@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; }
+        .order-alert { background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626; }
+        .order-alert h2 { color: #dc2626; margin-top: 0; }
+        .order-id { font-size: 18px; font-weight: bold; color: #dc2626; }
+        .customer-info { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .customer-info h3 { color: #0369a1; margin-top: 0; }
+        .recipes-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .recipes-table th { background: #dc2626; color: white; padding: 12px; text-align: left; }
+        .recipes-table td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+        .total-row { background: #fef2f2; font-weight: bold; }
+        .delivery-info { background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .delivery-info h3 { color: #f59e0b; margin-top: 0; }
+        .action-required { background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
+        .action-required h3 { color: #059669; margin-top: 0; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; }
+        .footer p { margin: 0; color: #6b7280; font-size: 14px; }
+        @media (max-width: 600px) {
+            .recipes-table { font-size: 14px; }
+            .recipes-table th, .recipes-table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 New Order Alert</h1>
+        <p><%= companyName %> Admin Panel</p>
+    </div>
+
+    <div class="content">
+        <div class="order-alert">
+            <h2>📋 Order Details</h2>
+            <p class="order-id">Order ID: #<%= orderId.slice(-8).toUpperCase() %></p>
+            <p>Order Date: <%= new Date(createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) %></p>
+            <p><strong>Total Amount:
+                <%= new Intl.NumberFormat('en-NG', {
+                    style: 'currency',
+                    currency: 'NGN'
+                }).format(orderAmount) %>
+            </strong></p>
+        </div>
+
+        <div class="customer-info">
+            <h3>👤 Customer Information</h3>
+            <p><strong>Name:</strong> <%= customerName %></p>
+            <p><strong>Email:</strong> <%= customerEmail %></p>
+            <% if (customerPhone) { %>
+            <p><strong>Phone:</strong> <%= customerPhone %></p>
+            <% } %>
+        </div>
+
+        <table class="recipes-table">
+            <thead>
+                <tr>
+                    <th>Recipe Ordered</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% recipes.forEach(recipe => { %>
+                <tr>
+                    <td><%= recipe.name %></td>
+                    <td style="text-align: right;">
+                        <%= new Intl.NumberFormat('en-NG', {
+                            style: 'currency',
+                            currency: 'NGN'
+                        }).format(recipe.price) %>
+                    </td>
+                </tr>
+                <% }) %>
+                <tr class="total-row">
+                    <td><strong>Total Amount</strong></td>
+                    <td style="text-align: right;">
+                        <strong>
+                            <%= new Intl.NumberFormat('en-NG', {
+                                style: 'currency',
+                                currency: 'NGN'
+                            }).format(orderAmount) %>
+                        </strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="delivery-info">
+            <h3>🚚 Delivery Details</h3>
+            <p><strong>Address:</strong> <%= deliveryAddress %></p>
+            <p><strong>City:</strong> <%= deliveryCity %></p>
+            <p><strong>State:</strong> <%= deliveryState %></p>
+        </div>
+
+        <div class="action-required">
+            <h3>⚡ Action Required</h3>
+            <p>• Log in to the admin panel to manage this order</p>
+            <p>• Prepare the recipes for delivery</p>
+            <p>• Update the order status as needed</p>
+            <p>• Contact the customer if you have any questions</p>
+            <% if (adminPanelUrl) { %>
+            <p>• <a href="<%= adminPanelUrl %>" style="color: #059669; text-decoration: none; font-weight: bold;">Go to Admin Panel →</a></p>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This notification was sent from the <%= companyName %> order system.</p>
+        <p>Please process this order as soon as possible.</p>
+        <p>Contact support at <%= companyEmail %> if you need assistance.</p>
+    </div>
+</body>
+</html>
