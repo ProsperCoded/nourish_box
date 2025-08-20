@@ -70,13 +70,13 @@ export default function Home({
       <OneTap />
 
       {/* Mobile header */}
-      <div className='md:hidden flex flex-col items-center justify-between gap-4 mb-10 px-4 py-5'>
+      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-5 mb-10'>
         <div className='flex justify-between w-full'>
           {' '}
           <Image src={Logo} alt='logo' width={120} />
           <CartComponent />
         </div>
-        <div className='flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange w-full'>
+        <div className='flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange w-full my-2'>
           <input
             type='text'
             placeholder='Search recipes...'

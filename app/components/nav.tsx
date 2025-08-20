@@ -29,7 +29,7 @@ const Nav = () => {
   const mobileMenu = [
     { id: 1, label: "Home", link: "/" },
     { id: 2, label: "About us", link: "/about_us" },
-    { id: 3, label: "Recipes", link: "/recipes" },
+    { id: 3, label: "Shop", link: "/shop" },
     { id: 4, label: "Contact", link: "/contact_us" },
   ];
 
@@ -172,10 +172,10 @@ const Nav = () => {
 
           <div className="flex items-left  font-inter justify-around gap-4 w-1/3   ">
             <Link
-              href="/recipes"
+              href="/shop"
               className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
             >
-              Recipes{" "}
+              Shop{" "}
             </Link>
             <Link
               href="/about_us"

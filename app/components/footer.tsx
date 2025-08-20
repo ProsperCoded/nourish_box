@@ -15,17 +15,17 @@ const footer = () => {
                     <li className='text-xl font-semibold mb-4'>Menu</li>
                     <li className='text-base font-light'><Link href="/">Home</Link></li>
                     <li className='text-base font-light'>
-                        <Link href="/recipes" >Recipes </Link>
+                        <Link href="/shop" >Shop </Link>
                         </li>
                     <li className='text-base font-light'><Link href="/about_us">About us</Link></li>
                 </ul>
-               
+
                 <ul className='font-inter mb-5 lg:mb-0'>
                     <li className='text-xl font-semibold mb-4'>Socials</li>
                     <li className='text-base font-light'><Link href="https://www.instagram.com/nourishbox.co/">Instagram</Link></li>
                     <li className='text-base font-light'><Link href="https://x.com/">Twitter</Link></li>
                     <li className='text-base font-light'> <Link href="https://paystack.shop/nourish-box">PayStack</Link></li>
-                   
+
                 </ul>
                 <div className='hidden lg:block relative w-[12%]'>
                     <Image src={Eggplant} alt='egg plant' className='absolute top-0 left-0 animate-pulse' width={35} height={35} />
