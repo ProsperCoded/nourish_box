@@ -50,25 +50,22 @@ const Page = () => {
 
   return (
     <main className='min-h-screen '>
-      {/* Top area like the mock: green header + search */}
-      <div className='px-4 md:px-8 lg:px-16 pt-6 pb-4'>
+    <div className='px-4 md:px-8 lg:px-16 '>
         {/* Header (kept) */}
-        <div className='flex justify-center mb-4'>
+        <div className='flex justify-center '>
           <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
 
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl mx-auto'>
-          <h2 className='text-3xl sm:text-4xl lg:text-5xl font-custom font-medium text-center mb-1'>
-            Fresh meal kit crafted for you
+          <h2 className='text-3xl sm:text-4xl lg:text-5xl font-inter font-medium text-center my-4'>
+           Check out our recipes for the week
           </h2>
-          <p className='text-brand-sub_gray text-center text-base sm:text-lg font-inter'>
-            Check out our recipes for the week
-          </p>
+
         </section>
 
         {/* Category Tabs */}
-        <nav aria-label='recipe categories' className='mt-6 max-w-3xl mx-auto'>
+        <nav aria-label='recipe categories' className='my-4 max-w-3xl mx-auto'>
           {categoriesLoading ? (
             <div className='flex gap-6 justify-center'>
               {Array.from({ length: 4 }).map((_, index) => (

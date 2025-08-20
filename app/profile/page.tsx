@@ -25,6 +25,7 @@ import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
 import Link from "next/link";
 import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
+import CartComponent from '../components/Cart';
 import Heart from '../assets/icons8-heart-32.png';
 const tabs = [
   {
@@ -114,7 +115,15 @@ function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="flex justify-between my-4 items-center  gap-2 w-full max-w-md  px-4">
+       <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 py-5'>
+        <div className='flex justify-between w-full'>
+          {' '}
+          <Image src={logo} alt='logo' width={120} />
+          <CartComponent />
+        </div>
+
+      </div>
+      <div className="hidden md:flex justify-between mt-8 items-center  gap-2 w-full max-w-md  px-4">
         <Link href="/" className="flex items-center">
           {/* Show icon on mobile */}
           <Image
@@ -186,7 +195,7 @@ function ProfileContent() {
                   <Image
                     src={user?.profilePicture || userIcon}
                     alt="User"
-                    
+
                     width={80} height={80}
                     className="rounded-full p-2 object-cover border-2 border-orange-200 shadow"
                   />

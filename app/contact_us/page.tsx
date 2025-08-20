@@ -39,7 +39,7 @@ const ContactUs: React.FC<Props> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const formWidth = showIcons ? "md:w-1/2 md:p-10" : "w-full bg-gray-50 p-16";
+  const formWidth = showIcons ? "md:w-1/2 md:p-10" : "w-full bg-gray-50 ";
 
   const toggleFAQ = (index: number) => {
     setIsActive((prev) =>
@@ -197,7 +197,7 @@ const ContactUs: React.FC<Props> = ({
   return (
     <div className="w-full bg-white">
       {/* Contact Section */}
-      <div className="flex flex-col-reverse md:flex-row justify-between items-center min-h-screen px-6  py-10 gap-10">
+      <div className="flex flex-col md:flex-row justify-between items-center min-h-screen px-6  py-10 gap-10">
         {showIcons && (
           <div className="w-full md:w-1/2 hidden md:flex justify-center">
             <Link href="/">
@@ -221,7 +221,7 @@ const ContactUs: React.FC<Props> = ({
           )}
 
           <h1
-            className={`text-3xl md:text-4xl font-semibold mb-6 font-custom ${
+            className={`text-3xl text-center md:text-4xl font-semibold mb-6 font-inter ${
               textClassName ?? ""
             }`}
           >
@@ -357,7 +357,7 @@ const ContactUs: React.FC<Props> = ({
 
       {/* FAQ Section */}
       <div className="w-full flex flex-col items-center px-4 md:px-10 py-10">
-        <h2 className="text-3xl md:text-4xl font-custom mb-6">FAQs</h2>
+        <h2 className="text-3xl md:text-4xl font-inter mb-6">FAQs</h2>
         <div className="w-full md:w-10/12">
           {faqs.map((faq, index) => (
             <div
