@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; }
+        .order-summary { background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .order-summary h3 { color: #374151; margin-top: 0; }
+        .order-id { font-size: 18px; font-weight: bold; color: #f97316; }
+        .recipes-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .recipes-table th { background: #f97316; color: white; padding: 12px; text-align: left; }
+        .recipes-table td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+        .total-row { background: #fef3c7; font-weight: bold; }
+        .delivery-info { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .delivery-info h3 { color: #0369a1; margin-top: 0; }
+        .track-button { background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin: 20px 0; }
+        .track-button:hover { background: #ea580c; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; }
+        .footer p { margin: 0; color: #6b7280; font-size: 14px; }
+        @media (max-width: 600px) {
+            .track-button { display: block; text-align: center; }
+            .recipes-table { font-size: 14px; }
+            .recipes-table th, .recipes-table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <%
+        // Get status-specific styling and messaging
+        function getStatusInfo(status) {
+            const statusLower = status.toLowerCase();
+            switch (statusLower) {
+                case 'pending':
+                    return {
+                        emoji: '⏳',
+                        color: '#f59e0b',
+                        bgColor: '#fef3c7',
+                        title: 'Order Confirmed - Preparing Your Recipes',
+                        message: 'Your order is being processed and will be prepared shortly.',
+                        actionText: 'Your recipes are being prepared.'
+                    };
+                case 'packed':
+                    return {
+                        emoji: '📦',
+                        color: '#3b82f6',
+                        bgColor: '#dbeafe',
+                        title: 'Order Packed - Ready for Delivery',
+                        message: 'Your recipes have been prepared and packed for delivery.',
+                        actionText: 'Your order is ready and will be dispatched soon.'
+                    };
+                case 'in_transit':
+                    return {
+                        emoji: '🚚',
+                        color: '#8b5cf6',
+                        bgColor: '#ede9fe',
+                        title: 'Order In Transit - On the Way to You',
+                        message: 'Your order is currently being delivered to your location.',
+                        actionText: `Your delivery person will arrive soon. Show them this Order ID: <strong style="background: #fef3c7; padding: 4px 8px; border-radius: 4px; color: #92400e;">#${orderId.slice(-8).toUpperCase()}</strong>`
+                    };
+                case 'delivered':
+                    return {
+                        emoji: '✅',
+                        color: '#10b981',
+                        bgColor: '#d1fae5',
+                        title: 'Order Delivered - Enjoy Your Meal!',
+                        message: 'Your order has been successfully delivered.',
+                        actionText: 'We hope you enjoy cooking and eating your delicious recipes!'
+                    };
+                case 'failed':
+                    return {
+                        emoji: '❌',
+                        color: '#ef4444',
+                        bgColor: '#fee2e2',
+                        title: 'Delivery Issue - Please Contact Support',
+                        message: 'There was an issue with your delivery.',
+                        actionText: 'Please contact our support team for assistance.'
+                    };
+                default:
+                    return {
+                        emoji: '📋',
+                        color: '#6b7280',
+                        bgColor: '#f3f4f6',
+                        title: 'Order Status Updated',
+                        message: `Your order status has been updated to: ${status}`,
+                        actionText: 'Thank you for your patience.'
+                    };
+            }
+        }
+
+        const statusInfo = getStatusInfo(currentStatus);
+    %>
+
+    <div class="header">
+        <h1><%= statusInfo.emoji %> Order Status Update</h1>
+        <p><%= companyName %> - Order Tracking</p>
+    </div>
+
+    <div class="content">
+        <div style="background: <%= statusInfo.bgColor %>; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid <%= statusInfo.color %>;">
+            <h2 style="color: <%= statusInfo.color %>; margin-top: 0; font-size: 20px;">
+                <span style="font-size: 24px; margin-right: 10px;"><%= statusInfo.emoji %></span>
+                <%= statusInfo.title %>
+            </h2>
+            <p><strong><%= statusInfo.message %></strong></p>
+            <p><%- statusInfo.actionText %></p>
+        </div>
+
+        <div class="order-summary">
+            <h3>📋 Order Summary</h3>
+            <p class="order-id">Order ID: #<%= orderId.slice(-8).toUpperCase() %></p>
+            <p><strong>Customer:</strong> <%= customerName %></p>
+            <p><strong>Updated:</strong> <%= new Date(updatedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) %></p>
+        </div>
+
+        <table class="recipes-table">
+            <thead>
+                <tr>
+                    <th>Recipe</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% recipes.forEach(recipe => { %>
+                <tr>
+                    <td><%= recipe.name %></td>
+                    <td style="text-align: right;">
+                        <%= new Intl.NumberFormat('en-NG', {
+                            style: 'currency',
+                            currency: 'NGN'
+                        }).format(recipe.price) %>
+                    </td>
+                </tr>
+                <% }) %>
+                <tr class="total-row">
+                    <td><strong>Total Amount</strong></td>
+                    <td style="text-align: right;">
+                        <strong>
+                            <%= new Intl.NumberFormat('en-NG', {
+                                style: 'currency',
+                                currency: 'NGN'
+                            }).format(orderAmount) %>
+                        </strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="delivery-info">
+            <h3>🚚 Delivery Information</h3>
+            <p><strong>Address:</strong> <%= deliveryAddress %></p>
+            <p><strong>City:</strong> <%= deliveryCity %></p>
+            <p><strong>State:</strong> <%= deliveryState %></p>
+        </div>
+
+        <% if (trackingUrl) { %>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="<%= trackingUrl %>" class="track-button">Track Your Order</a>
+        </div>
+        <% } %>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for choosing <%= companyName %>!</p>
+        <p>If you have any questions, please contact our support team at <%= companyEmail %>.</p>
+    </div>
+</body>
+</html>

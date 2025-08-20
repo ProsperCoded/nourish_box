@@ -67,6 +67,8 @@ export default function Home({
       <div className='hidden md:block'>
         <Nav />
       </div>
+
+      {/* OneTap Authentication - only on homepage for new users */}
       <OneTap />
 
       {/* Mobile header */}
