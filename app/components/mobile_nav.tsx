@@ -3,77 +3,87 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { FaHome, FaUtensils, FaUser, FaHeart, FaShoppingCart } from "react-icons/fa";
-import CartComponent from "../components/Cart"; // ⬅️ your cart component
+import { usePathname } from "next/navigation";
+import { FaHome, FaUtensils, FaUser, FaHeart } from "react-icons/fa";
+import CartBadgeIcon from "../components/cartIcon";
 
-const NAV_HEIGHT = 64; // px
+const NAV_HEIGHT = 72; // a bit taller so labels never clip
 
-const navItems = [
+type NavItem = {
+  name: string;
+  href: string | null;
+  icon?: React.ComponentType<{ className?: string }>;
+};
+
+const navItems: NavItem[] = [
   { name: "Home", href: "/", icon: FaHome },
   { name: "Shop", href: "/shop", icon: FaUtensils },
   { name: "Profile", href: "/profile", icon: FaUser },
-  { name: "Cart", href: null, icon: FaShoppingCart },          // we'll render CartComponent below
+  { name: "Cart", href: null }, // special case below
   { name: "Favorite", href: "/favorites", icon: FaHeart },
 ];
 
 export default function MobileNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0 z-50 md:hidden
-        bg-white/95 border-t shadow-md
-        supports-[backdrop-filter]:backdrop-blur
+        fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white
+        border-t shadow-md
+        w-screen
+        pl-[env(safe-area-inset-left)]
+        pr-[env(safe-area-inset-right)]
         pb-[env(safe-area-inset-bottom)]
       "
       style={{ height: NAV_HEIGHT }}
       role="navigation"
       aria-label="Primary"
     >
-      <ul className="h-full flex items-center justify-around">
+      {/* Full width, equal columns */}
+      <ul className="grid grid-cols-5 h-full">
         {navItems.map(({ name, href, icon: Icon }) => {
-          const isActive = pathname === href || pathname.startsWith(href + "/");
+          const isActive = href ? (pathname === href || pathname.startsWith(href + "/")) : false;
           const baseColor = isActive ? "text-[#F15A28]" : "text-[#004C30]";
 
+          // Cart (uses PNG badge icon)
           if (name === "Cart") {
-            // Use a button so clicking anywhere on CartComponent navigates to /cart,
-            // even if CartComponent has its own inner clickable DOM.
+            const cartActive = pathname === "/cart" || pathname.startsWith("/cart/");
+            const cartColor = cartActive ? "text-[#F15A28]" : "text-[#004C30]";
             return (
-              <li key={name}>
-                <motion.button
-                  type="button"
-                  onClick={() => router.push(href)}
-                  whileTap={{ scale: 0.94 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="flex flex-col items-center text-xs px-3 py-2"
+              <li key="Cart" className="w-full">
+                <Link
+                  href="/cart"
+                  aria-current={cartActive ? "page" : undefined}
                   aria-label="Cart"
+                  className="block h-full w-full"
                 >
-                  {/* If your CartComponent accepts size/className, pass them.
-                     Otherwise wrap it to control sizing consistently. */}
-                  <span className="mb-1">
-                    <CartComponent className={baseColor} size={24} />
-                  </span>
-                  <span className={baseColor}>Cart</span>
-                </motion.button>
+                  <motion.div
+                    whileTap={{ scale: 0.94 }}
+                    className="h-full w-full flex flex-col items-center justify-center text-xs"
+                  >
+                    <span className="mb-1">
+                      <CartBadgeIcon size={22} />
+                    </span>
+                    <span className={cartColor}>Cart</span>
+                  </motion.div>
+                </Link>
               </li>
             );
           }
 
-          // Default items use Link + the provided icon
+          // Default items
           return (
-            <li key={name}>
-              <Link href={href} aria-current={isActive ? "page" : undefined} aria-label={name}>
+            <li key={name} className="w-full">
+              <Link
+                href={href!}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={name}
+                className="block h-full w-full"
+              >
                 <motion.div
                   whileTap={{ scale: 0.94 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="flex flex-col items-center text-xs px-3 py-2"
+                  className="h-full w-full flex flex-col items-center justify-center text-xs"
                 >
                   {Icon && <Icon className={`text-2xl mb-1 ${baseColor}`} />}
                   <span className={baseColor}>{name}</span>
