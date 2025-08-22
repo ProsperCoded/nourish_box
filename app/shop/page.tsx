@@ -52,12 +52,12 @@ const Page = () => {
     <main className='min-h-screen '>
     <div className='px-4 md:px-8  '>
         {/* Header (kept) */}
-        <div className='flex justify-center '>
-          <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+     <div className=' w-full md:flex items-center justify-center '>
+          <div className='md:w-3/4 ' ><Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /></div>
         </div>
 
         {/* Title / Subtitle */}
-        <section className='text-left max-w-3xl mx-auto'>
+        <section className='text-left max-w-3xl md:mx-auto'>
           <h2 className='text-3xl sm:text-4xl lg:text-5xl font-inter font-medium text-center my-4'>
            Check out our recipes for the week
           </h2>
@@ -67,7 +67,7 @@ const Page = () => {
         {/* Category Tabs */}
         <nav aria-label='recipe categories' className='my-4 max-w-3xl mx-auto'>
           {categoriesLoading ? (
-            <div className='flex gap-6 justify-center'>
+            <div className='flex gap-6 justify-center  items-center'>
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
@@ -123,11 +123,16 @@ const Page = () => {
             <p className='text-red-600 text-center text-lg'>{error}</p>
           </div>
         ) : isLoading ? (
-          <section className='flex flex-wrap justify-center gap-6 lg:gap-8'>
-            {Array.from({ length: 8 }).map((_, index) => (
+
+              <section className='flex justify-center items-center  w-full
+                   '>
+              <div className="  w-5/6  max-w-[1550px] flex justify-center items-center  flex-wrap gap-6 lg:gap-8 ">
+                 {Array.from({ length: 8 }).map((_, index) => (
               <RecipeCardSkeleton key={index} />
             ))}
+           </div>
           </section>
+
         ) : visibleRecipes.length === 0 ? (
           <div className='max-w-2xl mx-auto text-center py-20'>
             <p className='text-gray-500'>
@@ -135,11 +140,15 @@ const Page = () => {
             </p>
           </div>
         ) : (
-          <section className='flex flex-wrap justify-center gap-6 lg:gap-8'>
-            {visibleRecipes.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
-            ))}
-          </section>
+                <div className="flex justify-center w-full">
+  <section className="md:mx-auto max-w-[1550px] md:px-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3  xl:grid-cols-3 gap-6 lg:gap-8">
+      {visibleRecipes.map(r => (
+        <RecipeCard key={r.id} recipe={r} />
+      ))}
+    </div>
+  </section>
+</div>
         )}
       </div>
     </main>

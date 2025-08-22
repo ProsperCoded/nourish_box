@@ -93,7 +93,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     e.stopPropagation();
 
     if (isMobile) {
-      router.push(`/recipes/${recipe.id}`);
+      router.push(`/shop/${recipe.id}`);
     } else {
       setOpen(true);
     }
@@ -137,7 +137,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
 
   return (
     <div
-      className='relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group cursor-pointer'
+      className='relative bg-white rounded-xl shadow-lg overflow-hidden w-[300px] transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] group cursor-pointer'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
@@ -211,13 +211,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <h3 className='text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow'>
             {recipe.name}
           </h3>
-        </div>
-
-        {recipe.description && (
-          <p className='text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed'>
-            {recipe.description}
-          </p>
-        )}
 
         {/* Category Badge */}
         {categoryName && (
@@ -228,6 +221,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             </span>
           </div>
         )}
+        </div>
+
+        {recipe.description && (
+          <p className='text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed'>
+            {recipe.description}
+          </p>
+        )}
+
 
         {/* Add to Cart Button */}
         <div className='pt-2'>

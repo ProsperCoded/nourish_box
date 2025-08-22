@@ -99,7 +99,7 @@ const SignUp = () => {
   return (
     <>
       <Nav />
-      <main className="min-h-screen flex items-center justify-center px-4 py-10 bg-white">
+      <main className=" mt-12 min-h-screen flex items-center justify-center px-4 py-10 bg-white">
         <div className=" max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
           <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
             <Link href="/">

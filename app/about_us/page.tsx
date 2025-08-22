@@ -9,7 +9,8 @@ import Image from 'next/image';
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 const page = () => {
     return (
-        <div>
+      <div className="flex justify-center items-center">
+ <div className='max-w-[1550px] mt-12'>
             <Nav />
             <div className='flex  flex-col-reverse md:flex-row items-center  my-20'>
                 <div className='w-2/4 mt-20 md:mt-0 flex justify-center '> <Image src={icon} alt='nourish box icon' width={300} height={300} /></div>
@@ -25,7 +26,7 @@ const page = () => {
 
                 </div>
             </div>
-          
+
             <div className='flex flex-col md:flex-row justify-center md:justify-evenly w-full mb-10'>
                 <div className=' text-center mx-10 md:mx-0 md:w-1/3 flex flex-col items-center justify-center '>
                     <Image src={target} alt='target icon' width={50} height={50} />
@@ -49,6 +50,7 @@ const page = () => {
                 <FooterMain />
             </div>
         </div>
+       </div>
     )
 }
 

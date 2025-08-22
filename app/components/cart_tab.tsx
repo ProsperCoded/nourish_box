@@ -67,7 +67,7 @@ const Cart_tab = () => {
               Cart is empty
             </h2>
             <Link
-              href="/recipes"
+              href="/shop"
               className="bg-orange-500 py-2 px-4 text-white rounded-lg font-inter"
             >
               Add recipes to cart
