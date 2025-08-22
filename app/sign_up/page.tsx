@@ -27,6 +27,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
+import Header from "../components/header";
 
 // Nigerian states
 const nigerianStates = [
@@ -98,8 +99,13 @@ const SignUp = () => {
 
   return (
     <>
-      <Nav />
-      <main className=" mt-12 min-h-screen flex items-center justify-center px-4 py-10 bg-white">
+      <div className="hidden md:block">
+        <Nav />
+      </div>
+      <div className="block md:hidden">
+        <Header showSearch={false} />
+      </div>
+      <main className=" md:mt-12 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10  bg-white">
         <div className=" max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
           <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
             <Link href="/">
