@@ -38,7 +38,7 @@ const Header = ({ showSearch = true, searchQuery, setSearchQuery }: HeaderProps)
   const handleReturn = () => router.push('/profile');
 
   return (
-    <header className="flex flex-col justify-center w-full items-center px-0 md:px-0">
+    <header className="flex flex-col justify-center w-full items-center px-4 md:px-0">
       <div className="w-full md:max-w-[1550px] px-0 pt-3">
         <div className="flex justify-between items-center w-full mx-auto">
           {/* Left area: either Return arrow (profile subpages) OR Logo */}

@@ -50,7 +50,7 @@ const Page = () => {
 
   return (
     <main className='min-h-screen '>
-    <div className='px-4 md:px-8  '>
+    <div className=' md:px-8  '>
         {/* Header (kept) */}
      <div className=' w-full md:flex items-center justify-center '>
           <div className='md:w-3/4 ' ><Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /></div>
@@ -58,7 +58,7 @@ const Page = () => {
 
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl md:mx-auto'>
-          <h2 className='text-3xl sm:text-4xl lg:text-5xl font-inter font-medium text-center my-4'>
+          <h2 className='text-3xl sm:text-4xl px-4 lg:text-5xl font-inter font-medium text-center my-4'>
            Check out our recipes for the week
           </h2>
 
