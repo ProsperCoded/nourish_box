@@ -1,26 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { useCart } from "../contexts/CartContext";
-import { useAuth } from "../contexts/AuthContext";
-import { Delivery } from "../utils/types/delivery.type";
-import { CartItem } from "../utils/types/cart.tyes";
-import Image from "next/image";
 import { CircularProgress } from "@mui/material";
-import PaystackModal from "../components/PaystackModal";
+import { ArrowLeft, Clock, MapPin, Plus, ShoppingBag, Star, Users } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShoppingBag, Clock, Users } from "lucide-react";
-import {
-  validateDeliveryInfo,
-  calculateTotalWithDelivery,
-  generatePaymentReference,
-} from "../utils/checkout.utils";
-import { fetchStates, fetchLGAs } from "../utils/client-api/locationApi";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import PaystackModal from "../components/PaystackModal";
+import { Badge } from "../components/ui/badge";
+import { Card, CardContent } from "../components/ui/card";
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+import {
+  calculateTotalWithDelivery,
+  validateDeliveryInfo
+} from "../utils/checkout.utils";
+import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
+import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
+import { Address, CreateAddressInput } from "../utils/types/address.type";
+import { CartItem } from "../utils/types/cart.tyes";
+import { Delivery } from "../utils/types/delivery.type";
 
 const CheckoutPage = () => {
   const { cart, getTotalPrice, clearCart, loading: cartLoading } = useCart();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshAuth } = useAuth();
   const router = useRouter();
 
   const [deliveryInfo, setDeliveryInfo] = useState<Partial<Delivery>>({
@@ -45,21 +48,70 @@ const CheckoutPage = () => {
   const [transactionId, setTransactionId] = useState<string>("");
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
 
-  // Prefill form with user data if logged in
+  // Address management state
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [useCustomAddress, setUseCustomAddress] = useState(false);
+  const [customAddressData, setCustomAddressData] = useState<CreateAddressInput>({
+    name: "",
+    street: "",
+    city: "",
+    state: "",
+    lga: "",
+    isPrimary: false,
+  });
+  const [saveCustomAddress, setSaveCustomAddress] = useState(false);
+
+  // Load user data and addresses
   useEffect(() => {
-    if (user) {
-      setDeliveryInfo({
-        deliveryName: `${user.firstName} ${user.lastName}`,
-        deliveryEmail: user.email,
-        deliveryPhone: user.phone || "",
-        deliveryAddress: user.address || "",
-        deliveryCity: user.city || "",
-        deliveryState: user.state || "",
-        deliveryLGA: user.lga || "",
-        deliveryNote: "",
-      });
-    }
-  }, [user]);
+    const loadUserData = async () => {
+      if (user) {
+        // Migrate legacy address if needed
+        if (user.address && (!user.addresses || user.addresses.length === 0)) {
+          try {
+            await migrateLegacyAddress(user.id);
+            await refreshAuth();
+          } catch (error) {
+            console.error('Migration error:', error);
+          }
+        }
+
+        // Set addresses
+        const userAddresses = user.addresses || [];
+        setAddresses(userAddresses);
+
+        // Get primary address and prefill form
+        const primaryAddress = getPrimaryAddress(user);
+        if (primaryAddress) {
+          setSelectedAddressId(primaryAddress.id);
+          setDeliveryInfo({
+            deliveryName: primaryAddress.name,
+            deliveryEmail: user.email,
+            deliveryPhone: user.phone || "",
+            deliveryAddress: primaryAddress.street,
+            deliveryCity: primaryAddress.city,
+            deliveryState: primaryAddress.state,
+            deliveryLGA: primaryAddress.lga,
+            deliveryNote: "",
+          });
+        } else {
+          // Fallback to legacy fields or empty
+          setDeliveryInfo({
+            deliveryName: `${user.firstName} ${user.lastName}`,
+            deliveryEmail: user.email,
+            deliveryPhone: user.phone || "",
+            deliveryAddress: user.address || "",
+            deliveryCity: user.city || "",
+            deliveryState: user.state || "",
+            deliveryLGA: user.lga || "",
+            deliveryNote: "",
+          });
+        }
+      }
+    };
+
+    loadUserData();
+  }, [user, refreshAuth]);
 
   // Load states on component mount
   useEffect(() => {
@@ -111,10 +163,99 @@ const CheckoutPage = () => {
     loadLGAs();
   }, [deliveryInfo.deliveryState, user?.state]);
 
+  // Load LGAs for custom address when state changes
+  useEffect(() => {
+    const loadCustomLGAs = async () => {
+      if (customAddressData.state) {
+        try {
+          const lgasData = await fetchLGAs(customAddressData.state);
+          setLgas(lgasData);
+        } catch (error) {
+          console.error('Error loading LGAs for custom address:', error);
+        }
+      }
+    };
+
+    if (useCustomAddress && customAddressData.state) {
+      loadCustomLGAs();
+    }
+  }, [customAddressData.state, useCustomAddress]);
+
   const cartItems = cart?.items || [];
   const totalPrice = getTotalPrice();
   const deliveryFee = 1500; // Fixed delivery fee
   const finalTotal = calculateTotalWithDelivery(totalPrice, deliveryFee);
+
+  // Address management functions
+  const handleAddressSelect = (addressId: string) => {
+    if (addressId === 'custom') {
+      setUseCustomAddress(true);
+      setSelectedAddressId('');
+      // Clear delivery info for custom input
+      setDeliveryInfo({
+        deliveryName: user ? `${user.firstName} ${user.lastName}` : "",
+        deliveryEmail: user?.email || "",
+        deliveryPhone: user?.phone || "",
+        deliveryAddress: "",
+        deliveryCity: "",
+        deliveryState: "",
+        deliveryLGA: "",
+        deliveryNote: "",
+      });
+    } else {
+      setUseCustomAddress(false);
+      setSelectedAddressId(addressId);
+      const selectedAddress = addresses.find(addr => addr.id === addressId);
+      if (selectedAddress) {
+        setDeliveryInfo({
+          deliveryName: selectedAddress.name,
+          deliveryEmail: user?.email || "",
+          deliveryPhone: user?.phone || "",
+          deliveryAddress: selectedAddress.street,
+          deliveryCity: selectedAddress.city,
+          deliveryState: selectedAddress.state,
+          deliveryLGA: selectedAddress.lga,
+          deliveryNote: "",
+        });
+      }
+    }
+  };
+
+  const handleCustomAddressChange = (field: keyof CreateAddressInput, value: string | boolean) => {
+    setCustomAddressData(prev => ({ ...prev, [field]: value }));
+
+    // Also update delivery info for validation
+    if (field === 'name') setDeliveryInfo(prev => ({ ...prev, deliveryName: value as string }));
+    if (field === 'street') setDeliveryInfo(prev => ({ ...prev, deliveryAddress: value as string }));
+    if (field === 'city') setDeliveryInfo(prev => ({ ...prev, deliveryCity: value as string }));
+    if (field === 'state') {
+      setDeliveryInfo(prev => ({ ...prev, deliveryState: value as string, deliveryLGA: "" }));
+      setCustomAddressData(prev => ({ ...prev, lga: "" })); // Reset LGA when state changes
+    }
+    if (field === 'lga') setDeliveryInfo(prev => ({ ...prev, deliveryLGA: value as string }));
+  };
+
+  const handleSaveCustomAddress = async (): Promise<boolean> => {
+    if (!user || !saveCustomAddress) return true;
+
+    try {
+      // Validate custom address data
+      if (!customAddressData.name || !customAddressData.street || !customAddressData.city ||
+        !customAddressData.state || !customAddressData.lga) {
+        toast.error('Please fill in all address fields');
+        return false;
+      }
+
+      await addUserAddress(user.id, customAddressData);
+      await refreshAuth();
+      toast.success('Address saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error saving custom address:', error);
+      toast.error('Failed to save address');
+      return false;
+    }
+  };
 
   const handleInputChange = (field: keyof Delivery, value: string) => {
     setDeliveryInfo((prev) => ({ ...prev, [field]: value }));
@@ -230,8 +371,7 @@ const CheckoutPage = () => {
         router.push("/profile?section=orders"); // Updated redirect path
       } else {
         toast.error(
-          `Payment verification failed: ${
-            verifyData.message || "Unknown error"
+          `Payment verification failed: ${verifyData.message || "Unknown error"
           }`,
           {
             duration: 5000,
@@ -262,30 +402,26 @@ const CheckoutPage = () => {
     }
   };
 
-  const handlePaymentClose = (forcedClose: boolean = false) => {
+  const handlePaymentClose = () => {
     console.log("Payment dialog closed");
     setShowPaymentModal(false);
     setPaymentLoading(false);
     // Reset payment reference so user can try again
     setPaymentReference("");
     setTransactionId("");
-    if (!forcedClose) {
-      toast.error("Payment was cancelled. Please try again.", {
-        duration: 4000,
-        position: "top-center",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-          padding: "16px",
-          borderRadius: "8px",
-        },
-      });
-    }
   };
 
   const handlePayment = async () => {
     if (!validateForm()) {
       return;
+    }
+
+    // Save custom address if user opted to save it
+    if (useCustomAddress && saveCustomAddress) {
+      const saved = await handleSaveCustomAddress();
+      if (!saved) {
+        return; // Don't proceed if address saving failed
+      }
     }
 
     try {
@@ -350,32 +486,87 @@ const CheckoutPage = () => {
               Delivery Information
             </h2>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={deliveryInfo.deliveryName || ""}
-                    onChange={(e) =>
-                      handleInputChange("deliveryName", e.target.value)
-                    }
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formErrors.deliveryName
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter your full name"
-                  />
-                  {formErrors.deliveryName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.deliveryName}
-                    </p>
-                  )}
-                </div>
+            {/* Address Selection Section */}
+            {user && addresses.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-orange-600" />
+                  Select Delivery Address
+                </h3>
 
+                <div className="space-y-3">
+                  {/* Existing Addresses */}
+                  <div className="grid gap-3">
+                    {addresses.map((address) => (
+                      <Card
+                        key={address.id}
+                        className={`cursor-pointer transition-all hover:shadow-md ${selectedAddressId === address.id ? 'ring-2 ring-orange-500 bg-orange-50' : ''
+                          }`}
+                        onClick={() => handleAddressSelect(address.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start space-x-3">
+                            <input
+                              type="radio"
+                              name="address"
+                              value={address.id}
+                              checked={selectedAddressId === address.id}
+                              onChange={() => handleAddressSelect(address.id)}
+                              className="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-gray-900">{address.name}</h4>
+                                {address.isPrimary && (
+                                  <Badge variant="default" className="bg-orange-100 text-orange-800 text-xs">
+                                    <Star className="h-3 w-3 mr-1" />
+                                    Primary
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 mb-1">{address.street}</p>
+                              <p className="text-sm text-gray-600">{address.city}, {address.state}, {address.lga}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    {/* Custom Address Option */}
+                    <Card
+                      className={`cursor-pointer transition-all hover:shadow-md ${useCustomAddress ? 'ring-2 ring-orange-500 bg-orange-50' : ''
+                        }`}
+                      onClick={() => handleAddressSelect('custom')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <input
+                            type="radio"
+                            name="address"
+                            value="custom"
+                            checked={useCustomAddress}
+                            onChange={() => handleAddressSelect('custom')}
+                            className="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Plus className="h-4 w-4 text-orange-600" />
+                              <h4 className="font-medium text-gray-900">Use Different Address</h4>
+                            </div>
+                            <p className="text-sm text-gray-600">Enter a custom delivery address</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Custom Address Form or Contact Info */}
+            <div className="space-y-4">
+              {/* Contact Information - Always Show */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address *
@@ -386,155 +577,168 @@ const CheckoutPage = () => {
                     onChange={(e) =>
                       handleInputChange("deliveryEmail", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formErrors.deliveryEmail
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryEmail
+                      ? "border-red-500"
+                      : "border-gray-300"
+                      }`}
                     placeholder="Enter your email"
+                    disabled={!useCustomAddress && !!selectedAddressId}
                   />
                   {formErrors.deliveryEmail && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-600 text-sm mt-1">
                       {formErrors.deliveryEmail}
                     </p>
                   )}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  value={deliveryInfo.deliveryPhone || ""}
-                  onChange={(e) =>
-                    handleInputChange("deliveryPhone", e.target.value)
-                  }
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    formErrors.deliveryPhone
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter your phone number"
-                />
-                {formErrors.deliveryPhone && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors.deliveryPhone}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Delivery Address *
-                </label>
-                <textarea
-                  value={deliveryInfo.deliveryAddress || ""}
-                  onChange={(e) =>
-                    handleInputChange("deliveryAddress", e.target.value)
-                  }
-                  rows={3}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    formErrors.deliveryAddress
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter your full delivery address"
-                />
-                {formErrors.deliveryAddress && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors.deliveryAddress}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    City *
+                    Phone Number *
                   </label>
                   <input
-                    type="text"
-                    value={deliveryInfo.deliveryCity || ""}
+                    type="tel"
+                    value={deliveryInfo.deliveryPhone || ""}
                     onChange={(e) =>
-                      handleInputChange("deliveryCity", e.target.value)
+                      handleInputChange("deliveryPhone", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formErrors.deliveryCity
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter your city"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 ${formErrors.deliveryPhone
+                      ? "border-red-600"
+                      : "border-gray-300"
+                      }`}
+                    placeholder="Enter your phone number"
+                    disabled={!useCustomAddress && !!selectedAddressId}
                   />
-                  {formErrors.deliveryCity && (
+                  {formErrors.deliveryPhone && (
                     <p className="text-red-500 text-sm mt-1">
-                      {formErrors.deliveryCity}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    State *
-                  </label>
-                  <select
-                    value={deliveryInfo.deliveryState || ""}
-                    onChange={(e) =>
-                      handleInputChange("deliveryState", e.target.value)
-                    }
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formErrors.deliveryState
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    disabled={loadingLocations}
-                  >
-                    <option value="">Select State</option>
-                    {states.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                  {formErrors.deliveryState && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.deliveryState}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    LGA *
-                  </label>
-                  <select
-                    value={deliveryInfo.deliveryLGA || ""}
-                    onChange={(e) =>
-                      handleInputChange("deliveryLGA", e.target.value)
-                    }
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formErrors.deliveryLGA
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    disabled={!deliveryInfo.deliveryState || loadingLocations}
-                  >
-                    <option value="">Select LGA</option>
-                    {lgas.map((lga) => (
-                      <option key={lga} value={lga}>
-                        {lga}
-                      </option>
-                    ))}
-                  </select>
-                  {formErrors.deliveryLGA && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.deliveryLGA}
+                      {formErrors.deliveryPhone}
                     </p>
                   )}
                 </div>
               </div>
 
+              {/* Custom Address Form - Show only when custom address is selected */}
+              {useCustomAddress && (
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-orange-300">
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Enter Custom Address</h4>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Recipient Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={customAddressData.name}
+                      onChange={(e) => handleCustomAddressChange('name', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryName ? "border-red-500" : "border-gray-300"
+                        }`}
+                      placeholder="Enter recipient full name"
+                    />
+                    {formErrors.deliveryName && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.deliveryName}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Street Address *
+                    </label>
+                    <textarea
+                      value={customAddressData.street}
+                      onChange={(e) => handleCustomAddressChange('street', e.target.value)}
+                      rows={2}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryAddress ? "border-red-500" : "border-gray-300"
+                        }`}
+                      placeholder="Enter full street address"
+                    />
+                    {formErrors.deliveryAddress && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.deliveryAddress}</p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        value={customAddressData.city}
+                        onChange={(e) => handleCustomAddressChange('city', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryCity ? "border-red-500" : "border-gray-300"
+                          }`}
+                        placeholder="Enter city"
+                      />
+                      {formErrors.deliveryCity && (
+                        <p className="text-red-500 text-sm mt-1">{formErrors.deliveryCity}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        State *
+                      </label>
+                      <select
+                        value={customAddressData.state}
+                        onChange={(e) => handleCustomAddressChange('state', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryState ? "border-red-500" : "border-gray-300"
+                          }`}
+                        disabled={loadingLocations}
+                      >
+                        <option value="">Select State</option>
+                        {states.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                      {formErrors.deliveryState && (
+                        <p className="text-red-500 text-sm mt-1">{formErrors.deliveryState}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        LGA *
+                      </label>
+                      <select
+                        value={customAddressData.lga}
+                        onChange={(e) => handleCustomAddressChange('lga', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${formErrors.deliveryLGA ? "border-red-500" : "border-gray-300"
+                          }`}
+                        disabled={loadingLocations || !customAddressData.state}
+                      >
+                        <option value="">Select LGA</option>
+                        {lgas.map((lga) => (
+                          <option key={lga} value={lga}>
+                            {lga}
+                          </option>
+                        ))}
+                      </select>
+                      {formErrors.deliveryLGA && (
+                        <p className="text-red-500 text-sm mt-1">{formErrors.deliveryLGA}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Save Address Option */}
+                  {user && (
+                    <div className="flex items-center space-x-2 pt-2">
+                      <input
+                        type="checkbox"
+                        id="saveAddress"
+                        checked={saveCustomAddress}
+                        onChange={(e) => setSaveCustomAddress(e.target.checked)}
+                        className="h-4 w-4 text-orange-600 focus:ring-orange-400 border-gray-300 rounded"
+                      />
+                      <label htmlFor="saveAddress" className="text-sm text-gray-700">
+                        Save this address to my account for future use
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Delivery Note */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Delivery Note (Optional)
