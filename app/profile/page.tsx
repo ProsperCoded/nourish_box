@@ -1,35 +1,37 @@
 "use client";
+
 import Image from "next/image";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import return_btn from "../assets/icons8-left-arrow-50.png";
-import AlternateHeader from "../components/alternate_header";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
-import logo from '../assets/nourish_box_folder/Logo files/Logomark.svg';
+
 // Page Components
 import User_profile from "../components/user_profile";
-// import Order from "../components/order";
 import FavoritesPage from "../favorites/page";
 import ContactUs from "../contact_us/page";
-import ManageAddress from "../profile/manageAddress/page";
+import ManageAddress from "./manageAddress/page";
+import OrderHistory from "./orderHistory/page";
+import OrderStatusPage from "./trackOrder/page";
+import Nav from "../components/nav";
+import Header from "../components/header";
 
-// Icons
+// Icons (images)
 import userIcon from "../assets/icons8-user-48.png";
 import clockIcon from "../assets/icons8-clock-100.png";
 import bookmarkIcon from "../assets/icons8-love-circled-50.png";
 import phoneIcon from "../assets/icons8-phone-100.png";
 import locationIcon from "../assets/icons8-location-50.png";
 import deliveryIcon from "../assets/icons8-delivery-100.png";
-import OrderHistory from "./orderHistory/page";
-import OrderStatusPage from "./trackOrder/page";
-import Link from "next/link";
-import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
-import CartComponent from '../components/Cart';
-import Heart from '../assets/icons8-heart-32.png';
-import Nav from "../components/nav";
-import { LogOutIcon } from "lucide-react";
-const tabs = [
+
+type TabDef = {
+  id: string;
+  title: string;
+  icon: any; // StaticImageData for Next/Image
+  content: React.ReactNode;
+};
+
+const tabs: TabDef[] = [
   {
     id: "profile",
     title: "Edit profile",
@@ -40,7 +42,8 @@ const tabs = [
     id: "orders",
     title: "Order History",
     icon: clockIcon,
-    content: <OrderHistory />,
+    // IMPORTANT: hide the header when rendered inside Profile
+    content: <OrderHistory showHeader={false} />,
   },
   {
     id: "saved",
@@ -66,12 +69,7 @@ const tabs = [
     icon: locationIcon,
     content: <ManageAddress />,
   },
-  {
-    id: "address",
-    title: "Log out",
-    icon: LogOutIcon,
-    content: <ManageAddress />,
-  },
+  // If you want a logout tab later, add an image icon and real content/handler.
 ];
 
 function ProfileContent() {
@@ -82,8 +80,8 @@ function ProfileContent() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
 
+  // Detect mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -91,101 +89,66 @@ function ProfileContent() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Prevent background scroll when mobile sidebar is open
   useEffect(() => {
-    document.body.style.overflow =
-      isMobile && isSidebarOpen ? "hidden" : "unset";
+    document.body.style.overflow = isMobile && isSidebarOpen ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isMobile, isSidebarOpen]);
 
-  // Handle search parameter for active tab
+  // Sync active tab with URL ?tab=
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam && tabs.find((tab) => tab.id === tabParam)) {
+    if (tabParam && tabs.find((t) => t.id === tabParam)) {
       setActiveTabId(tabParam);
     } else if (!activeTabId) {
-      // Default to profile tab if no valid tab parameter
       setActiveTabId("profile");
     }
   }, [searchParams, activeTabId]);
 
   const handleTabClick = (tabId: string) => {
     setActiveTabId(tabId);
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
-    // Update URL with search parameter
+    if (isMobile) setIsSidebarOpen(false);
     router.push(`/profile?tab=${tabId}`, { scroll: false });
   };
 
-  const activeTab = tabs.find((tab) => tab.id === activeTabId);
+  const activeTab = tabs.find((t) => t.id === activeTabId);
 
   return (
     <div className="min-h-screen bg-white">
-
-      <div className='hidden h-24 md:block'>
+      {/* Desktop nav */}
+      <div className="hidden h-24 md:block">
         <Nav />
       </div>
 
-      {/* Mobile Header */}
-      {isMobile && (
-        <motion.div
-          className="sticky top-0 z-50 bg-white border-b px-4"
-          initial={false}
-          animate={{ paddingBottom: isSidebarOpen ? "0.75rem" : "0" }}
-        >
-          <div className="hidden md:flex items-center h-16">
-            {!isSidebarOpen && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="flex items-center text-sm text-gray-600"
-              >
-                <Image
-                  src={return_btn}
-                  alt="Back"
-                  width={24}
-                  height={24}
-                  className="mr-2"
-                />
-                Back
-              </button>
-            )}
-            {!isSidebarOpen && activeTab && (
-              <h2 className="ml-4 text-lg font-medium truncate">
-                {activeTab.title}
-              </h2>
-            )}
-          </div>
-        </motion.div>
-      )}
+      {/* Mobile header (logo replaced by back arrow on /profile/* handled inside Header) */}
+      {isMobile && <Header showSearch={false} />}
 
-      {/* Mobile Slide View */}
+      {/* Mobile slide view */}
       {isMobile ? (
         <div className="relative w-full overflow-hidden">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}
           >
-            {/* Sidebar Tabs */}
+            {/* Sidebar */}
             <div className="w-full p-4">
               <div className="flex flex-col items-center mb-6">
-                <div className="relative w-120 h-120">
+                <div className="relative w-24 h-24">
                   <Image
                     src={user?.profilePicture || userIcon}
                     alt="User"
-
-                    width={50} height={50}
-                    className="rounded-full p-2 object-cover border-2 border-orange-200 shadow"
+                    fill
+                    className="rounded-full object-cover border-2 border-orange-200 shadow"
                   />
                 </div>
                 <h2 className="text-lg font-semibold mt-2">
-                  {user?.firstName + " " + user?.lastName || "User"}
+                  {(user?.firstName ?? "User") + (user?.lastName ? ` ${user.lastName}` : "")}
                 </h2>
-                {user?.email && (
-                  <p className="text-sm text-gray-500">{user.email}</p>
-                )}
+                {user?.email && <p className="text-sm text-gray-500">{user.email}</p>}
               </div>
+
               <div className="space-y-3">
                 {tabs.map((tab) => (
                   <button
@@ -193,27 +156,23 @@ function ProfileContent() {
                     onClick={() => handleTabClick(tab.id)}
                     className="w-full flex items-center gap-3 p-3 bg-gray-100 rounded-lg text-sm font-medium hover:bg-orange-100"
                   >
-                    <Image
-                      src={tab.icon}
-                      alt={tab.title}
-                      width={20}
-                      height={20}
-                    />
+                    <Image src={tab.icon} alt={tab.title} width={20} height={20} />
                     {tab.title}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Tab Content */}
+            {/* Content */}
             <div className="w-full p-4">
               {activeTab ? activeTab.content : <div>Select a tab</div>}
             </div>
           </motion.div>
         </div>
       ) : (
-        // Desktop & iPad
+        // Desktop / Tablet
         <div className="flex flex-col md:flex-row">
+          {/* Sidebar */}
           <div className="md:w-1/4 border-r border-gray-200 p-4">
             <div className="flex flex-col items-center text-center mb-6">
               <div className="relative w-24 h-24">
@@ -225,39 +184,29 @@ function ProfileContent() {
                 />
               </div>
               <h2 className="text-xl font-semibold mt-2">
-                {user?.firstName + " " + user?.lastName || "User"}
+                {(user?.firstName ?? "User") + (user?.lastName ? ` ${user.lastName}` : "")}
               </h2>
-              {user?.email && (
-                <p className="text-sm text-gray-500">{user.email}</p>
-              )}
+              {user?.email && <p className="text-sm text-gray-500">{user.email}</p>}
             </div>
+
             <div className="space-y-3">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id
-                      ? "bg-orange-100 text-orange-600"
-                      : ""
+                  className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id ? "bg-orange-100 text-orange-600" : ""
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Image
-                      src={tab.icon}
-                      alt={tab.title}
-                      width={24}
-                      height={24}
-                    />
-                    <span className="text-gray-800 font-medium text-sm">
-                      {tab.title}
-                    </span>
+                    <Image src={tab.icon} alt={tab.title} width={24} height={24} />
+                    <span className="text-gray-800 font-medium text-sm">{tab.title}</span>
                   </div>
-                  <span className="text-gray-400">{">"}</span>
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Content */}
           <div className="flex-1 p-4 md:p-4">
             <AnimatePresence mode="wait">
               {activeTab ? (
@@ -266,14 +215,12 @@ function ProfileContent() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.03 }}
+                  transition={{ duration: 0.1 }}
                 >
                   {activeTab.content}
                 </motion.div>
               ) : (
-                <div className="text-gray-500">
-                  Select a tab to view content
-                </div>
+                <div className="text-gray-500">Select a tab to view content</div>
               )}
             </AnimatePresence>
           </div>

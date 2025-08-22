@@ -1,6 +1,7 @@
 import Image from "next/image";
 import colorful_banner from '../assets/nourish_box_folder/DPs and Banners/Twitter header - 1.png'
 import bread from "../assets/Bread.png";
+import Link from "next/link";
 export default function AboutUs() {
   return (
     <div className="relative w-full h-[400px] overflow-hidden my-16">
@@ -22,11 +23,11 @@ export default function AboutUs() {
             providing pre-portioned, pre-cut ingredients and
             step-by-step recipes. </p>
           <Image src={bread} alt="bread emoji" className="absolute top-0 right-[22px] w-[80px] animate-pulse" />
-          <a href="#"><button className="bg-brand-btn_orange font-inter  w-1/3 py-2 px-1 rounded-xl text-white  my-4" > Learn more</button></a>
+          <Link href="/about_us"><button className="bg-brand-btn_orange font-inter  w-1/3 py-2 px-1 rounded-xl text-white  my-4" > Learn more</button></Link>
         </div>
-        
+
       </div>
-     
+
     </div>
   );
 }

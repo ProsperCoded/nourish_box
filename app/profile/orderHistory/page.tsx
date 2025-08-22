@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import Header from "../../components/header";
 
 type OrderWithDetails = Order & {
   recipe?: Recipe;
@@ -167,6 +168,7 @@ const OrderHistory = () => {
 
   return (
     <div className="min-h-screen  p-4 md:p-6 ">
+     
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-inter font-bold mb-2 text-center md:text-left">
           Order History
@@ -200,7 +202,7 @@ const OrderHistory = () => {
               recipes!
             </p>
             <a
-              href="/"
+              href="/shop"
               className="bg-orange-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors inline-block"
             >
               Browse Recipes

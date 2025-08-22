@@ -4,7 +4,7 @@ import React from "react";
 
 const RecipeCardSkeleton: React.FC = () => {
   return (
-    <div className="relative bg-white rounded-xl shadow-lg overflow-hidden w-[350px]">
+    <div className="relative bg-white rounded-xl shadow-lg overflow-hidden w-[300px]">
       {/* Shimmer overlay */}
       <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent z-10"></div>
 

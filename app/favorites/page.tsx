@@ -13,6 +13,7 @@ import SearchBar from "../components/Search_bar";
 import { LoginPromptWrapper } from "../components/LoginPromptWrapper";
 import LoginPrompt from "../components/LoginPrompt";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
+import Nav from "../components/nav";
 
 interface Props {
   className?: string;
@@ -132,26 +133,12 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     <div className="p-4 sm:p-6">
       {/* Desktop Header */}
       {showHeader ? (
-        <div
-          className={`hidden md:flex justify-between items-center w-full max-w-7xl mx-auto ${
-            className ?? ""
-          }`}
-        >
-          <Link href="/">
-            <Image src={icon} alt="logo" className="w-[70px]" />
-          </Link>
-          <h3 className="text-2xl font-semibold">Favorites</h3>
-          <div className="flex items-center border border-gray-400 rounded-md px-2 w-full max-w-sm">
-            <input
-              type="text"
-              placeholder="Search recipes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="p-2 w-full outline-none"
-            />
-            <Image src={search} alt="search" width={20} height={20} />
+        <div >
+          <Nav />
+          <div className="mt-24">
+            <h1 className="font-inter text-2xl text-center font-bold">Favorites</h1>
           </div>
-        </div>
+     </div>
       ) : (
           <div className="max-w-7xl">
               <div className="flex  justify-between items-center mb-6">
@@ -163,7 +150,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
 
               className="px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
             >
-              Add to cart
+            <Link href="/shop" >Add to cart</Link>
             </button>
 
           </div>
@@ -191,7 +178,9 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
         {(showSearch ? searchResult : favorites).map((recipe) => (
           <RecipeList key={recipe.id} recipe={recipe} />
         ))}
+
       </div>
+   
     </div>
   );
 };

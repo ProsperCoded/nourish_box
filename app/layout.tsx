@@ -33,8 +33,9 @@ export default function RootLayout({
                 <Toaster position='top-center' reverseOrder={false} />
                 <div className="
         min-h-svh
+        pb-[calc(64px+env(safe-area-inset-bottom))] 
         md:pb-0
-        pb-[calc(64px+env(safe-area-inset-bottom))]
+
       ">
                   {children} <div className='mt-10'><MobileNav /></div>
                 </div>

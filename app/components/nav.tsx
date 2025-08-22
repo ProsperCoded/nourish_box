@@ -76,7 +76,7 @@ const Nav = () => {
 
   // Favorites component for both mobile and desktop
   const FavoritesButton = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <Link href="/profile?tab=saved" className="relative">
+    <Link href="/favorites" className="relative">
       <div className="flex items-center hover:scale-105 transition-transform cursor-pointer">
         <FavoriteIcon
           sx={{
@@ -164,8 +164,8 @@ const Nav = () => {
       </div>
 
       {/* Desktop Nav */}
-      <div className="hidden lg:flex justify-between ">
-        <div className="w-full mx-10 flex justify-between items-center p-4 font-sans  ">
+      <div className="hidden lg:flex justify-center w-full ">
+        <div className="w-5/6 max-w-[1550px] flex justify-between items-center py-4 font-sans ">
           <Link href="/">
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>

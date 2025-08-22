@@ -65,7 +65,9 @@ export default function Home({
     <div className='min-h-screen'>
       {/* Desktop Nav */}
       <div className='hidden md:block'>
-        <Nav />
+        <div className='max-w-7xl'>
+            <Nav />
+      </div>
       </div>
 
       {/* OneTap Authentication - only on homepage for new users */}
@@ -93,7 +95,7 @@ export default function Home({
       {/* Hero Section */}
 
       <div className='flex justify-center'>
-        <section className='  md:pt-20 pb-10  mx-10 max-w-7xl lg:mt-24 '>
+        <section className='w-5/6 md:pt-20 pb-10  max-w-[1550px] lg:mt-24 '>
           {/* Mobile & Tablet Layout */}
           <div className='flex flex-col lg:hidden items-center text-center gap-4'>
             {/* <Image
@@ -110,7 +112,7 @@ export default function Home({
               {displayContent.heroDescription ||
                 DEFAULT_SITE_CONTENT.heroDescription}
             </p>
-            <Link href='/recipes' className='mb-6'>
+            <Link href='/shop' className='mb-6'>
               <button className='bg-brand-btn_orange text-white text-lg font-medium px-6 py-3 rounded-full shadow hover:scale-105 transition-transform'>
                 Order Now
               </button>
@@ -141,7 +143,7 @@ export default function Home({
                   {displayContent.heroDescription ||
                     DEFAULT_SITE_CONTENT.heroDescription}
                 </p>
-                <Link href='/recipes'>
+                <Link href='/shop'>
                   <button className='bg-brand-btn_orange mt-8 text-white text-xl font-medium px-8 py-4 rounded-xl shadow hover:scale-105 transition-transform'>
                     Order Now
                   </button>
@@ -194,8 +196,8 @@ export default function Home({
       </div>
 
       {/* Recipes Section */}
-      <div className='flex justify-center'>
-        <section className='px-4 mt-16 max-w-7xl'>
+      <div className='flex justify-center' >
+        <section className='px-4 mt-16   max-w-[1550px]'>
           <div className='text-center mb-8'>
             <h2 className='font-custom font-medium text-4xl sm:text-4xl lg:text-5xl mb-2'>
               Discover, Create, Share
@@ -207,7 +209,7 @@ export default function Home({
             </p>
           </div>
 
-          <div className='flex flex-wrap justify-center gap-10'>
+          <div className='flex flex-wrap w-full  justify-center gap-10'>
             {loading
               ? // Show skeleton cards while loading
                 Array.from({ length: 4 }).map((_, index) => (
@@ -224,7 +226,7 @@ export default function Home({
           <div className='flex justify-center mt-6'>
             <button
               className='bg-brand-btn_orange px-6 py-3 my-6 rounded-xl font-inter text-white text-lg'
-              onClick={() => router.push('/recipes')}
+              onClick={() => router.push('/shop')}
             >
               See All
             </button>

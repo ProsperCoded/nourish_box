@@ -8,6 +8,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import Nav from "../components/nav";
 import CartComponent from "../components/Cart";
+import Footer from "../components/footer";
 
 interface Props {
   className?: string;
@@ -197,13 +198,14 @@ const ContactUs: React.FC<Props> = ({
   ];
 
   return (
-    <div className="w-full bg-white">
+  <div className="flex  flex-col justify-center items-center w-full">
+  <div className="w-full  bg-white max-w-[1550px]">
       {/* Contact Section */}
-       <div className='hidden md:block'>
+       <div className='hidden md:block mb-5'>
         <Nav />
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-center  px-6  py-10 gap-10">
+      <div className="flex flex-col md:mt-24 md:flex-row justify-between items-center  px-6  py-5 md:py-10 gap-10">
         {showIcons && (
           <div className="w-full font-inter md:w-1/2 pl-6 hidden md:flex justify-center">
             <div>
@@ -249,8 +251,8 @@ const ContactUs: React.FC<Props> = ({
 
 
           <h1
-            className={` md:hidden text-3xl text-left md:text-3xl font-bold mb-10 font-inter ${
-              textClassName ?? " flex "
+            className={` md:hidden  text-3xl  md:text-3xl font-bold mb-10 font-inter ${
+              textClassName ?? " block text-center"
             }`}
           >
             Contact Us
@@ -408,7 +410,9 @@ const ContactUs: React.FC<Props> = ({
           ))}
         </div>
       </div>
-    </div>
+      </div>
+     <div className="w-full hidden md:block"> <Footer/></div>
+  </div>
   );
 };
 
