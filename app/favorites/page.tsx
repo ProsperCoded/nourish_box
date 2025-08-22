@@ -31,15 +31,12 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   const searchResult = favorites.filter((recipe) =>
     recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const showSearch = searchQuery.trim() !== "";
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (!user) {
-      timer = setTimeout(() => {
-        setShowLoginPrompt(true);
-      }, 1); // optional delay
+      timer = setTimeout(() => setShowLoginPrompt(true), 1);
     } else {
       setShowLoginPrompt(false);
     }
@@ -48,6 +45,15 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     };
   }, [user]);
 
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
+      router.back();
+    } else {
+      // back to profile hub if present, else home
+      router.push("/profile?tab=saved");
+    }
+  };
+
   if (showLoginPrompt) {
     return (
       <LoginPromptWrapper>
@@ -55,132 +61,120 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
       </LoginPromptWrapper>
     );
   }
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
 
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
+
+  // ---------- Loading state ----------
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6">
-        {/* Desktop Header */}
+      <div className="pb-6">
         {showHeader ? (
-          <div
-            className={`hidden md:flex justify-between items-center w-full max-w-7xl mx-auto ${
-              className ?? ""
-            }`}
-          >
-            <Link href="/">
-              <Image src={icon} alt="logo" className="w-[70px]" />
-            </Link>
-            <h3 className="text-2xl font-semibold">Favorites</h3>
-            <div className="flex items-center border border-gray-400 rounded-md px-2 w-full max-w-sm">
-              <input
-                type="text"
-                placeholder="Search recipes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="p-2 w-full outline-none"
-              />
-              <Image src={search} alt="search" width={20} height={20} />
+          <div className="hidden md:block">
+            <Nav />
+            <div className="mx-auto w-full max-w-[1550px] px-4 mt-24">
+              <h1 className="font-inter text-2xl text-center font-bold">Favorites</h1>
             </div>
           </div>
         ) : (
-         <div></div>
-        )}
-
-        {/* Mobile Search Header */}
-        {showHeader ? (
-          <div className="block md:hidden">
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              showSearchBar={showSearchBar}
-              setShowSearchBar={setShowSearchBar}
-              goBack={() => router.back()}
-            />
+          <div className="mx-auto w-full max-w-[1550px] px-4">
+            <div className={`flex justify-between items-center mb-6 ${className ?? ""}`}>
+              <h2 className="text-3xl font-inter font-bold">Favorites</h2>
+              <Link
+                href="/shop"
+                className="px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+              >
+                Add to cart
+              </Link>
+            </div>
+            <hr />
           </div>
-        ) : (
-          <div></div>
         )}
 
-        {/* Skeleton Loading */}
-        <div className="flex flex-wrap justify-center gap-6 mt-8 animate-in fade-in">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <RecipeCardSkeleton key={index} />
-          ))}
+        {/* Mobile search header (kept inside container) */}
+        {showHeader && (
+          <div className="block md:hidden">
+            <div className="mx-auto w-full max-w-[1550px] px-4">
+              <SearchBar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showSearchBar={showSearchBar}
+                setShowSearchBar={setShowSearchBar}
+                goBack={goBack}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Skeletons inside the same container to prevent edge hugging */}
+        <div className="mx-auto w-full max-w-[1550px] px-4">
+          <div className="flex flex-wrap justify-center gap-6 mt-8 animate-in fade-in">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
+  // ---------- Empty state ----------
   if (favorites.length === 0) {
-    return <div className="p-4">No favorites yet.</div>;
+    return (
+      <div className="mx-auto w-full max-w-[1550px] px-4 py-6">
+        No favorites yet.
+      </div>
+    );
   }
 
-  const goBack = () => {
-    if (
-      typeof window !== "undefined" &&
-      window.history.length > 1 &&
-      window.innerWidth > 768
-    ) {
-      router.back();
-    } else {
-      router.push("/");
-    }
-  };
-
+  // ---------- Ready state ----------
   return (
-    <div className="p-4 sm:p-6">
-      {/* Desktop Header */}
+    <div className="pb-6">
+      {/* Desktop header */}
       {showHeader ? (
-        <div >
+        <div className="hidden md:block">
           <Nav />
-          <div className="mt-24">
+          <div className="mx-auto w-full max-w-[1550px] px-4 mt-24">
             <h1 className="font-inter text-2xl text-center font-bold">Favorites</h1>
           </div>
-     </div>
-      ) : (
-          <div className="max-w-7xl">
-              <div className="flex  justify-between items-center mb-6">
-            <h2 className="text-3xl font-inter font-bold">
-             Favorites
-            </h2>
-            <button
-              type="button"
-
-              className="px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
-            >
-            <Link href="/shop" >Add to cart</Link>
-            </button>
-
-          </div>
-          <hr/>
-     </div>
-      )}
-
-      {/* Mobile Search Header */}
-      {showHeader ? (
-        <div className="block md:hidden">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            showSearchBar={showSearchBar}
-            setShowSearchBar={setShowSearchBar}
-            goBack={goBack}
-          />
         </div>
       ) : (
-        <div></div>
+        <div className="mx-auto w-full max-w-[1550px] px-4">
+          <div className={`flex justify-between items-center mb-6 ${className ?? ""}`}>
+            <h2 className="text-3xl font-inter font-bold">Favorites</h2>
+            <Link
+              href="/shop"
+              className="px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+            >
+              Add to cart
+            </Link>
+          </div>
+          <hr />
+        </div>
       )}
 
-      {/* Recipe List */}
-      <div className="flex flex-wrap justify-center gap-6 mt-8 animate-in fade-in">
-        {(showSearch ? searchResult : favorites).map((recipe) => (
-          <RecipeList key={recipe.id} recipe={recipe} />
-        ))}
+      {/* Mobile search header (inside the same container) */}
+      {showHeader && (
+        <div className="block md:hidden">
+          <div className="mx-auto w-full max-w-[1550px] px-4">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              showSearchBar={showSearchBar}
+              setShowSearchBar={setShowSearchBar}
+              goBack={goBack}
+            />
+          </div>
+        </div>
+      )}
 
+      {/* Cards in a persistent container so they never touch the edges */}
+      <div className="mx-auto w-full max-w-[1550px] px-4">
+        <div className="flex flex-wrap justify-center gap-6 mt-8 animate-in fade-in">
+          {(showSearch ? searchResult : favorites).map((recipe) => (
+            <RecipeList key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
       </div>
-   
     </div>
   );
 };

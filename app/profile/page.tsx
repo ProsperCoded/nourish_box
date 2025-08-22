@@ -6,13 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 
-// Page Components
+// Pages / components
 import User_profile from "../components/user_profile";
 import FavoritesPage from "../favorites/page";
 import ContactUs from "../contact_us/page";
 import ManageAddress from "./manageAddress/page";
 import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
+import LogIn from "../login/page";
 import Nav from "../components/nav";
 import Header from "../components/header";
 
@@ -27,77 +28,59 @@ import deliveryIcon from "../assets/icons8-delivery-100.png";
 type TabDef = {
   id: string;
   title: string;
-  icon: any; // StaticImageData for Next/Image
-  content: React.ReactNode;
+  icon?: any;                // StaticImageData for <Image />
+  content?: React.ReactNode; // render content when selected
+  onClick?: () => void;      // for action tabs (e.g., Logout)
 };
-
-const tabs: TabDef[] = [
-  {
-    id: "profile",
-    title: "Edit profile",
-    icon: userIcon,
-    content: <User_profile />,
-  },
-  {
-    id: "orders",
-    title: "Order History",
-    icon: clockIcon,
-    // IMPORTANT: hide the header when rendered inside Profile
-    content: <OrderHistory showHeader={false} />,
-  },
-  {
-    id: "saved",
-    title: "Favorite Recipes",
-    icon: bookmarkIcon,
-    content: <FavoritesPage showHeader={false} />,
-  },
-  {
-    id: "contact",
-    title: "Contact us",
-    icon: phoneIcon,
-    content: <ContactUs showIcons={false} />,
-  },
-  {
-    id: "track",
-    title: "Track delivery",
-    icon: deliveryIcon,
-    content: <OrderStatusPage />,
-  },
-  {
-    id: "address",
-    title: "Manage address",
-    icon: locationIcon,
-    content: <ManageAddress />,
-  },
-  // If you want a logout tab later, add an image icon and real content/handler.
-];
 
 function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth() as { user: any; logout?: () => Promise<void> | void };
 
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Detect mobile
+  // Build tabs (auth-aware)
+  const baseTabs: TabDef[] = [
+    { id: "profile", title: "Edit profile", icon: userIcon, content: <User_profile /> },
+    { id: "orders", title: "Order History", icon: clockIcon, content: <OrderHistory showHeader={false} /> },
+    { id: "saved", title: "Favorite Recipes", icon: bookmarkIcon, content: <FavoritesPage showHeader={false} /> },
+    { id: "contact", title: "Contact us", icon: phoneIcon, content: <ContactUs showIcons={false} /> },
+    { id: "track", title: "Track delivery", icon: deliveryIcon, content: <OrderStatusPage /> },
+    { id: "address", title: "Manage address", icon: locationIcon, content: <ManageAddress /> },
+  ];
+
+  const handleLogout = async () => {
+    try {
+      if (typeof logout === "function") await logout();
+    } finally {
+      router.replace("/");
+    }
+  };
+
+  const authTab: TabDef = user
+    ? { id: "auth", title: "Logout", icon: userIcon, onClick: handleLogout }
+    : { id: "login", title: "Login", icon: userIcon, content: <LogIn /> };
+
+  const tabs: TabDef[] = [...baseTabs, authTab];
+
+  // Responsive
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Prevent background scroll when mobile sidebar is open
+  // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     document.body.style.overflow = isMobile && isSidebarOpen ? "hidden" : "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    return () => void (document.body.style.overflow = "unset");
   }, [isMobile, isSidebarOpen]);
 
-  // Sync active tab with URL ?tab=
+  // Sync with ?tab=
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     if (tabParam && tabs.find((t) => t.id === tabParam)) {
@@ -105,12 +88,19 @@ function ProfileContent() {
     } else if (!activeTabId) {
       setActiveTabId("profile");
     }
-  }, [searchParams, activeTabId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, tabs.length, activeTabId]);
 
-  const handleTabClick = (tabId: string) => {
-    setActiveTabId(tabId);
-    if (isMobile) setIsSidebarOpen(false);
-    router.push(`/profile?tab=${tabId}`, { scroll: false });
+  const handleTabClick = (tab: TabDef) => {
+    if (tab.onClick) {
+      tab.onClick();
+      return;
+    }
+    if (tab.content) {
+      setActiveTabId(tab.id);
+      if (isMobile) setIsSidebarOpen(false);
+      router.push(`/profile?tab=${tab.id}`, { scroll: false });
+    }
   };
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
@@ -122,7 +112,7 @@ function ProfileContent() {
         <Nav />
       </div>
 
-      {/* Mobile header (logo replaced by back arrow on /profile/* handled inside Header) */}
+      {/* Mobile header (left-arrow behaviour handled inside <Header />) */}
       {isMobile && <Header showSearch={false} />}
 
       {/* Mobile slide view */}
@@ -135,12 +125,13 @@ function ProfileContent() {
             {/* Sidebar */}
             <div className="w-full p-4">
               <div className="flex flex-col items-center mb-6">
-                <div className="relative w-24 h-24">
+                {/* REDUCED AVATAR */}
+                <div className="relative w-10 h-10 md:w-12 md:h-12">
                   <Image
                     src={user?.profilePicture || userIcon}
                     alt="User"
                     fill
-                    className="rounded-full object-cover border-2 border-orange-200 shadow"
+                    className="rounded-full object-cover border border-orange-200 shadow"
                   />
                 </div>
                 <h2 className="text-lg font-semibold mt-2">
@@ -153,10 +144,10 @@ function ProfileContent() {
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => handleTabClick(tab.id)}
+                    onClick={() => handleTabClick(tab)}
                     className="w-full flex items-center gap-3 p-3 bg-gray-100 rounded-lg text-sm font-medium hover:bg-orange-100"
                   >
-                    <Image src={tab.icon} alt={tab.title} width={20} height={20} />
+                    {tab.icon && <Image src={tab.icon} alt={tab.title} width={16} height={16} />}
                     {tab.title}
                   </button>
                 ))}
@@ -165,7 +156,7 @@ function ProfileContent() {
 
             {/* Content */}
             <div className="w-full p-4">
-              {activeTab ? activeTab.content : <div>Select a tab</div>}
+              {activeTab && activeTab.content ? activeTab.content : <div>Select a tab</div>}
             </div>
           </motion.div>
         </div>
@@ -175,12 +166,13 @@ function ProfileContent() {
           {/* Sidebar */}
           <div className="md:w-1/4 border-r border-gray-200 p-4">
             <div className="flex flex-col items-center text-center mb-6">
-              <div className="relative w-24 h-24">
+              {/* REDUCED AVATAR */}
+              <div className="relative w-10 h-10 md:w-12 md:h-12">
                 <Image
                   src={user?.profilePicture || userIcon}
                   alt="User"
                   fill
-                  className="rounded-full object-cover border-2 border-orange-200 shadow-md"
+                  className="rounded-full object-cover border border-orange-200 shadow-md"
                 />
               </div>
               <h2 className="text-xl font-semibold mt-2">
@@ -193,12 +185,12 @@ function ProfileContent() {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => handleTabClick(tab.id)}
+                  onClick={() => handleTabClick(tab)}
                   className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id ? "bg-orange-100 text-orange-600" : ""
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Image src={tab.icon} alt={tab.title} width={24} height={24} />
+                    {tab.icon && <Image src={tab.icon} alt={tab.title} width={18} height={18} />}
                     <span className="text-gray-800 font-medium text-sm">{tab.title}</span>
                   </div>
                 </button>
@@ -209,7 +201,7 @@ function ProfileContent() {
           {/* Content */}
           <div className="flex-1 p-4 md:p-4">
             <AnimatePresence mode="wait">
-              {activeTab ? (
+              {activeTab && activeTab.content ? (
                 <motion.div
                   key={activeTab.id}
                   initial={{ opacity: 0, y: 20 }}
