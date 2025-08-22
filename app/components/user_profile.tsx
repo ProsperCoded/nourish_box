@@ -156,7 +156,7 @@ const UserProfile = () => {
     const isEmpty = required && !formData[name as keyof FormData];
     return (
       <div>
-         
+
         <label className="block text-gray-700 mb-2 font-inter font-light">
           {label} {required && "*"}
         </label>
@@ -194,11 +194,11 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto md:p-6">
       <form onSubmit={handleSubmit}>
         <div className="my-2">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-inter text-gray-700">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-xl md:text-2xl  font-bold font-inter">
               Personal Information
             </h2>
             <button
@@ -221,7 +221,7 @@ const UserProfile = () => {
               {message.text}
             </div>
           )}
-          <div className="border-t-[1px] border-gray-300 pt-6">
+          <div className="border-t-[1px] border-gray-300 pt-6 p-6">
             {/* Profile Picture Section */}
             <div className="mb-8 flex justify-center">
               <ProfilePictureUpload
@@ -238,7 +238,7 @@ const UserProfile = () => {
             </div>
 
             {/* First Name & Last Name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 ">
               {renderField("firstName", "First Name")}
               {renderField("lastName", "Last Name")}
             </div>

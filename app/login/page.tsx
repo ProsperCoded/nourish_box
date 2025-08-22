@@ -11,6 +11,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider, db } from "../lib/firebase";
 import { FirebaseError } from "firebase/app";
 import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
+import CartComponent from "../components/Cart";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
@@ -61,12 +62,20 @@ const LogIn = () => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="flex w-100 justify-between">
+          <div className="flex w-100 justify-between">
+            <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-5 mb-10'>
+                    <div className='flex justify-between w-full'>
+                      {' '}
+                      <Image src={logo} alt='logo' width={120} />
+                      <CartComponent/>
+                    </div>
+
+                  </div>
           <Link
             href="/"
             className="w-1/2  items-center justify-center hidden md:flex "
           >
-            <Image src={logo} alt="jollof rice" width={600} />
+            <Image src={logo} alt="logo icon" width={600} />
           </Link>
           {/* <div className="w-1/2  items-center justify-center hidden md:flex ">
             <Image src={logo} alt="jollof rice" width={600} />

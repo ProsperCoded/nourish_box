@@ -183,7 +183,7 @@ const OrderStatusPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen font-inter">
       <Head>
         <title>Order Status | NourishBox</title>
         <meta name="description" content="Track your NourishBox order status" />
@@ -284,18 +284,19 @@ const OrderStatusPage = () => {
         </div>
       )}
 
-      <header className="bg-white shadow-sm">
+      <header className="">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-orange-600">Order Status</h1>
+          <h1 className="text-2xl font-bold font-inter ">Track delivery</h1>
         </div>
+        <hr/>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Order details */}
           <div className="md:w-2/3">
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-              <div className="p-6 border-b border-gray-200">
+              <div className="py-2 px-6 md:p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-800">
                   {order.productName}
                 </h2>

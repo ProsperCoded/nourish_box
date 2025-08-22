@@ -50,7 +50,7 @@ const Page = () => {
 
   return (
     <main className='min-h-screen '>
-    <div className='px-4 md:px-8 lg:px-16 '>
+    <div className='px-4 md:px-8  '>
         {/* Header (kept) */}
         <div className='flex justify-center '>
           <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

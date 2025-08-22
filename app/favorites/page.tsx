@@ -38,7 +38,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     if (!user) {
       timer = setTimeout(() => {
         setShowLoginPrompt(true);
-      }, 3000);
+      }, 1); // optional delay
     } else {
       setShowLoginPrompt(false);
     }
@@ -62,7 +62,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     return (
       <div className="p-4 sm:p-6">
         {/* Desktop Header */}
-        {showHeader && (
+        {showHeader ? (
           <div
             className={`hidden md:flex justify-between items-center w-full max-w-7xl mx-auto ${
               className ?? ""
@@ -83,10 +83,12 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
               <Image src={search} alt="search" width={20} height={20} />
             </div>
           </div>
+        ) : (
+         <div></div>
         )}
 
         {/* Mobile Search Header */}
-        {showHeader && (
+        {showHeader ? (
           <div className="block md:hidden">
             <SearchBar
               searchQuery={searchQuery}
@@ -96,6 +98,8 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
               goBack={() => router.back()}
             />
           </div>
+        ) : (
+          <div></div>
         )}
 
         {/* Skeleton Loading */}
@@ -127,7 +131,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   return (
     <div className="p-4 sm:p-6">
       {/* Desktop Header */}
-      {showHeader && (
+      {showHeader ? (
         <div
           className={`hidden md:flex justify-between items-center w-full max-w-7xl mx-auto ${
             className ?? ""
@@ -148,10 +152,27 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
             <Image src={search} alt="search" width={20} height={20} />
           </div>
         </div>
+      ) : (
+          <div className="max-w-7xl">
+              <div className="flex  justify-between items-center mb-6">
+            <h2 className="text-3xl font-inter font-bold">
+             Favorites
+            </h2>
+            <button
+              type="button"
+
+              className="px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+            >
+              Add to cart
+            </button>
+
+          </div>
+          <hr/>
+     </div>
       )}
 
       {/* Mobile Search Header */}
-      {showHeader && (
+      {showHeader ? (
         <div className="block md:hidden">
           <SearchBar
             searchQuery={searchQuery}
@@ -161,6 +182,8 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
             goBack={goBack}
           />
         </div>
+      ) : (
+        <div></div>
       )}
 
       {/* Recipe List */}

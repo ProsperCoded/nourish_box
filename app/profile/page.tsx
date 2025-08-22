@@ -16,17 +16,19 @@ import ManageAddress from "../profile/manageAddress/page";
 
 // Icons
 import userIcon from "../assets/icons8-user-48.png";
-import clockIcon from "../assets/icons8-clock-48.png";
+import clockIcon from "../assets/icons8-clock-100.png";
 import bookmarkIcon from "../assets/icons8-love-circled-50.png";
-import phoneIcon from "../assets/icons8-phone-60.png";
+import phoneIcon from "../assets/icons8-phone-100.png";
 import locationIcon from "../assets/icons8-location-50.png";
-import deliveryIcon from "../assets/icons8-delivery-time-48.png";
+import deliveryIcon from "../assets/icons8-delivery-100.png";
 import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
 import Link from "next/link";
 import icon from '../assets/nourish_box_folder/Logo files/icon.svg';
 import CartComponent from '../components/Cart';
 import Heart from '../assets/icons8-heart-32.png';
+import Nav from "../components/nav";
+import { LogOutIcon } from "lucide-react";
 const tabs = [
   {
     id: "profile",
@@ -42,7 +44,7 @@ const tabs = [
   },
   {
     id: "saved",
-    title: "Saved Recipes",
+    title: "Favorite Recipes",
     icon: bookmarkIcon,
     content: <FavoritesPage showHeader={false} />,
   },
@@ -62,6 +64,12 @@ const tabs = [
     id: "address",
     title: "Manage address",
     icon: locationIcon,
+    content: <ManageAddress />,
+  },
+  {
+    id: "address",
+    title: "Log out",
+    icon: LogOutIcon,
     content: <ManageAddress />,
   },
 ];
@@ -115,38 +123,9 @@ function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-white">
-       <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 py-5'>
-        <div className='flex justify-between w-full'>
-          {' '}
-          <Image src={logo} alt='logo' width={120} />
-          <CartComponent />
-        </div>
 
-      </div>
-      <div className="hidden md:flex justify-between mt-8 items-center  gap-2 w-full max-w-md  px-4">
-        <Link href="/" className="flex items-center">
-          {/* Show icon on mobile */}
-          <Image
-            src={icon}
-            alt="nourish icon"
-            className="block md:hidden w-[50px]"
-          />
-          {/* Show full logo on desktop */}
-          <Image
-            src={logo}
-            alt="nourish logo"
-            className="hidden md:block w-[130px] lg:w-[160px]"
-          />
-        </Link>
-        <Link href="/favorites" className="shrink-0">
-          <Image src={Heart} alt="favorites" width={24} height={24} />
-        </Link>
-      </div>
-      <div className="hidden md:block py-5">
-        <AlternateHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+      <div className='hidden h-24 md:block'>
+        <Nav />
       </div>
 
       {/* Mobile Header */}
@@ -196,7 +175,7 @@ function ProfileContent() {
                     src={user?.profilePicture || userIcon}
                     alt="User"
 
-                    width={80} height={80}
+                    width={50} height={50}
                     className="rounded-full p-2 object-cover border-2 border-orange-200 shadow"
                   />
                 </div>
@@ -279,7 +258,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="flex-1 p-4 md:p-8">
+          <div className="flex-1 p-4 md:p-4">
             <AnimatePresence mode="wait">
               {activeTab ? (
                 <motion.div
