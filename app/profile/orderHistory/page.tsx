@@ -166,12 +166,12 @@ const OrderHistory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 lg:p-16">
+    <div className="min-h-screen  p-4 md:p-6 ">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center md:text-left text-gray-800">
+        <h1 className="text-2xl font-inter font-bold mb-2 text-center md:text-left">
           Order History
         </h1>
-
+<hr />
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-4">

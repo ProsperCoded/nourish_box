@@ -6,6 +6,8 @@ import Logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import Cancel from "../assets/icons8-cancel-64.png";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Nav from "../components/nav";
+import CartComponent from "../components/Cart";
 
 interface Props {
   className?: string;
@@ -39,7 +41,7 @@ const ContactUs: React.FC<Props> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const formWidth = showIcons ? "md:w-1/2 md:p-10" : "w-full bg-gray-50 ";
+  const formWidth = showIcons ? "md:w-1/2 md:p-10" : "w-full  ";
 
   const toggleFAQ = (index: number) => {
     setIsActive((prev) =>
@@ -197,12 +199,32 @@ const ContactUs: React.FC<Props> = ({
   return (
     <div className="w-full bg-white">
       {/* Contact Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center min-h-screen px-6  py-10 gap-10">
+       <div className='hidden md:block'>
+        <Nav />
+      </div>
+
+      <div className="flex flex-col md:flex-row justify-between items-center  px-6  py-10 gap-10">
         {showIcons && (
-          <div className="w-full md:w-1/2 hidden md:flex justify-center">
-            <Link href="/">
-              <Image src={Logo} alt="logo" width={500} height={500} />
-            </Link>
+          <div className="w-full font-inter md:w-1/2 pl-6 hidden md:flex justify-center">
+            <div>
+              <div>
+                <p className="text-xl">Get in touch</p>
+                 <h1 className="text-6xl py-8 font-custom">We are always ready to help and answer your questions.</h1>
+              </div>
+              <div className="flex py-5 justify-center w-5/6 ">
+                <div className="flex justify-between  w-full">
+                     <div>
+                  <h2 className="text-2xl tracking-wide font-custom font-semibold">Call center</h2>
+<p>Tel: 09012345678</p>
+                </div>
+                <div className="px-4">
+                  <h2 className="text-2xl tracking-wide font font-custom font-semibold">Our location</h2>
+                  <p>Lekki: 4b akanni bashorun</p>
+                  <p>Ikeja: 4b lily drive</p>
+                </div>
+             </div>
+              </div>
+           </div>
           </div>
         )}
 
@@ -213,22 +235,28 @@ const ContactUs: React.FC<Props> = ({
           }`}
         >
           {showIcons && (
-            <div className="flex justify-end mb-4">
-              <Link href="/">
-                <Image src={Cancel} alt="cancel" width={35} height={35} />
-              </Link>
-            </div>
+            <div></div>
           )}
+               {/* Mobile header */}
+                <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-5 mb-1'>
+                  <div className='flex justify-between w-full'>
+                    {' '}
+                    <Image src={Logo} alt='logo' width={50} />
+                    <CartComponent />
+                  </div>
+
+                </div>
+
 
           <h1
-            className={`text-3xl text-center md:text-4xl font-semibold mb-6 font-inter ${
-              textClassName ?? ""
+            className={` md:hidden text-3xl text-left md:text-3xl font-bold mb-10 font-inter ${
+              textClassName ?? " flex "
             }`}
           >
             Contact Us
           </h1>
 
-          <form className="font-inter space-y-4" onSubmit={handleSubmit}>
+          <form className="font-inter md:my-10 space-y-4" onSubmit={handleSubmit}>
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="w-full sm:w-1/2">
                 <label htmlFor="firstName" className="text-lg font-light">
@@ -357,7 +385,7 @@ const ContactUs: React.FC<Props> = ({
 
       {/* FAQ Section */}
       <div className="w-full flex flex-col items-center px-4 md:px-10 py-10">
-        <h2 className="text-3xl md:text-4xl font-inter mb-6">FAQs</h2>
+        <h2 className="text-3xl md:text-4xl font-inter mb-6 font-bold">FAQs</h2>
         <div className="w-full md:w-10/12">
           {faqs.map((faq, index) => (
             <div

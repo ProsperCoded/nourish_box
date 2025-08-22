@@ -31,8 +31,12 @@ export default function RootLayout({
             <CategoryProvider>
               <FavContext>
                 <Toaster position='top-center' reverseOrder={false} />
-                <div>
-                  {children} <MobileNav />
+                <div className="
+        min-h-svh
+        md:pb-0
+        pb-[calc(64px+env(safe-area-inset-bottom))]
+      ">
+                  {children} <div className='mt-10'><MobileNav /></div>
                 </div>
               </FavContext>
             </CategoryProvider>

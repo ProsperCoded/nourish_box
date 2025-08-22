@@ -62,9 +62,13 @@ const ManageAddress = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-10 lg:px-20 min-h-screen">
-   
+    <div className="md:px-4 py-6  min-h-screen">
 
+  <header className="bg-white shadow-sm">
+        <div className=" px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-3xl font-inter font-bold ">Manage status</h1>
+        </div>
+      </header>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Address List */}
         <div className="space-y-4">
