@@ -98,6 +98,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 showSearchBar={showSearchBar}
+                PageTitle="Favorites"
                 setShowSearchBar={setShowSearchBar}
                 goBack={goBack}
               />
@@ -155,11 +156,12 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
       {/* Mobile search header (inside the same container) */}
       {showHeader && (
         <div className="block md:hidden">
-          <div className="mx-auto w-full max-w-[1550px] px-4">
+          <div className="mx-auto w-full max-w-[1550px] ">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               showSearchBar={showSearchBar}
+              PageTitle="Favorites"
               setShowSearchBar={setShowSearchBar}
               goBack={goBack}
             />
