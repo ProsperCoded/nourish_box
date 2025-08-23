@@ -1,8 +1,8 @@
 'use client'
-import React from 'react'
 import Image from "next/image";
-import search from "../assets/icons8-search-48.png";
+import React from 'react';
 import back from "../assets/icons8-left-arrow-50.png";
+import search from "../assets/icons8-search-48.png";
 
 const Search_bar = ({ goBack, PageTitle, showSearchBar, setShowSearchBar, searchQuery, setSearchQuery }: {
   goBack: () => void,
@@ -29,6 +29,17 @@ const Search_bar = ({ goBack, PageTitle, showSearchBar, setShowSearchBar, search
 
           <div className=" search bar px-2 border-[1px] border-gray-400 rounded-md flex items-center sm:w-8/12 lg:w-3/5 animate-in fade-in">
 
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className=" mr-3 p-1 w-full"
+            />
+            <Image src={search} alt="search" width={20} height={10} />
+          </div>
+        )}
+      </div>
             <input
               type="text"
               placeholder="Search recipes..."

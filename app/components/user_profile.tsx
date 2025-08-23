@@ -1,12 +1,16 @@
 "use client";
 import { useAuth } from "@/app/contexts/AuthContext";
-import React, { useState, useEffect } from "react";
+import { fetchLGAs, fetchStates } from "@/app/utils/client-api/locationApi";
 import { updateUserProfile } from "@/app/utils/firebase/users.firebase";
-import { fetchStates, fetchLGAs } from "@/app/utils/client-api/locationApi";
+import React, { useEffect, useState } from "react";
 
-import { User } from "@/app/utils/types/user.type";
-import { AlertTriangle } from "lucide-react";
+import { getPrimaryAddress, migrateLegacyAddress, setPrimaryAddress } from "@/app/utils/firebase/addresses.firebase";
+import { Address } from "@/app/utils/types/address.type";
+import { AlertTriangle, MapPin, Star } from "lucide-react";
+import toast from "react-hot-toast";
 import ProfilePictureUpload from "./ProfilePictureUpload";
+import { Badge } from "./ui/badge";
+import { Card, CardContent } from "./ui/card";
 
 interface FormData {
   firstName: string;
@@ -40,6 +44,8 @@ const UserProfile = () => {
     text: string;
   } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [primaryAddress, setPrimaryAddressState] = useState<Address | null>(null);
+  const [addresses, setAddresses] = useState<Address[]>([]);
 
   // Initialize form data when user loads
   useEffect(() => {
@@ -54,8 +60,21 @@ const UserProfile = () => {
         state: user.state || "",
         lga: user.lga || "",
       });
+
+      // Set addresses and primary address
+      setAddresses(user.addresses || []);
+      setPrimaryAddressState(getPrimaryAddress(user));
+
+      // Migrate legacy address if needed
+      if (user.address && (!user.addresses || user.addresses.length === 0)) {
+        migrateLegacyAddress(user.id).then(() => {
+          refreshAuth();
+        }).catch(error => {
+          console.error('Migration error:', error);
+        });
+      }
     }
-  }, [user]);
+  }, [user, refreshAuth]);
 
   // Load states on component mount
   useEffect(() => {
@@ -106,6 +125,30 @@ const UserProfile = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleChangePrimaryAddress = async (addressId: string) => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      await setPrimaryAddress(user.id, addressId);
+      await refreshAuth();
+
+      // Update local state
+      setAddresses(prev => prev.map(addr => ({
+        ...addr,
+        isPrimary: addr.id === addressId
+      })));
+      setPrimaryAddressState(addresses.find(addr => addr.id === addressId) || null);
+
+      toast.success('Primary address updated successfully');
+    } catch (error) {
+      console.error('Error setting primary address:', error);
+      toast.error('Failed to update primary address');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -166,9 +209,8 @@ const UserProfile = () => {
             name={name}
             value={formData[name as keyof FormData]}
             onChange={handleInputChange}
-            className={`w-full rounded-md p-4 border-[1px] border-solid ${
-              isEmpty ? "border-yellow-500 bg-yellow-50" : "border-gray-500"
-            } focus:border-orange-500 focus:outline-none`}
+            className={`w-full rounded-md p-4 border-[1px] border-solid ${isEmpty ? "border-yellow-500 bg-yellow-50" : "border-gray-500"
+              } focus:border-orange-500 focus:outline-none`}
             required={required}
             disabled={!isEditing}
           />
@@ -212,11 +254,10 @@ const UserProfile = () => {
           {/* Display message */}
           {message && (
             <div
-              className={`mb-4 p-4 rounded-md ${
-                message.type === "success"
+              className={`mb-4 p-4 rounded-md ${message.type === "success"
                   ? "bg-green-100 text-green-800 border border-green-200"
                   : "bg-red-100 text-red-800 border border-red-200"
-              }`}
+                }`}
             >
               {message.text}
             </div>
@@ -249,6 +290,64 @@ const UserProfile = () => {
               {renderField("phone", "Phone Number", "tel")}
             </div>
 
+            {/* Primary Address Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-orange-600" />
+                Primary Address
+              </h3>
+
+              {primaryAddress ? (
+                <Card className="mb-4">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-medium text-gray-900">{primaryAddress.name}</h4>
+                          <Badge variant="default" className="bg-orange-100 text-orange-800">
+                            <Star className="h-3 w-3 mr-1" />
+                            Primary
+                          </Badge>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-1">{primaryAddress.street}</p>
+                        <p className="text-gray-600 text-sm">{primaryAddress.city}, {primaryAddress.state}</p>
+                        <p className="text-gray-500 text-xs">{primaryAddress.lga}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="mb-4 border-dashed">
+                  <CardContent className="p-4 text-center">
+                    <MapPin className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-gray-500 text-sm">No primary address set</p>
+                    <p className="text-gray-400 text-xs">Add an address in Manage Addresses to set as primary</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Address Selection for Primary */}
+              {addresses.length > 1 && (
+                <div>
+                  <label className="block text-gray-700 mb-2 font-medium text-sm">
+                    Change Primary Address
+                  </label>
+                  <select
+                    value={primaryAddress?.id || ''}
+                    onChange={(e) => handleChangePrimaryAddress(e.target.value)}
+                    className="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    disabled={loading || !isEditing}
+                  >
+                    {addresses.map((address) => (
+                      <option key={address.id} value={address.id}>
+                        {address.name} - {address.street}, {address.city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
             {/* State & LGA */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
@@ -260,11 +359,10 @@ const UserProfile = () => {
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className={`w-full rounded-md p-4 border-[1px] border-solid ${
-                      !formData.state
+                    className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.state
                         ? "border-yellow-500 bg-yellow-50"
                         : "border-gray-500"
-                    } focus:border-orange-500 focus:outline-none`}
+                      } focus:border-orange-500 focus:outline-none`}
                     required
                     disabled={loading || !isEditing}
                   >
@@ -294,11 +392,10 @@ const UserProfile = () => {
                     name="lga"
                     value={formData.lga}
                     onChange={handleInputChange}
-                    className={`w-full rounded-md p-4 border-[1px] border-solid ${
-                      !formData.lga
+                    className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.lga
                         ? "border-yellow-500 bg-yellow-50"
                         : "border-gray-500"
-                    } focus:border-orange-500 focus:outline-none`}
+                      } focus:border-orange-500 focus:outline-none`}
                     required
                     disabled={
                       !formData.state || lgas.length === 0 || !isEditing
@@ -335,11 +432,10 @@ const UserProfile = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`px-8 py-3 rounded-md font-semibold text-white transition-colors ${
-                    isSubmitting
+                  className={`px-8 py-3 rounded-md font-semibold text-white transition-colors ${isSubmitting
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-orange-500 hover:bg-orange-600"
-                  }`}
+                    }`}
                 >
                   {isSubmitting ? "Updating..." : "Update Profile"}
                 </button>

@@ -1,33 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import {
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import {
+  createUserWithEmailAndPassword
+} from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import {
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-} from "@mui/material";
+import React, { useState } from "react";
 
-import Nav from "../components/nav";
 import passwordViewIcon from "../assets/icons8-eye-48.png";
 import googleLogo from "../assets/icons8-google-48.png";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
+import Nav from "../components/nav";
 
-import { auth, db } from "../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
-import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import { COLLECTION } from "@/app/utils/schema/collection.enum";
-import Header from "../components/header";
+import { FirebaseError } from "firebase/app";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
+import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 
 // Nigerian states
 const nigerianStates = [
@@ -103,9 +101,9 @@ const SignUp = () => {
         <Nav />
       </div>
       <div className="block md:hidden">
-        <Header showSearch={false} />
+        <Nav noLinks={true} />
       </div>
-      <main className=" md:mt-12 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10  bg-white">
+      <main className=" md:mt-12 pt-20 lg:pt-0 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10  bg-white">
         <div className=" max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
           <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
             <Link href="/">
