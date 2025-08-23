@@ -126,13 +126,13 @@ function ProfileContent() {
 
       {/* Mobile slide view */}
       {isMobile ? (
-        <div className="relative w-full overflow-hidden pt-12">
+        <div className="relative w-full overflow-hidden overflow-y-scroll ">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}
           >
             {/* Sidebar */}
-            <div className="w-full p-4 pt-2">
+            <div className="w-full p-4 pt-2 font-inter">
               <div className="flex flex-col items-center mb-2">
                 <div className="relative w-10 h-10 md:w-12 md:h-12">
                   <Image
@@ -142,10 +142,10 @@ function ProfileContent() {
                     className="rounded-full object-cover border border-orange-200 shadow"
                   />
                 </div>
-                <h2 className="text-lg font-semibold mt-2">
+                <h2 className="text-lg font-semibold mt-2 ">
                   {(user?.firstName ?? "User") + (user?.lastName ? ` ${user.lastName}` : "")}
                 </h2>
-                {user?.email && <p className="text-sm text-gray-500">{user.email}</p>}
+                {user?.email && <p className="text-sm text-gray-500 mb-2">{user.email}</p>}
               </div>
 
               <div className="space-y-3">
@@ -186,7 +186,7 @@ function ProfileContent() {
         </div>
       ) : (
         // Desktop / Tablet
-        <div className="flex flex-col md:flex-row pt-24">
+        <div className="flex flex-col md:flex-row md:pt-24">
           {/* Sidebar */}
           <div className="md:w-1/4 border-r border-gray-200 p-4 flex flex-col">
             <div className="flex flex-col items-center text-center mb-6">

@@ -30,7 +30,7 @@ export default function MobileNav() {
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white
+        fixed bottom-0 left-0 right-0 font-inter z-50 md:hidden bg-white
         border-t shadow-md
         w-screen
         pl-[env(safe-area-inset-left)]

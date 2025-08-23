@@ -83,7 +83,7 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
         <Nav noLinks={true} />
       </div>
 
-      <div className="flex w-full justify-between pt-20 lg:pt-0">
+      <div className="flex w-full justify-between md:pt-20 lg:pt-0">
         {/* Left: Logo (desktop only) */}
         <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
           <Link href="/">
