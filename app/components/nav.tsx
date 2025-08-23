@@ -1,45 +1,56 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
-import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
-import Link from "next/link";
-import {
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import { UserAvatar } from "@/app/components/UserAvatar";
-import CartComponent from "./Cart";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import Link from "next/link";
+import { usePathname, useRouter } from 'next/navigation';
+import return_btn from "../assets/icons8-left-arrow-50.png";
+import search from "../assets/icons8-search-48.png";
+import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
+import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavContext";
+import CartComponent from "./Cart";
 
-const Nav = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+type NavProps = {
+  showSearch?: boolean;
+  searchQuery?: string;
+  setSearchQuery?: React.Dispatch<React.SetStateAction<string>>;
+  noLinks?: boolean;
+};
+
+const Nav = ({ showSearch = false, searchQuery, setSearchQuery, noLinks = false }: NavProps) => {
+  if (showSearch) {
+    noLinks = true;
+  }
+  const router = useRouter();
+  const pathname = usePathname();
   const [navVisible, setNavVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
   const { user: authUser } = useAuth();
   const { favorites } = useFavorites();
 
-  const mobileMenu = [
-    { id: 1, label: "Home", link: "/" },
-    { id: 2, label: "About us", link: "/about_us" },
-    { id: 3, label: "Shop", link: "/shop" },
-    { id: 4, label: "Contact", link: "/contact_us" },
-  ];
+  // Only for files inside /profile folder (e.g., /profile/manageAddress)
+  const showReturn = !!pathname && pathname.startsWith('/profile/');
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  // Controlled/uncontrolled search - fix focus bug by ensuring consistent state
+  const [localQuery, setLocalQuery] = useState('');
+  const isControlled = searchQuery !== undefined && setSearchQuery !== undefined;
+  const value = isControlled ? searchQuery : localQuery;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    if (isControlled && setSearchQuery) {
+      setSearchQuery(v);
+    } else {
+      setLocalQuery(v);
+    }
   };
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const handleReturn = () => router.push('/profile');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,7 +83,6 @@ const Nav = () => {
     : " backdrop-blur-sm";
 
   const linkColorClass = scrolled ? "text-black" : "text-black";
-  const mobileIconColor = scrolled ? "black" : "black";
 
   // Favorites component for both mobile and desktop
   const FavoritesButton = ({ isMobile = false }: { isMobile?: boolean }) => (
@@ -95,17 +105,47 @@ const Nav = () => {
     </Link>
   );
 
+  // Search component for both mobile and desktop with improved styling
+  const SearchBar = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className={`flex items-center border-2 border-gray-300 rounded-full px-4 py-3 bg-white shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-brand-btn_orange focus-within:ring-2 focus-within:ring-brand-btn_orange focus-within:ring-opacity-20 ${isMobile ? 'w-full min-h-[48px]' : 'w-full max-w-lg min-h-[48px] mx-auto'}`}>
+      <input
+        type="text"
+        placeholder="Search recipes..."
+        value={value}
+        onChange={handleChange}
+        className={`bg-transparent w-full outline-none placeholder-gray-500 text-gray-700 ${isMobile ? 'text-base' : 'text-lg'}`}
+      />
+      <div className="ml-3 flex-shrink-0">
+        <Image src={search} alt="search icon" width={isMobile ? 24 : 26} height={isMobile ? 24 : 26} className="opacity-60" />
+      </div>
+    </div>
+  );
+
   return (
     <div className={`${navBaseClasses} ${navVisibilityClass} ${navStyleClass}`}>
       {/* Mobile Nav */}
       <div className="lg:hidden p-4 font-sans">
         <div className="flex justify-between items-center">
-          <Link href="/">
-            <Image src={Logo} alt="Logo" className="w-[100px]" />
-          </Link>
+          {/* Left area: either Return arrow (profile subpages) OR Logo */}
+          <div className="flex items-center gap-3">
+            {showReturn ? (
+              <button
+                onClick={handleReturn}
+                aria-label="Go back to Profile"
+                className="rounded-full border border-gray-300 p-2 hover:bg-gray-100 active:scale-95 transition"
+              >
+                <Image src={return_btn} alt="Back" width={22} height={22} />
+              </button>
+            ) : (
+              <Link href="/">
+                <Image src={icon} alt="nourish icon" className="w-[50px]" />
+              </Link>
+            )}
+          </div>
+
           <div className="flex gap-2 items-center">
             {/* Admin Badge for Mobile */}
-            {authUser?.role === "admin" && (
+            {!noLinks && authUser?.role === "admin" && (
               <Link href="/admin">
                 <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <svg
@@ -132,35 +172,15 @@ const Nav = () => {
             </div>
             {authUser && <FavoritesButton isMobile={true} />}
             <CartComponent />
-            <IconButton
-              onClick={toggleMobileMenu}
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-            >
-              <MenuIcon sx={{ color: mobileIconColor }} />
-            </IconButton>
           </div>
         </div>
 
-        <Drawer
-          anchor="right"
-          open={isMobileMenuOpen}
-          onClose={closeMobileMenu}
-        >
-          <List sx={{ width: 250 }}>
-            {mobileMenu.map((item) => (
-              <ListItemButton
-                key={item.id}
-                component="a"
-                href={item.link}
-                onClick={closeMobileMenu}
-              >
-                <ListItemText primary={item.label} />
-              </ListItemButton>
-            ))}
-          </List>
-        </Drawer>
+        {/* Mobile: optional search */}
+        {showSearch && (
+          <div className="block w-full mt-4 px-2">
+            <SearchBar isMobile={true} />
+          </div>
+        )}
       </div>
 
       {/* Desktop Nav */}
@@ -170,29 +190,39 @@ const Nav = () => {
             <Image src={Logo} alt="Logo" className="w-[150px]" />
           </Link>
 
-          <div className="flex items-left  font-inter justify-around gap-4 w-1/3   ">
-            <Link
-              href="/shop"
-              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
-            >
-              Shop{" "}
-            </Link>
-            <Link
-              href="/about_us"
-              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
-            >
-              About us
-            </Link>
-            <Link
-              href="/contact_us"
-              className={`px-4 font-medium text-md ${linkColorClass}  hover:text-gray-600 `}
-            >
-              Contact us
-            </Link>
+          {/* Center area: either search bar or navigation links */}
+          <div className="flex items-center font-inter justify-center gap-4 flex-1 max-w-2xl mx-4">
+            {showSearch ? (
+              <div className="w-full flex justify-center">
+                <SearchBar />
+              </div>
+            ) : !noLinks ? (
+              <div className="flex items-center justify-around gap-6 w-full max-w-md">
+                <Link
+                  href="/shop"
+                  className={`px-4 font-medium text-md ${linkColorClass} hover:text-gray-600 transition-colors`}
+                >
+                  Shop
+                </Link>
+                <Link
+                  href="/about_us"
+                  className={`px-4 font-medium text-md ${linkColorClass} hover:text-gray-600 transition-colors`}
+                >
+                  About us
+                </Link>
+                <Link
+                  href="/contact_us"
+                  className={`px-4 font-medium text-md ${linkColorClass} hover:text-gray-600 transition-colors`}
+                >
+                  Contact us
+                </Link>
+              </div>
+            ) : null}
           </div>
+
           <div className="flex items-center gap-3">
             {/* Admin Badge for Desktop */}
-            {authUser?.role === "admin" && (
+            {!noLinks && authUser?.role === "admin" && (
               <Link href="/admin">
                 <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
                   <svg

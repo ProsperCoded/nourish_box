@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Header from '../components/header';
+import Nav from '../components/nav';
 import RecipeCard from '../components/RecipeCard';
 import RecipeCardSkeleton from '../components/RecipeCardSkeleton';
 import { useCategories } from '../contexts/CategoryContext';
 import { fetchRecipes } from '../utils/firebase/recipes.firebase';
 import { Recipe } from '../utils/types/recipe.type';
+import Search_bar from '../components/Search_bar';
 
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,16 +51,20 @@ const Page = () => {
 
   return (
     <main className='min-h-screen '>
-    <div className=' md:px-8  '>
-        {/* Header (kept) */}
-     <div className=' w-full md:flex items-center justify-center '>
-          <div className='md:w-3/4 ' ><Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /></div>
-        </div>
+      {/* Nav with search functionality */}
+    <div className="hidden md:block">
+        <Nav showSearch={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
+      </div>
+      <div className="block md:hidden">
+       <Search_bar PageTitle='Shop'/>
+
+      </div>
+      <div className='pt-32 md:px-8'>
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl md:mx-auto'>
           <h2 className='text-3xl sm:text-4xl px-4 lg:text-5xl font-inter font-medium text-center my-4'>
-           Check out our recipes for the week
+            Check out our recipes for the week
           </h2>
 
         </section>
@@ -124,13 +129,13 @@ const Page = () => {
           </div>
         ) : isLoading ? (
 
-              <section className='flex justify-center items-center  w-full
+          <section className='flex justify-center items-center  w-full
                    '>
-              <div className="  w-5/6  max-w-[1550px] flex justify-center items-center  flex-wrap gap-6 lg:gap-8 ">
-                 {Array.from({ length: 8 }).map((_, index) => (
-              <RecipeCardSkeleton key={index} />
-            ))}
-           </div>
+            <div className="  w-5/6  max-w-[1550px] flex justify-center items-center  flex-wrap gap-6 lg:gap-8 ">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <RecipeCardSkeleton key={index} />
+              ))}
+            </div>
           </section>
 
         ) : visibleRecipes.length === 0 ? (
@@ -140,15 +145,15 @@ const Page = () => {
             </p>
           </div>
         ) : (
-                <div className="flex justify-center w-full">
-  <section className="md:mx-auto max-w-[1550px] md:px-4">
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3  xl:grid-cols-3 gap-6 lg:gap-8">
-      {visibleRecipes.map(r => (
-        <RecipeCard key={r.id} recipe={r} />
-      ))}
-    </div>
-  </section>
-</div>
+          <div className="flex justify-center w-full">
+            <section className="md:mx-auto max-w-[1550px] md:px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3  xl:grid-cols-3 gap-6 lg:gap-8">
+                {visibleRecipes.map(r => (
+                  <RecipeCard key={r.id} recipe={r} />
+                ))}
+              </div>
+            </section>
+          </div>
         )}
       </div>
     </main>

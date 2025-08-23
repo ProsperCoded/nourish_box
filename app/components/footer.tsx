@@ -37,7 +37,7 @@ const footer = () => {
                         <h3 className='font-inter font-semibold text-xl my-3 text-center'>Sign up to our Newsletter</h3>
                         <Image src={FriedEggs} width={35} height={35} className='mx-4 hidden lg:block animate-bounce ' alt="" />
                     </div>
-                    <div className="flex flex-col lg:flex-row items-center">
+                    <div className="flex my-2 mb-6 flex-row items-center">
                         <input type="email" placeholder="Enter your email" className=' border-black mr-2 p-2 rounded-lg border-[0.5px]' />
                         <button className='bg-brand-btn_orange rounded-lg  px-4  text-white py-2'>Subscribe</button></div>
                 </div>

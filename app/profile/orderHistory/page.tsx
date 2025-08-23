@@ -1,25 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { getPaginatedUserOrdersWithDetails } from "@/app/utils/firebase/orders.firebase";
-import {
-  Order,
-  DeliveryStatus,
-  ReceivedStatus,
-} from "@/app/utils/types/order.type";
-import { Recipe } from "@/app/utils/types/recipe.type";
 import { Delivery } from "@/app/utils/types/delivery.type";
 import {
-  Package,
+  DeliveryStatus,
+  Order
+} from "@/app/utils/types/order.type";
+import { Recipe } from "@/app/utils/types/recipe.type";
+import {
   Calendar,
-  MapPin,
+  ChevronRight,
   DollarSign,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
+  MapPin,
+  Package
 } from "lucide-react";
-import Header from "../../components/header";
+import { useEffect, useState } from "react";
 
 type OrderWithDetails = Order & {
   recipe?: Recipe;
@@ -168,12 +165,12 @@ const OrderHistory = () => {
 
   return (
     <div className="min-h-screen  p-4 md:p-6 ">
-     
+
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-inter font-bold mb-2 text-center md:text-left">
           Order History
         </h1>
-<hr />
+        <hr />
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-4">
@@ -224,9 +221,8 @@ const OrderHistory = () => {
                           Order #{order.id.slice(-8).toUpperCase()}
                         </h3>
                         <span
-                          className={`px-3 py-1 text-sm rounded-full font-medium ${
-                            statusColorMap[order.deliveryStatus]
-                          }`}
+                          className={`px-3 py-1 text-sm rounded-full font-medium ${statusColorMap[order.deliveryStatus]
+                            }`}
                         >
                           {statusDisplayMap[order.deliveryStatus]}
                         </span>

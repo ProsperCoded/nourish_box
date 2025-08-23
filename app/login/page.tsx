@@ -1,41 +1,43 @@
 "use client";
 
+import { FirebaseError } from "firebase/app";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import passwordView from "../assets/icons8-eye-48.png";
-import Image from "next/image";
 import google_logo from "../assets/icons8-google-48.png";
-import Link from "next/link";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider, db } from "../lib/firebase";
-import { FirebaseError } from "firebase/app";
+import { auth } from "../lib/firebase";
 import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
-import CartComponent from "../components/Cart";
 import Nav from "../components/nav";
-import Header from "../components/header";
+import MobileNav from "../components/mobile_nav";
+// import Header from "../components/header";
 
-const LogIn = () => {
+type LogInProps = {
+  showHeader?: boolean; // optional header (mobile)
+};
+
+const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [view, setView] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError("");
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-
       router.push("/");
     } catch (err: unknown) {
-      console.error("Login failed", error);
+      console.error("Login failed", err);
       setLoading(false);
       if (err instanceof FirebaseError) {
-        console.error("Firebase Error:", err.code, err.message); // Log error details
         switch (err.code) {
           case "auth/user-not-found":
             setError("User not found. Please check your email.");
@@ -53,132 +55,133 @@ const LogIn = () => {
             setError("An error occurred during sign-in.");
         }
       } else {
-        console.error("Unexpected Error:", err);
         setError("An unexpected error occurred.");
       }
     }
   };
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <div className="hidden md:block">
-            <Nav />
-          </div>
-          <div className="block md:hidden">
-              <Header showSearch={false} />
-          </div>
-          <div className="flex w-100 justify-between ">
+      {/* Desktop nav */}
+      <div className="hidden md:block">
+        <Nav />
+      </div>
 
-            <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
-              <Link href="/">
-                <Image src={logo} alt="logo" width={400} />
-              </Link>
-            </div>
-
-            <div className="w-full md:w-1/2 md:my-10 bg-white p-6 rounded-xl">
-              {error && <p style={{ color: "red" }}>{error}</p>}
-
-              <div className="flex w-full items-center justify-center bg-brand-bg_white_clr  md:h-screen">
-                {/* <div className=' hidden md:block p-2 md:w-1/3 '>
-                            <Image src={Sidebar} alt='side bar' />
-                        </div> */}
-
-                <div className="flex flex-col items-center justify-center w-100 w-10/12  ">
-                  <form
-                    className="flex flex-col modal h-1/2 w-full   "
-                    onSubmit={handleLogin}
-                  >
-                    <h1 className="my-4 font-bold text-3xl text-black text-center md:text-left ">
-                      Log In
-                    </h1>
-
-                    <label className=" text-sm ">Email</label>
-                    <input
-                      width="w-full"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="my-4 mt-1 text-black border-[1px] border-gray-400 rounded-md p-3"
-                      placeholder="example@gmail.com"
-                    />
-                    <label className=" text-sm ">Create Password</label>
-                    <div className="flex items-center mb-1 mt-1 justify-between border-gray-400 border-[1px] border-solid rounded-lg pr-4 p-3">
-                      <input
-                        width="w-full"
-                        className="  text-black"
-                        type={view ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="************"
-                      />
-                      <Image
-                        src={passwordView}
-                        alt="icon to view password"
-                        onClick={() => setView(!view)}
-                        width={20}
-                        height={20}
-                      />
-                    </div>
-                    <p className="text-xs flex justify-end text-brand-text_gray">
-                      <Link href="/forgotPassword">Forgot password</Link>
-                    </p>
-                    <div className="flex mt-8 justify-center">
-                      <button
-                        type="submit"
-                        className="flex bg-[#004C30] text-white py-3 px-16 rounded-xl items-center"
-                      >
-                        Log in
-                      </button>
-                    </div>
-                  </form>
-                  <div className="flex w-full items-center my-4">
-                    <p className="bg-gray-400 h-[1px] w-1/2 mr-2"></p>
-                    <p className="text-gray-400">OR</p>
-                    <p className="bg-gray-400 h-[1px] w-1/2 ml-2"></p>
-                  </div>
-                  <button
-                    type="button"
-                    className="flex bg-gray-200 text-gray-500 py-3 px-8 rounded-xl items-center"
-                    onClick={(e) =>
-                      handleGoogleSignIn(
-                        () => {
-                          router.push("/");
-                        },
-                        (error: string) => {
-                          setError(error);
-                        }
-                      )
-                    }
-                  >
-                    <Image
-                      src={google_logo}
-                      alt="google logo"
-                      className="mx-2"
-                      width={20}
-                      height={20}
-                    />
-                    <p>Sign in with Google</p>
-                  </button>
-                  <p className="mt-4 flex justify-center items-center text-brand-text_gray">
-                    You have an account?{" "}
-                    <Link
-                      className="ml-1 text-brand-brand_black font-semibold"
-                      href="/sign_up"
-                    >
-                      Sign up
-                    </Link>
-                  </p>
-                  {error && <p>{error}</p>}
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
+      {/* Optional mobile header */}
+      {showHeader && (
+        <div className="block md:hidden">
+          <MobileNav/>
+        </div>
       )}
+
+      {/* Optional compact mobile nav without links */}
+      <div className="block md:hidden">
+        <Nav noLinks={true} />
+      </div>
+
+      <div className="flex w-full justify-between pt-20 lg:pt-0">
+        {/* Left: Logo (desktop only) */}
+        <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
+          <Link href="/">
+            <Image src={logo} alt="logo" width={400} />
+          </Link>
+        </div>
+
+        {/* Right: Form */}
+        <div className="w-full md:w-1/2 md:my-10 bg-white p-6 rounded-xl">
+          {error && <p className="text-red-500">{error}</p>}
+
+          <div className="flex w-full items-center justify-center bg-brand-bg_white_clr md:h-screen">
+            <div className="flex flex-col items-center justify-center w-10/12">
+              <form className="flex flex-col modal h-1/2 w-full" onSubmit={handleLogin}>
+                <h1 className="my-4 font-bold text-3xl text-black text-center md:text-left">
+                  Log In
+                </h1>
+
+                <label className="text-sm">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="my-4 mt-1 text-black border border-gray-400 rounded-md p-3"
+                  placeholder="example@gmail.com"
+                />
+
+                <label className="text-sm">Password</label>
+                <div className="flex items-center mb-1 mt-1 justify-between border border-gray-400 rounded-lg pr-4 p-3">
+                  <input
+                    className="text-black flex-1 outline-none"
+                    type={view ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="************"
+                  />
+                  <Image
+                    src={passwordView}
+                    alt="toggle password visibility"
+                    onClick={() => setView(!view)}
+                    width={20}
+                    height={20}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                <p className="text-xs flex justify-end text-brand-text_gray">
+                  <Link href="/forgotPassword">Forgot password</Link>
+                </p>
+
+                <div className="flex mt-8 justify-center">
+                  <button
+                    type="submit"
+                    className="flex bg-[#004C30] text-white py-3 px-16 rounded-xl items-center"
+                  >
+                    Log in
+                  </button>
+                </div>
+              </form>
+
+              <div className="flex w-full items-center my-4">
+                <p className="bg-gray-400 h-px w-1/2 mr-2" />
+                <p className="text-gray-400">OR</p>
+                <p className="bg-gray-400 h-px w-1/2 ml-2" />
+              </div>
+
+              <button
+                type="button"
+                className="flex bg-gray-200 text-gray-500 py-3 px-8 rounded-xl items-center"
+                onClick={() =>
+                  handleGoogleSignIn(
+                    () => router.push("/"),
+                    (msg: string) => setError(msg)
+                  )
+                }
+              >
+                <Image
+                  src={google_logo}
+                  alt="google logo"
+                  className="mx-2"
+                  width={20}
+                  height={20}
+                />
+                <p>Sign in with Google</p>
+              </button>
+
+              <p className="mt-4 flex justify-center items-center text-brand-text_gray">
+                Don’t have an account?{" "}
+                <Link className="ml-1 text-brand-brand_black font-semibold" href="/sign_up">
+                  Sign up
+                </Link>
+              </p>
+
+              {error && <p className="text-red-500">{error}</p>}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

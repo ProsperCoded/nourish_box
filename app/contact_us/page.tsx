@@ -2,13 +2,11 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
-import Logo from "../assets/nourish_box_folder/Logo files/icon.svg";
-import Cancel from "../assets/icons8-cancel-64.png";
-import Link from "next/link";
 import toast from "react-hot-toast";
-import Nav from "../components/nav";
+import Logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import CartComponent from "../components/Cart";
 import Footer from "../components/footer";
+import Nav from "../components/nav";
 
 interface Props {
   className?: string;
@@ -117,7 +115,7 @@ const ContactUs: React.FC<Props> = ({
       if (response.ok) {
         toast.success(
           data.message ||
-            "Thank you for contacting us! We'll get back to you soon.",
+          "Thank you for contacting us! We'll get back to you soon.",
           {
             duration: 5000,
             position: "top-center",
@@ -198,221 +196,214 @@ const ContactUs: React.FC<Props> = ({
   ];
 
   return (
-  <div className="flex  flex-col justify-center items-center w-full">
-  <div className="w-full  bg-white max-w-[1550px]">
-      {/* Contact Section */}
-       <div className='hidden md:block mb-5'>
-        <Nav />
-      </div>
+    <div className="flex  flex-col justify-center items-center w-full">
+      <div className="w-full  bg-white max-w-[1550px]">
+        {/* Contact Section */}
+        <div className='hidden md:block mb-5'>
+          <Nav />
+        </div>
 
-      <div className="flex flex-col md:mt-24 md:flex-row justify-between items-center  px-6  py-5 md:py-10 gap-10">
-        {showIcons && (
-          <div className="w-full font-inter md:w-1/2 pl-6 hidden md:flex justify-center">
-            <div>
-              <div>
-                <p className="text-xl">Get in touch</p>
-                 <h1 className="text-6xl py-8 font-custom">We are always ready to help and answer your questions.</h1>
-              </div>
-              <div className="flex py-5 justify-center w-5/6 ">
-                <div className="flex justify-between  w-full">
-                     <div>
-                  <h2 className="text-2xl tracking-wide font-custom font-semibold">Call center</h2>
-<p>Tel: 09012345678</p>
-                </div>
-                <div className="px-4">
-                  <h2 className="text-2xl tracking-wide font font-custom font-semibold">Our location</h2>
-                  <p>Lekki: 4b akanni bashorun</p>
-                  <p>Ikeja: 4b lily drive</p>
-                </div>
-             </div>
-              </div>
-           </div>
-          </div>
-        )}
-
-        {/* Right Side (Form) */}
-        <div
-          className={`w-full  ${formWidth} ${formClassName ?? ""} ${
-            formClassName ?? ""
-          }`}
-        >
+        <div className="flex flex-col md:mt-24 md:flex-row justify-between items-center  px-6  py-5 md:py-10 gap-10">
           {showIcons && (
-            <div></div>
-          )}
-               {/* Mobile header */}
-                <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-5 mb-1'>
-                  <div className='flex justify-between w-full'>
-                    {' '}
-                    <Image src={Logo} alt='logo' width={50} />
-                    <CartComponent />
+            <div className="w-full font-inter md:w-1/2 pl-6 hidden md:flex justify-center">
+              <div>
+                <div>
+                  <p className="text-xl">Get in touch</p>
+                  <h1 className="text-6xl py-8 font-custom">We are always ready to help and answer your questions.</h1>
+                </div>
+                <div className="flex py-5 justify-center w-5/6 ">
+                  <div className="flex justify-between  w-full">
+                    <div>
+                      <h2 className="text-2xl tracking-wide font-custom font-semibold">Call center</h2>
+                      <p>Tel: 09012345678</p>
+                    </div>
+                    <div className="px-4">
+                      <h2 className="text-2xl tracking-wide font font-custom font-semibold">Our location</h2>
+                      <p>Lekki: 4b akanni bashorun</p>
+                      <p>Ikeja: 4b lily drive</p>
+                    </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
 
+          {/* Right Side (Form) */}
+          <div
+            className={`w-full  ${formWidth} ${formClassName ?? ""} ${formClassName ?? ""
+              }`}
+          >
+            {showIcons && (
+              <div></div>
+            )}
+            {/* Mobile header */}
+            <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-20 mb-1'>
+              <div className='flex justify-between w-full'>
+                {' '}
+                <Image src={Logo} alt='logo' width={50} />
+                <CartComponent />
+              </div>
+
+            </div>
+
+
+            <h1
+              className={` md:hidden  text-3xl  md:text-3xl font-bold mb-10 font-inter ${textClassName ?? " block text-center"
+                }`}
+            >
+              Contact Us
+            </h1>
+
+            <form className="font-inter md:my-10 space-y-4" onSubmit={handleSubmit}>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="w-full sm:w-1/2">
+                  <label htmlFor="firstName" className="text-lg font-light">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.firstName
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-400"
+                      }`}
+                    placeholder="Enter your first name"
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.firstName}
+                    </p>
+                  )}
                 </div>
 
+                <div className="w-full sm:w-1/2">
+                  <label htmlFor="lastName" className="text-lg font-light">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.lastName
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-400"
+                      }`}
+                    placeholder="Enter your last name"
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                  )}
+                </div>
+              </div>
 
-          <h1
-            className={` md:hidden  text-3xl  md:text-3xl font-bold mb-10 font-inter ${
-              textClassName ?? " block text-center"
-            }`}
-          >
-            Contact Us
-          </h1>
-
-          <form className="font-inter md:my-10 space-y-4" onSubmit={handleSubmit}>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="w-full sm:w-1/2">
-                <label htmlFor="firstName" className="text-lg font-light">
-                  First Name
+              <div>
+                <label htmlFor="email" className="text-lg font-light">
+                  Email
                 </label>
                 <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.firstName
-                      ? "border-red-500 bg-red-50"
-                      : "border-gray-400"
-                  }`}
-                  placeholder="Enter your first name"
+                  placeholder="example@email.com"
+                  className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.email ? "border-red-500 bg-red-50" : "border-gray-400"
+                    }`}
                 />
-                {errors.firstName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.firstName}
-                  </p>
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
                 )}
               </div>
 
-              <div className="w-full sm:w-1/2">
-                <label htmlFor="lastName" className="text-lg font-light">
-                  Last Name
+              <div>
+                <label htmlFor="phone" className="text-lg font-light">
+                  Phone Number
                 </label>
                 <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.lastName
-                      ? "border-red-500 bg-red-50"
-                      : "border-gray-400"
-                  }`}
-                  placeholder="Enter your last name"
+                  placeholder="08012345678"
+                  className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.phone ? "border-red-500 bg-red-50" : "border-gray-400"
+                    }`}
                 />
-                {errors.lastName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
                 )}
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="email" className="text-lg font-light">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="example@email.com"
-                className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.email ? "border-red-500 bg-red-50" : "border-gray-400"
-                }`}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="text-lg font-light">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="08012345678"
-                className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.phone ? "border-red-500 bg-red-50" : "border-gray-400"
-                }`}
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="message" className="text-lg font-light">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={4}
-                value={formData.message}
-                onChange={handleInputChange}
-                placeholder="Tell us how we can help you..."
-                className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.message
-                    ? "border-red-500 bg-red-50"
-                    : "border-gray-400"
-                }`}
-              ></textarea>
-              {errors.message && (
-                <p className="text-red-500 text-sm mt-1">{errors.message}</p>
-              )}
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-orange-500 text-white py-3 px-8 rounded-lg mt-2 hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isSubmitting && (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div>
+                <label htmlFor="message" className="text-lg font-light">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder="Tell us how we can help you..."
+                  className={`w-full border rounded-md p-3 mt-1 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.message
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-400"
+                    }`}
+                ></textarea>
+                {errors.message && (
+                  <p className="text-red-500 text-sm mt-1">{errors.message}</p>
                 )}
-                {isSubmitting ? "Sending..." : "Submit"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+              </div>
 
-      {/* FAQ Section */}
-      <div className="w-full flex flex-col items-center px-4 md:px-10 py-10">
-        <h2 className="text-3xl md:text-4xl font-inter mb-6 font-bold">FAQs</h2>
-        <div className="w-full md:w-10/12">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="border border-gray-300 rounded-lg p-4 mb-4 shadow-sm"
-            >
-              <button
-                onClick={() => toggleFAQ(index)}
-                className="w-full text-left font-medium flex justify-between items-center"
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-orange-500 text-white py-3 px-8 rounded-lg mt-2 hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSubmitting && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {isSubmitting ? "Sending..." : "Submit"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="w-full flex flex-col items-center px-4 md:px-10 py-10">
+          <h2 className="text-3xl md:text-4xl font-inter mb-6 font-bold">FAQs</h2>
+          <div className="w-full md:w-10/12">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="border border-gray-300 rounded-lg p-4 mb-4 shadow-sm"
               >
-                <span>{faq.question}</span>
-                <span className="text-xl">
-                  {isActive.includes(index) ? "−" : "+"}
-                </span>
-              </button>
-              {isActive.includes(index) && (
-                <div className="mt-2 text-gray-700">{faq.answer}</div>
-              )}
-            </div>
-          ))}
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full text-left font-medium flex justify-between items-center"
+                >
+                  <span>{faq.question}</span>
+                  <span className="text-xl">
+                    {isActive.includes(index) ? "−" : "+"}
+                  </span>
+                </button>
+                {isActive.includes(index) && (
+                  <div className="mt-2 text-gray-700">{faq.answer}</div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      </div>
-     <div className="w-full hidden md:block"> <Footer/></div>
-  </div>
+      <div className="w-full hidden md:block"> <Footer /></div>
+    </div>
   );
 };
 

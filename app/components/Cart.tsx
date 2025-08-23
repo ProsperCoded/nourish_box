@@ -10,7 +10,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import Cart from "../assets/icons8-cart-50.png";
+import Cart from "../assets/icons8-shopping-cart-100.png";
 import cancel_icon from "../assets/icons8-cancel-48.png";
 import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 import Cart_tab from "./cart_tab";

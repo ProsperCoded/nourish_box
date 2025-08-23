@@ -24,6 +24,7 @@ import {
   DEFAULT_SITE_CONTENT,
   SiteContent,
 } from './utils/types/site-content.type';
+import { UserAvatar } from './components/UserAvatar';
 
 export default function Home({
   searchQuery,
@@ -66,29 +67,31 @@ export default function Home({
       {/* Desktop Nav */}
       <div className='hidden md:block'>
         <div className='max-w-7xl'>
-            <Nav />
-      </div>
+          <Nav />
+        </div>
       </div>
 
       {/* OneTap Authentication - only on homepage for new users */}
       <OneTap />
 
       {/* Mobile header */}
-      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-5 mb-10'>
+      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-2 mb-10'>
         <div className='flex justify-between w-full'>
           {' '}
           <Image src={Logo} alt='logo' width={120} />
-          <CartComponent />
+          <UserAvatar/>
         </div>
-        <div className='flex items-center gap-2 flex-grow border border-gray-300 rounded-full px-3 py-2 shadow-sm transition-all focus-within:ring-2 ring-brand-btn_orange w-full my-2'>
+        <div className='flex items-center border-2 border-gray-300 rounded-full px-4 py-3 bg-white shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-brand-btn_orange focus-within:ring-2 focus-within:ring-brand-btn_orange focus-within:ring-opacity-20 w-full min-h-[48px] my-3'>
           <input
             type='text'
             placeholder='Search recipes...'
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='w-full bg-transparent outline-none text-sm'
+            className='w-full bg-transparent outline-none text-base placeholder-gray-500 text-gray-700'
           />
-          <Image src={search} alt='search' width={20} height={20} />
+          <div className="ml-3 flex-shrink-0">
+            <Image src={search} alt='search' width={24} height={24} className="opacity-60" />
+          </div>
         </div>
       </div>
 
@@ -212,15 +215,15 @@ export default function Home({
           <div className='flex flex-wrap w-full  justify-center gap-10'>
             {loading
               ? // Show skeleton cards while loading
-                Array.from({ length: 4 }).map((_, index) => (
-                  <RecipeCardSkeleton key={index} />
-                ))
+              Array.from({ length: 4 }).map((_, index) => (
+                <RecipeCardSkeleton key={index} />
+              ))
               : // Show actual recipe cards when loaded
-                recipes
-                  .slice(0, 3)
-                  .map(recipe => (
-                    <RecipeCard key={recipe.id} recipe={recipe} />
-                  ))}
+              recipes
+                .slice(0, 3)
+                .map(recipe => (
+                  <RecipeCard key={recipe.id} recipe={recipe} />
+                ))}
           </div>
 
           <div className='flex justify-center mt-6'>
