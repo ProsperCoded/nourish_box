@@ -237,7 +237,7 @@ const ContactUs: React.FC<Props> = ({
               <div></div>
             )}
             {/* Mobile header */}
-            <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-20 mb-1'>
+            <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 md:pt-20 mb-1'>
               <div className='flex justify-between w-full'>
                 {' '}
                 <Image src={Logo} alt='logo' width={50} />

@@ -7,6 +7,7 @@ import RecipeCardSkeleton from '../components/RecipeCardSkeleton';
 import { useCategories } from '../contexts/CategoryContext';
 import { fetchRecipes } from '../utils/firebase/recipes.firebase';
 import { Recipe } from '../utils/types/recipe.type';
+import Search_bar from '../components/Search_bar';
 
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,8 +52,14 @@ const Page = () => {
   return (
     <main className='min-h-screen '>
       {/* Nav with search functionality */}
-      <Nav showSearch={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+    <div className="hidden md:block">
+        <Nav showSearch={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
+      </div>
+      <div className="block md:hidden">
+       <Search_bar PageTitle='Shop'/>
+
+      </div>
       <div className='pt-32 md:px-8'>
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl md:mx-auto'>

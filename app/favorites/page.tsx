@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import LoginPrompt from "../components/auth/loginPrompt";
-import { LoginPromptWrapper } from "../components/auth/loginPromptWrapper";
+import LoginPrompt from "../components/LoginPrompt";
+import { LoginPromptWrapper } from "../components/LoginPromptWrapper";
 import RecipeList from "../components/RecipeCard";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import SearchBar from "../components/Search_bar";
@@ -42,20 +42,12 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     };
   }, [user]);
 
-  const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
-      router.back();
-    } else {
-      // back to profile hub if present, else home
-      router.push("/profile?tab=saved");
-    }
-  };
 
   if (showLoginPrompt) {
     return (
       <LoginPromptWrapper>
         <LoginPrompt main_text="Please login" />
-      </auth/ loginPromptWrapper >
+      </LoginPromptWrapper>
     );
   }
 
@@ -95,8 +87,9 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 showSearchBar={showSearchBar}
+                PageTitle="Favorites"
                 setShowSearchBar={setShowSearchBar}
-                goBack={goBack}
+
               />
             </div>
           </div>
@@ -152,13 +145,14 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
       {/* Mobile search header (inside the same container) */}
       {showHeader && (
         <div className="block md:hidden">
-          <div className="mx-auto w-full max-w-[1550px] px-4">
+          <div className="mx-auto w-full max-w-[1550px] ">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               showSearchBar={showSearchBar}
+              PageTitle="Favorites"
               setShowSearchBar={setShowSearchBar}
-              goBack={goBack}
+
             />
           </div>
         </div>

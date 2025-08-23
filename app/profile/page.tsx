@@ -23,6 +23,7 @@ import locationIcon from "../assets/icons8-location-50.png";
 import bookmarkIcon from "../assets/icons8-love-circled-50.png";
 import phoneIcon from "../assets/icons8-phone-100.png";
 import userIcon from "../assets/icons8-user-48.png";
+import Search_bar from "../components/Search_bar";
 
 type TabDef = {
   id: string;
@@ -40,7 +41,14 @@ function ProfileContent() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
+      router.back();
+    } else {
+      // back to profile hub if present, else home
+      router.push("/profile?tab=saved");
+    }
+  };
   // Build tabs (auth-aware)
   const baseTabs: TabDef[] = [
     { id: "profile", title: "Edit profile", icon: userIcon, content: <User_profile /> },
@@ -59,9 +67,10 @@ function ProfileContent() {
     }
   };
 
+  // Keep auth tab for the login screen inside content when logged out
   const authTab: TabDef = user
-    ? { id: "auth", title: "Logout", icon: userIcon, onClick: handleLogout }
-    : { id: "login", title: "Login", icon: userIcon, content: <LogIn /> };
+    ? { id: "auth", title: "Logout (moved below)", icon: userIcon, onClick: handleLogout }
+    : { id: "login", title: "Login", icon: userIcon, content: <LogIn showHeader={ false} /> };
 
   const tabs: TabDef[] = [...baseTabs, authTab];
 
@@ -105,26 +114,26 @@ function ProfileContent() {
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-y-scroll">
       {/* Desktop nav */}
       <div className="hidden h-24 md:block">
         <Nav noLinks={true} />
       </div>
 
-      {/* Mobile nav */}
-      {isMobile && <Nav noLinks={true} />}
+
+      {/* Mobile header */}
+      {isMobile &&  <Search_bar PageTitle="Profile" showSearchBar={false}/>}
 
       {/* Mobile slide view */}
       {isMobile ? (
-        <div className="relative w-full overflow-hidden pt-24">
+        <div className="relative w-full overflow-hidden overflow-y-scroll ">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}
           >
             {/* Sidebar */}
-            <div className="w-full p-4">
-              <div className="flex flex-col items-center mb-6">
-                {/* REDUCED AVATAR */}
+            <div className="w-full p-4 pt-2 font-inter">
+              <div className="flex flex-col items-center mb-2">
                 <div className="relative w-10 h-10 md:w-12 md:h-12">
                   <Image
                     src={user?.profilePicture || userIcon}
@@ -133,24 +142,40 @@ function ProfileContent() {
                     className="rounded-full object-cover border border-orange-200 shadow"
                   />
                 </div>
-                <h2 className="text-lg font-semibold mt-2">
+                <h2 className="text-lg font-semibold mt-2 ">
                   {(user?.firstName ?? "User") + (user?.lastName ? ` ${user.lastName}` : "")}
                 </h2>
-                {user?.email && <p className="text-sm text-gray-500">{user.email}</p>}
+                {user?.email && <p className="text-sm text-gray-500 mb-2">{user.email}</p>}
               </div>
 
               <div className="space-y-3">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => handleTabClick(tab)}
-                    className="w-full flex items-center gap-3 p-3 bg-gray-100 rounded-lg text-sm font-medium hover:bg-orange-100"
-                  >
-                    {tab.icon && <Image src={tab.icon} alt={tab.title} width={16} height={16} />}
-                    {tab.title}
-                  </button>
-                ))}
+                {tabs
+                  .filter(t => t.id !== "auth") // keep the separate logout button below
+                  .map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabClick(tab)}
+                      className="w-full flex items-center gap-3 p-3 bg-gray-100 rounded-lg text-sm font-medium hover:bg-orange-100"
+                    >
+                      {tab.icon && <Image src={tab.icon} alt={tab.title} width={16} height={16} />}
+                      {tab.title}
+                    </button>
+                  ))}
               </div>
+
+              {/* NEW: Dedicated Logout button (mobile) */}
+              {user && (
+                <div className="mt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    aria-label="Log out"
+                  >
+                    <Image src={userIcon} alt="Logout" width={16} height={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Content */}
@@ -161,11 +186,10 @@ function ProfileContent() {
         </div>
       ) : (
         // Desktop / Tablet
-        <div className="flex flex-col md:flex-row pt-24">
+        <div className="flex flex-col md:flex-row md:pt-24">
           {/* Sidebar */}
-          <div className="md:w-1/4 border-r border-gray-200 p-4">
+          <div className="md:w-1/4 border-r border-gray-200 p-4 flex flex-col">
             <div className="flex flex-col items-center text-center mb-6">
-              {/* REDUCED AVATAR */}
               <div className="relative w-10 h-10 md:w-12 md:h-12">
                 <Image
                   src={user?.profilePicture || userIcon}
@@ -181,20 +205,36 @@ function ProfileContent() {
             </div>
 
             <div className="space-y-3">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabClick(tab)}
-                  className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id ? "bg-orange-100 text-orange-600" : ""
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {tab.icon && <Image src={tab.icon} alt={tab.title} width={18} height={18} />}
-                    <span className="text-gray-800 font-medium text-sm">{tab.title}</span>
-                  </div>
-                </button>
-              ))}
+              {tabs
+                .filter(t => t.id !== "auth") // hide inline auth tab text and use the button below
+                .map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabClick(tab)}
+                    className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg shadow-sm text-left hover:bg-gray-100 transition ${activeTabId === tab.id ? "bg-orange-100 text-orange-600" : ""
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {tab.icon && <Image src={tab.icon} alt={tab.title} width={18} height={18} />}
+                      <span className="text-gray-800 font-medium text-sm">{tab.title}</span>
+                    </div>
+                  </button>
+                ))}
             </div>
+
+            {/* NEW: Dedicated Logout button (desktop) */}
+            {user && (
+              <div className="mt-auto pt-4">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold bg-red-50 text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  aria-label="Log out"
+                >
+                  <Image src={userIcon} alt="Logout" width={18} height={18} />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Content */}

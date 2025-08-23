@@ -68,7 +68,7 @@ const Cart_tab = () => {
       "
     >
       {/* CONTENT CONTAINER */}
-      <div className="w-full max-w-[800px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6 flex-1">
+      <div className="w-full max-w-[800px] font-inter mx-auto px-4 sm:px-6 pt-4 sm:pt-6 flex-1">
         {cartItems.length === 0 ? (
           <div className="flex flex-col justify-center items-center text-center py-24">
             <h2 className="my-2 text-xl sm:text-2xl font-inter font-semibold">Cart is empty</h2>
@@ -204,7 +204,7 @@ const Cart_tab = () => {
             shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:shadow-none
           "
         >
-          <div className="w-full max-w-[800px] mx-auto px-4 sm:px-6">
+          <div className="w-full font-inter max-w-[800px] mx-auto px-4 sm:px-6">
             {/* Total */}
             <div className="flex items-center justify-between py-3 md:py-4">
               <span className="text-base sm:text-lg font-semibold text-gray-700">Total</span>
@@ -214,7 +214,7 @@ const Cart_tab = () => {
             </div>
 
             {/* Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-[env(safe-area-inset-bottom)] mb-3 md:mb-0 md:pb-0">
+            <div className="grid grid-cols-1  font-inter  sm:grid-cols-2 gap-3 pb-[env(safe-area-inset-bottom)] mb-3 md:mb-0 md:pb-0">
               <button
                 onClick={handleClearCart}
                 className="

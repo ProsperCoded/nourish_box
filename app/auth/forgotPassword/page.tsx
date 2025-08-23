@@ -22,6 +22,7 @@ const ForgotPassword = () => {
       return;
     }
 
+
     try {
       setLoading(true);
       const actionCodeSettings = {

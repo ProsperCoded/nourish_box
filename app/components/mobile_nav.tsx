@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { FaHome, FaUtensils, FaUser, FaHeart } from "react-icons/fa";
 import CartBadgeIcon from "../components/cartIcon";
 
+
 const NAV_HEIGHT = 72; // a bit taller so labels never clip
 
 type NavItem = {
@@ -29,7 +30,7 @@ export default function MobileNav() {
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white
+        fixed bottom-0 left-0 right-0 font-inter z-50 md:hidden bg-white
         border-t shadow-md
         w-screen
         pl-[env(safe-area-inset-left)]

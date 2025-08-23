@@ -3,8 +3,9 @@ import { Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import LoginPrompt from './loginPrompt';
-import { useManualLoginPrompt } from '../auth/loginPromptWrapper';
+import LoginPrompt from './LoginPrompt';
+// import { useManualLoginPrompt } from '../auth/loginPromptWrapper';
+import { useManualLoginPrompt } from './LoginPromptWrapper';
 import RecipeDetailModal from './RecipeDetailModal';
 
 import { Clock, Heart, Play, ShoppingBag, Tag } from 'lucide-react';
