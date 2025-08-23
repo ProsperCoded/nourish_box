@@ -1,17 +1,17 @@
-import { Recipe } from "@/app/utils/types/recipe.type";
+import { Recipe } from '@/app/utils/types/recipe.type';
 
 export enum DeliveryStatus {
-  PENDING = "pending",
-  DELIVERED = "delivered",
-  PACKED = "packed",
-  IN_TRANSIT = "in_transit",
-  FAILED = "failed",
+  PENDING = 'pending',
+  PACKED = 'packed',
+  IN_TRANSIT = 'in_transit',
+  DELIVERED = 'delivered',
+  FAILED = 'failed',
 }
 
 export enum ReceivedStatus {
-  PENDING = "pending",
-  RECEIVED = "received",
-  FAILED = "failed",
+  PENDING = 'pending',
+  RECEIVED = 'received',
+  FAILED = 'failed',
 }
 export type Order = {
   id: string;

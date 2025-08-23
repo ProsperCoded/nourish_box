@@ -1,19 +1,17 @@
 "use client";
 
+import { FirebaseError } from "firebase/app";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import passwordView from "../assets/icons8-eye-48.png";
-import Image from "next/image";
 import google_logo from "../assets/icons8-google-48.png";
-import Link from "next/link";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider, db } from "../lib/firebase";
-import { FirebaseError } from "firebase/app";
-import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
-import CartComponent from "../components/Cart";
 import Nav from "../components/nav";
-import Header from "../components/header";
+import { auth } from "../lib/firebase";
+import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
@@ -69,9 +67,9 @@ const LogIn = () => {
             <Nav />
           </div>
           <div className="block md:hidden">
-              <Header showSearch={false} />
+            <Nav noLinks={true} />
           </div>
-          <div className="flex w-100 justify-between ">
+          <div className="flex w-100 justify-between pt-20 lg:pt-0">
 
             <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
               <Link href="/">

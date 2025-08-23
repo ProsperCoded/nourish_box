@@ -1,29 +1,28 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 // Pages / components
+import Nav from "../components/nav";
 import User_profile from "../components/user_profile";
-import FavoritesPage from "../favorites/page";
 import ContactUs from "../contact_us/page";
+import FavoritesPage from "../favorites/page";
+import LogIn from "../login/page";
 import ManageAddress from "./manageAddress/page";
 import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";
-import LogIn from "../login/page";
-import Nav from "../components/nav";
-import Header from "../components/header";
 
 // Icons (images)
-import userIcon from "../assets/icons8-user-48.png";
 import clockIcon from "../assets/icons8-clock-100.png";
+import deliveryIcon from "../assets/icons8-delivery-100.png";
+import locationIcon from "../assets/icons8-location-50.png";
 import bookmarkIcon from "../assets/icons8-love-circled-50.png";
 import phoneIcon from "../assets/icons8-phone-100.png";
-import locationIcon from "../assets/icons8-location-50.png";
-import deliveryIcon from "../assets/icons8-delivery-100.png";
+import userIcon from "../assets/icons8-user-48.png";
 
 type TabDef = {
   id: string;
@@ -45,7 +44,7 @@ function ProfileContent() {
   // Build tabs (auth-aware)
   const baseTabs: TabDef[] = [
     { id: "profile", title: "Edit profile", icon: userIcon, content: <User_profile /> },
-    { id: "orders", title: "Order History", icon: clockIcon, content: <OrderHistory showHeader={false} /> },
+    { id: "orders", title: "Order History", icon: clockIcon, content: <OrderHistory /> },
     { id: "saved", title: "Favorite Recipes", icon: bookmarkIcon, content: <FavoritesPage showHeader={false} /> },
     { id: "contact", title: "Contact us", icon: phoneIcon, content: <ContactUs showIcons={false} /> },
     { id: "track", title: "Track delivery", icon: deliveryIcon, content: <OrderStatusPage /> },
@@ -109,15 +108,15 @@ function ProfileContent() {
     <div className="min-h-screen bg-white">
       {/* Desktop nav */}
       <div className="hidden h-24 md:block">
-        <Nav />
+        <Nav noLinks={true} />
       </div>
 
-      {/* Mobile header (left-arrow behaviour handled inside <Header />) */}
-      {isMobile && <Header showSearch={false} />}
+      {/* Mobile nav */}
+      {isMobile && <Nav noLinks={true} />}
 
       {/* Mobile slide view */}
       {isMobile ? (
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden pt-24">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}
@@ -162,7 +161,7 @@ function ProfileContent() {
         </div>
       ) : (
         // Desktop / Tablet
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-col md:flex-row pt-24">
           {/* Sidebar */}
           <div className="md:w-1/4 border-r border-gray-200 p-4">
             <div className="flex flex-col items-center text-center mb-6">
