@@ -12,7 +12,8 @@ import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import { auth } from "../lib/firebase";
 import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import Nav from "../components/nav";
-import Header from "../components/header";
+import MobileNav from "../components/mobile_nav";
+// import Header from "../components/header";
 
 type LogInProps = {
   showHeader?: boolean; // optional header (mobile)
@@ -73,7 +74,7 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
       {/* Optional mobile header */}
       {showHeader && (
         <div className="block md:hidden">
-          <Header showSearch={false} />
+          <MobileNav/>
         </div>
       )}
 

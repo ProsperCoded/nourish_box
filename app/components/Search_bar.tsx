@@ -3,14 +3,27 @@ import Image from "next/image";
 import React from 'react';
 import back from "../assets/icons8-left-arrow-50.png";
 import search from "../assets/icons8-search-48.png";
+import { useRouter } from "next/navigation";
 
-const Search_bar = ({ goBack, PageTitle, showSearchBar, setShowSearchBar, searchQuery, setSearchQuery }: {
-  goBack: () => void,
+
+
+const Search_bar = ({  PageTitle, showSearchBar, setShowSearchBar, searchQuery, setSearchQuery }: {
+  
   PageTitle: string,
   showSearchBar?: boolean,
   setShowSearchBar?: React.Dispatch<React.SetStateAction<boolean>>,
   searchQuery?: string, setSearchQuery?: React.Dispatch<React.SetStateAction<string>>
+
 }) => {
+  const router = useRouter();
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
+      router.back();
+    } else {
+      // back to profile hub if present, else home
+      router.push("/profile?tab=saved");
+    }
+  };
   return (
     <div>
       <div className="flex flex-col md:hidden px-4 mb-4">
@@ -40,16 +53,8 @@ const Search_bar = ({ goBack, PageTitle, showSearchBar, setShowSearchBar, search
           </div>
         )}
       </div>
-            <input
-              type="text"
-              placeholder="Search recipes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className=" mr-3 p-1 w-full"
-            />
-            <Image src={search} alt="search" width={20} height={10} />
           </div>
         )}
-     
+
 
 export default Search_bar

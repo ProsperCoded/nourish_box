@@ -120,14 +120,13 @@ function ProfileContent() {
         <Nav noLinks={true} />
       </div>
 
-      {/* Mobile nav */}
-      {isMobile && <Nav noLinks={true} />}
+
       {/* Mobile header */}
-      {isMobile &&  <Search_bar PageTitle="Profile" showSearchBar={false} goBack={goBack}/>}
+      {isMobile &&  <Search_bar PageTitle="Profile" showSearchBar={false}/>}
 
       {/* Mobile slide view */}
       {isMobile ? (
-        <div className="relative w-full overflow-hidden pt-24">
+        <div className="relative w-full overflow-hidden pt-12">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}

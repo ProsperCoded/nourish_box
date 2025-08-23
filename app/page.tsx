@@ -24,6 +24,7 @@ import {
   DEFAULT_SITE_CONTENT,
   SiteContent,
 } from './utils/types/site-content.type';
+import { UserAvatar } from './components/UserAvatar';
 
 export default function Home({
   searchQuery,
@@ -74,11 +75,11 @@ export default function Home({
       <OneTap />
 
       {/* Mobile header */}
-      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-20 mb-10'>
+      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-2 mb-10'>
         <div className='flex justify-between w-full'>
           {' '}
           <Image src={Logo} alt='logo' width={120} />
-          <CartComponent />
+          <UserAvatar/>
         </div>
         <div className='flex items-center border-2 border-gray-300 rounded-full px-4 py-3 bg-white shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-brand-btn_orange focus-within:ring-2 focus-within:ring-brand-btn_orange focus-within:ring-opacity-20 w-full min-h-[48px] my-3'>
           <input

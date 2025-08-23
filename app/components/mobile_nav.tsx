@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { FaHome, FaUtensils, FaUser, FaHeart } from "react-icons/fa";
 import CartBadgeIcon from "../components/cartIcon";
 
+
 const NAV_HEIGHT = 72; // a bit taller so labels never clip
 
 type NavItem = {

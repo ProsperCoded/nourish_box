@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import Nav from "../components/nav";
-import Header from "../components/header";
+import MobileNav from "../components/mobile_nav";
 
 const ForgotPassword = () => {
   ;
@@ -18,7 +18,7 @@ const ForgotPassword = () => {
         <Nav />
       </div>
       <div className="block md:hidden">
-        <Header showSearch={false} />
+        <MobileNav  />
       </div>
 
       <div className="flex w-100 justify-between">

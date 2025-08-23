@@ -42,14 +42,6 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     };
   }, [user]);
 
-  const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
-      router.back();
-    } else {
-      // back to profile hub if present, else home
-      router.push("/profile?tab=saved");
-    }
-  };
 
   if (showLoginPrompt) {
     return (
@@ -97,7 +89,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
                 showSearchBar={showSearchBar}
                 PageTitle="Favorites"
                 setShowSearchBar={setShowSearchBar}
-                goBack={goBack}
+
               />
             </div>
           </div>
@@ -160,7 +152,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
               showSearchBar={showSearchBar}
               PageTitle="Favorites"
               setShowSearchBar={setShowSearchBar}
-              goBack={goBack}
+            
             />
           </div>
         </div>
