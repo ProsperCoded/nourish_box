@@ -7,11 +7,11 @@ import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 // Pages / components
+import LogIn from "../auth/login/page";
 import Nav from "../components/nav";
 import User_profile from "../components/user_profile";
 import ContactUs from "../contact_us/page";
 import FavoritesPage from "../favorites/page";
-import LogIn from "../login/page";
 import ManageAddress from "./manageAddress/page";
 import OrderHistory from "./orderHistory/page";
 import OrderStatusPage from "./trackOrder/page";

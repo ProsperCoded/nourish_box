@@ -1,8 +1,6 @@
-import React from "react";
-import { Box } from "@mui/material";
+import Image from "next/image";
 import Link from "next/link";
 import cancel_icon from "../assets/icons8-cancel-48.png";
-import Image from "next/image";
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -62,7 +60,7 @@ const login_prompt = (props: inputProps) => {
             Never mind
           </button>
           <Link
-            href="/sign_up"
+            href="/auth/sign_up"
             className="bg-orange-400 text-white w-36 px-4 py-2 rounded-lg text-center font-inter"
           >
             Sign up
@@ -70,7 +68,7 @@ const login_prompt = (props: inputProps) => {
         </div>
         {/* </Box> */}
       </div>
-  </div>
+    </div>
   );
 };
 

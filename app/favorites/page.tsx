@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import LoginPrompt from "../components/LoginPrompt";
-import { LoginPromptWrapper } from "../components/LoginPromptWrapper";
+import LoginPrompt from "../components/auth/loginPrompt";
+import { LoginPromptWrapper } from "../components/auth/loginPromptWrapper";
 import RecipeList from "../components/RecipeCard";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import SearchBar from "../components/Search_bar";
@@ -55,7 +55,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
     return (
       <LoginPromptWrapper>
         <LoginPrompt main_text="Please login" />
-      </LoginPromptWrapper>
+      </auth/ loginPromptWrapper >
     );
   }
 

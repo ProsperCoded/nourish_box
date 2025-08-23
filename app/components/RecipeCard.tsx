@@ -3,8 +3,8 @@ import { Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useManualLoginPrompt } from '../components/LoginPromptWrapper';
-import LoginPrompt from './LoginPrompt';
+import LoginPrompt from './loginPrompt';
+import { useManualLoginPrompt } from '../auth/loginPromptWrapper';
 import RecipeDetailModal from './RecipeDetailModal';
 
 import { Clock, Heart, Play, ShoppingBag, Tag } from 'lucide-react';
@@ -212,15 +212,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             {recipe.name}
           </h3>
 
-        {/* Category Badge */}
-        {categoryName && (
-          <div className='flex items-center gap-1.5 text-xs text-gray-500'>
-            <Tag className='w-3 h-3' />
-            <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium'>
-              {categoryName}
-            </span>
-          </div>
-        )}
+          {/* Category Badge */}
+          {categoryName && (
+            <div className='flex items-center gap-1.5 text-xs text-gray-500'>
+              <Tag className='w-3 h-3' />
+              <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium'>
+                {categoryName}
+              </span>
+            </div>
+          )}
         </div>
 
         {recipe.description && (

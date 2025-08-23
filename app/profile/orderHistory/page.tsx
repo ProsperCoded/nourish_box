@@ -153,7 +153,7 @@ const OrderHistory = () => {
             You need to be logged in to view your order history.
           </p>
           <a
-            href="/login"
+            href="/auth/login"
             className="bg-orange-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors"
           >
             Go to Login
