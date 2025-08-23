@@ -50,9 +50,6 @@ const Search_bar = ({ goBack, PageTitle, showSearchBar, setShowSearchBar, search
             <Image src={search} alt="search" width={20} height={10} />
           </div>
         )}
-      </div>
-    </div>
-  )
-}
+     
 
 export default Search_bar
