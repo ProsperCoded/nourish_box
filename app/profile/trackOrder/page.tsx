@@ -226,7 +226,7 @@ const OrderStatusPage = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Please Login</h2>
           <p className="text-gray-600 mb-6">You need to be logged in to view your orders.</p>
           <Link
-            href="/login"
+            href="/auth/login"
             className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700"
           >
             Login

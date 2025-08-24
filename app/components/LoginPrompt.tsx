@@ -2,6 +2,22 @@ import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import cancel_icon from "../assets/icons8-cancel-48.png";
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%",
+  maxWidth: "1000px",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  maxHeight: "90vh",
+  overflow: "auto",
+  outline: "none",
+};
+
+
 
 export interface LoginPromptProps {
   /** Short phrase that follows "Sign up", e.g. "to save your favourites" */

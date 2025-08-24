@@ -152,7 +152,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
               showSearchBar={showSearchBar}
               PageTitle="Favorites"
               setShowSearchBar={setShowSearchBar}
-            
+
             />
           </div>
         </div>
