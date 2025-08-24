@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoginPrompt from "../components/LoginPrompt";
-import { LoginPromptWrapper } from "../components/LoginPromptWrapper";
 import RecipeList from "../components/RecipeCard";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import SearchBar from "../components/Search_bar";
@@ -17,12 +16,17 @@ interface Props {
   showHeader?: boolean;
 }
 
+
 const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   const { user } = useAuth();
   const { favorites, isLoading, error } = useFavorites();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  // NEW: controls visibility of the login prompt
+  const [loginOpen, setLoginOpen] = useState(true);
+
   const router = useRouter();
 
   const searchResult = favorites.filter((recipe) =>
@@ -30,24 +34,22 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   );
   const showSearch = searchQuery.trim() !== "";
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-    if (!user) {
-      timer = setTimeout(() => setShowLoginPrompt(true), 1);
-    } else {
-      setShowLoginPrompt(false);
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [user]);
+  // Show the prompt only if the user is NOT logged in AND the prompt is still open.
+  const shouldShowLoginPrompt = !user && loginOpen;
 
-
-  if (showLoginPrompt) {
+  if (shouldShowLoginPrompt) {
     return (
-      <LoginPromptWrapper>
-        <LoginPrompt main_text="Please login" />
-      </LoginPromptWrapper>
+      <LoginPrompt
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onNeverMind={() => setLoginOpen(false)}
+        main_text="view your favorites"
+      // Optional customizations:
+      // title="Heads up!"
+      // message={<>Create an account to keep your favorites in sync.</>}
+      // signUpHref="/sign_up"
+      // loginHref="/login"
+      />
     );
   }
 
@@ -65,7 +67,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[1550px] px-4">
+          <div className="hidden md:flex mx-auto w-full max-w-[1550px] px-4">
             <div className={`flex justify-between items-center mb-6 ${className ?? ""}`}>
               <h2 className="text-3xl font-inter font-bold">Favorites</h2>
               <Link
@@ -78,8 +80,8 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
             <hr />
           </div>
         )}
-
-        {/* Mobile search header (kept inside container) */}
+{/*
+        Mobile search header (kept inside container) */}
         {showHeader && (
           <div className="block md:hidden">
             <div className="mx-auto w-full max-w-[1550px] px-4">
@@ -89,7 +91,6 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
                 showSearchBar={showSearchBar}
                 PageTitle="Favorites"
                 setShowSearchBar={setShowSearchBar}
-
               />
             </div>
           </div>
@@ -128,7 +129,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
           </div>
         </div>
       ) : (
-        <div className="mx-auto w-full max-w-[1550px] px-4">
+        <div className="mx-auto w-full max-w-[1550px] px-4 hidden md:block ">
           <div className={`flex justify-between items-center mb-6 ${className ?? ""}`}>
             <h2 className="text-3xl font-inter font-bold">Favorites</h2>
             <Link
@@ -145,14 +146,13 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
       {/* Mobile search header (inside the same container) */}
       {showHeader && (
         <div className="block md:hidden">
-          <div className="mx-auto w-full max-w-[1550px] ">
+          <div className="mx-auto w-full max-w-[1550px]">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               showSearchBar={showSearchBar}
               PageTitle="Favorites"
               setShowSearchBar={setShowSearchBar}
-
             />
           </div>
         </div>

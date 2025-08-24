@@ -17,11 +17,14 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useInProfile } from "@/app/lib/useInProfile";
 
 type OrderWithDetails = Order & {
   recipe?: Recipe;
   delivery?: Delivery;
 };
+
+type Props = { showHeader?: boolean /* optional override */ };
 
 const statusColorMap = {
   [DeliveryStatus.PENDING]: "text-yellow-600 bg-yellow-100",
@@ -39,7 +42,9 @@ const statusDisplayMap = {
   [DeliveryStatus.FAILED]: "Failed",
 };
 
-const OrderHistory = () => {
+const OrderHistory = ({showHeader}) => {
+  const inProfile = useInProfile();
+  const shouldShowHeader = showHeader ?? !inProfile;
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,9 +172,9 @@ const OrderHistory = () => {
     <div className="min-h-screen  p-4 md:p-6 ">
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-inter font-bold mb-2 text-center md:text-left">
-          Order History
-        </h1>
+        {shouldShowHeader && (
+          <h1 className="text-2xl font-inter font-bold mb-2 text-center md:text-left">Order History</h1>
+        )}
         <hr />
         {loading ? (
           <div className="flex items-center justify-center py-12">

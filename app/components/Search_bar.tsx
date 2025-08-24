@@ -1,60 +1,95 @@
-'use client'
-import Image from "next/image";
+'use client';
+
+import Image from 'next/image';
 import React from 'react';
-import back from "../assets/icons8-left-arrow-50.png";
-import search from "../assets/icons8-search-48.png";
-import { useRouter } from "next/navigation";
+import search from '../assets/icons8-search-48.png';
+import back from '../assets/icons8-left-arrow-50.png';
+import { usePathname, useRouter } from 'next/navigation';
 
+type Props = {
+  PageTitle: string;
+  showSearchBar?: boolean;
+  setShowSearchBar?: React.Dispatch<React.SetStateAction<boolean>>;
+  searchQuery?: string;
+  setSearchQuery?: React.Dispatch<React.SetStateAction<string>>;
+  onBack?: () => void;                 // optional override (rarely needed now)
+  fallbackHref?: string;               // where to go if no history (default '/')
+};
 
-
-const Search_bar = ({  PageTitle, showSearchBar, setShowSearchBar, searchQuery, setSearchQuery }: {
-
-  PageTitle: string,
-  showSearchBar?: boolean,
-  setShowSearchBar?: React.Dispatch<React.SetStateAction<boolean>>,
-  searchQuery?: string, setSearchQuery?: React.Dispatch<React.SetStateAction<string>>
-
+const Search_bar: React.FC<Props> = ({
+  PageTitle,
+  showSearchBar,
+  setShowSearchBar,
+  searchQuery,
+  setSearchQuery,
+  onBack,
+  fallbackHref = '/',
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
+
   const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
+    // 1) Explicit override still wins (if you ever need it somewhere special)
+    if (onBack) return onBack();
+
+    // 2) Profile-specific behavior: return to the hub and open the sidebar
+    const inProfile = pathname?.startsWith('/profile');
+    if (inProfile) {
+      // Tell Profile to open the sidebar (hub)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('profile:openSidebar'));
+      }
+      // Go to /profile (no tab) so header/title resets correctly
+      router.push('/profile', { scroll: false });
+      return;
+    }
+
+    // 3) Everywhere else: normal back, with a safe fallback
+    if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
     } else {
-      // back to profile hub if present, else home
-      router.push("/profile?tab=saved");
+      router.push(fallbackHref);
     }
   };
+
   return (
-    <div>
-      <div className="flex flex-col md:hidden px-4 mb-4 font-custom font-xl">
-        <div className="flex justify-between w-100 items-center">
-          <div>
-            <button onClick={goBack} className=" transition-all">  <Image src={back} alt="left black arrow" width={20} height={10} /></button>
-          </div>
-          <h1 className="text-2xl font-semibold my-4 trasnition ease-linear duration-200">{PageTitle}</h1>
-          {!showSearchBar && (
-            <button className=" transition ease-out duration-300" onClick={() => setShowSearchBar(true)}>
-              <Image src={search} alt="search" width={20} height={10} /></button>
-          )}
-        </div>
+    <div className="md:hidden px-4 mb-4">
+      <div className="flex justify-between items-center">
+        <button onClick={goBack} className="p-2 rounded hover:bg-gray-100" aria-label="Go back">
+          <Image src={back} alt="Back" width={20} height={20} />
+        </button>
 
-        {showSearchBar && (
+        <h1 className="text-2xl font-semibold my-4 transition ease-linear duration-200">
+          {PageTitle}
+        </h1>
 
-          <div className=" search bar px-2 border-[1px] border-gray-400 rounded-md flex items-center sm:w-8/12 lg:w-3/5 animate-in fade-in">
-
-            <input
-              type="text"
-              placeholder="Search recipes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className=" mr-3 p-1 w-full"
-            />
-            <Image src={search} alt="search" width={20} height={10} />
-          </div>
+        {!showSearchBar ? (
+          <button
+            className="p-2 rounded hover:bg-gray-100"
+            onClick={() => setShowSearchBar?.(true)}
+            aria-label="Open search"
+          >
+            <Image src={search} alt="Search" width={20} height={20} />
+          </button>
+        ) : (
+          <span className="w-10" />
         )}
       </div>
-          </div>
-        )}
 
+      {showSearchBar && (
+        <div className="mt-2 px-2 border border-gray-300 rounded-md flex items-center">
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery?.(e.target.value)}
+            className="py-2 pr-3 w-full outline-none"
+          />
+          <Image src={search} alt="Search" width={20} height={20} />
+        </div>
+      )}
+    </div>
+  );
+};
 
-export default Search_bar
+export default Search_bar;

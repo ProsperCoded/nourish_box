@@ -3,17 +3,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 // Pages / components
 import LogIn from "../auth/login/page";
 import Nav from "../components/nav";
 import User_profile from "../components/user_profile";
-import ContactUs from "../contact_us/page";
+import ContactUs from "../contact_us/page"    // ← use component version
 import FavoritesPage from "../favorites/page";
 import ManageAddress from "./manageAddress/page";
 import OrderHistory from "./orderHistory/page";
+import Search_bar from "../components/Search_bar";
 import OrderStatusPage from "./trackOrder/page";
 
 // Icons (images)
@@ -23,14 +24,14 @@ import locationIcon from "../assets/icons8-location-50.png";
 import bookmarkIcon from "../assets/icons8-love-circled-50.png";
 import phoneIcon from "../assets/icons8-phone-100.png";
 import userIcon from "../assets/icons8-user-48.png";
-import Search_bar from "../components/Search_bar";
 
-type TabDef = {
+export type TabDef = {
   id: string;
-  title: string;
-  icon?: any;                // StaticImageData for <Image />
-  content?: React.ReactNode; // render content when selected
-  onClick?: () => void;      // for action tabs (e.g., Logout)
+  title: string;              // label in the sidebar list
+  headerTitle?: string;       // label in the mobile header
+  icon?: any;                 // StaticImageData for <Image />
+  content?: React.ReactNode;  // render content when selected
+  onClick?: () => void;       // for action tabs (e.g., Logout)
 };
 
 function ProfileContent() {
@@ -41,38 +42,31 @@ function ProfileContent() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1 && window.innerWidth > 768) {
-      router.back();
-    } else {
-      // back to profile hub if present, else home
-      router.push("/profile?tab=saved");
-    }
-  };
+
   // Build tabs (auth-aware)
-  const baseTabs: TabDef[] = [
-    { id: "profile", title: "Edit profile", icon: userIcon, content: <User_profile /> },
-    { id: "orders", title: "Order History", icon: clockIcon, content: <OrderHistory /> },
-    { id: "saved", title: "Favorite Recipes", icon: bookmarkIcon, content: <FavoritesPage showHeader={false} /> },
-    { id: "contact", title: "Contact us", icon: phoneIcon, content: <ContactUs showIcons={false} /> },
-    { id: "track", title: "Track delivery", icon: deliveryIcon, content: <OrderStatusPage /> },
-    { id: "address", title: "Manage address", icon: locationIcon, content: <ManageAddress /> },
-  ];
+  const baseTabs: TabDef[] = useMemo(
+    () => [
+      { id: "profile", title: "Edit profile", headerTitle: "Edit profile", icon: userIcon, content: <User_profile /> },
+      { id: "orders", title: "Order History", headerTitle: "Order History", icon: clockIcon, content: <OrderHistory showHeader={false} /> },
+      { id: "saved", title: "Favorite Recipes", headerTitle: "Favorites", icon: bookmarkIcon, content: <FavoritesPage showHeader={false} /> },
+      { id: "contact", title: "Contact us", headerTitle: "Contact us", icon: phoneIcon, content: <ContactUs showHeader={false} showFooter={false} showIcons={false} /> },
+      { id: "track", title: "Track delivery", headerTitle: "Track delivery", icon: deliveryIcon, content: <OrderStatusPage /> },
+      { id: "address", title: "Manage address", headerTitle: "Manage address", icon: locationIcon, content: <ManageAddress /> },
+    ],
+    []
+  );
 
   const handleLogout = async () => {
-    try {
-      if (typeof logout === "function") await logout();
-    } finally {
-      router.replace("/");
-    }
+    try { if (typeof logout === "function") await logout(); }
+    finally { router.replace("/"); }
   };
 
   // Keep auth tab for the login screen inside content when logged out
   const authTab: TabDef = user
-    ? { id: "auth", title: "Logout (moved below)", icon: userIcon, onClick: handleLogout }
-    : { id: "login", title: "Login", icon: userIcon, content: <LogIn showHeader={ false} /> };
+    ? { id: "auth", title: "Logout (moved below)", headerTitle: "Profile", icon: userIcon, onClick: handleLogout }
+    : { id: "login", title: "Login", headerTitle: "Login", icon: userIcon, content: <LogIn /> };
 
-  const tabs: TabDef[] = [...baseTabs, authTab];
+  const tabs: TabDef[] = useMemo(() => [...baseTabs, authTab], [baseTabs, user]);
 
   // Responsive
   useEffect(() => {
@@ -82,10 +76,17 @@ function ProfileContent() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Listen for Search_bar's "open sidebar" broadcast from anywhere under /profile
+  useEffect(() => {
+    const openSidebar = () => setIsSidebarOpen(true);
+    window.addEventListener("profile:openSidebar", openSidebar);
+    return () => window.removeEventListener("profile:openSidebar", openSidebar);
+  }, []);
+
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     document.body.style.overflow = isMobile && isSidebarOpen ? "hidden" : "unset";
-    return () => void (document.body.style.overflow = "unset");
+    return () => { document.body.style.overflow = "unset"; };
   }, [isMobile, isSidebarOpen]);
 
   // Sync with ?tab=
@@ -100,10 +101,7 @@ function ProfileContent() {
   }, [searchParams, tabs.length, activeTabId]);
 
   const handleTabClick = (tab: TabDef) => {
-    if (tab.onClick) {
-      tab.onClick();
-      return;
-    }
+    if (tab.onClick) { tab.onClick(); return; }
     if (tab.content) {
       setActiveTabId(tab.id);
       if (isMobile) setIsSidebarOpen(false);
@@ -111,7 +109,20 @@ function ProfileContent() {
     }
   };
 
-  const activeTab = tabs.find((t) => t.id === activeTabId);
+  // Derive header from URL first to avoid stale state, then fall back
+  const tabParam = searchParams.get("tab");
+  const currentTabId =
+    (tabParam && tabs.some((t) => t.id === tabParam)) ? tabParam : (activeTabId || "profile");
+  const activeTab = tabs.find((t) => t.id === currentTabId);
+  const headerTitleBase = activeTab?.headerTitle ?? activeTab?.title ?? "Profile";
+  // When the sidebar (hub) is open on mobile, force header to "Profile"
+  const activeHeaderTitle = (isMobile && isSidebarOpen) ? "Profile" : headerTitleBase;
+
+  // Optional: auto-open sidebar hub on mobile when there's no tab in the URL
+  useEffect(() => {
+    if (!isMobile) return;
+    if (!searchParams.get("tab")) setIsSidebarOpen(true);
+  }, [isMobile, searchParams]);
 
   return (
     <div className="min-h-screen bg-white overflow-y-scroll">
@@ -120,13 +131,18 @@ function ProfileContent() {
         <Nav noLinks={true} />
       </div>
 
-
-      {/* Mobile header */}
-      {isMobile &&  <Search_bar PageTitle="Profile" showSearchBar={false}/>}
+      {/* Mobile header with dynamic title per tab
+          NOTE: We no longer pass onBack — the Search_bar handles profile/non-profile back logic itself. */}
+      {isMobile && (
+        <Search_bar
+          PageTitle={activeHeaderTitle}
+          showSearchBar={false}
+        />
+      )}
 
       {/* Mobile slide view */}
       {isMobile ? (
-        <div className="relative w-full overflow-hidden overflow-y-scroll ">
+        <div className="relative w-full overflow-hidden">
           <motion.div
             className="flex w-[200%] transition-transform duration-100"
             animate={{ x: isSidebarOpen ? "0%" : "-50%" }}
@@ -142,7 +158,7 @@ function ProfileContent() {
                     className="rounded-full object-cover border border-orange-200 shadow"
                   />
                 </div>
-                <h2 className="text-lg font-semibold mt-2 ">
+                <h2 className="text-lg font-semibold mt-2">
                   {(user?.firstName ?? "User") + (user?.lastName ? ` ${user.lastName}` : "")}
                 </h2>
                 {user?.email && <p className="text-sm text-gray-500 mb-2">{user.email}</p>}
@@ -150,7 +166,7 @@ function ProfileContent() {
 
               <div className="space-y-3">
                 {tabs
-                  .filter(t => t.id !== "auth") // keep the separate logout button below
+                  .filter((t) => t.id !== "auth")
                   .map((tab) => (
                     <button
                       key={tab.id}
@@ -163,7 +179,7 @@ function ProfileContent() {
                   ))}
               </div>
 
-              {/* NEW: Dedicated Logout button (mobile) */}
+              {/* Dedicated Logout button (mobile) */}
               {user && (
                 <div className="mt-4 border-t border-gray-200">
                   <button
@@ -179,14 +195,14 @@ function ProfileContent() {
             </div>
 
             {/* Content */}
-            <div className="w-full p-4">
+            <div className="w-full p-4 pt-2">
               {activeTab && activeTab.content ? activeTab.content : <div>Select a tab</div>}
             </div>
           </motion.div>
         </div>
       ) : (
         // Desktop / Tablet
-        <div className="flex flex-col md:flex-row md:pt-24">
+        <div className="flex flex-col md:flex-row md:pt-1">
           {/* Sidebar */}
           <div className="md:w-1/4 border-r border-gray-200 p-4 flex flex-col">
             <div className="flex flex-col items-center text-center mb-6">
@@ -206,7 +222,7 @@ function ProfileContent() {
 
             <div className="space-y-3">
               {tabs
-                .filter(t => t.id !== "auth") // hide inline auth tab text and use the button below
+                .filter((t) => t.id !== "auth")
                 .map((tab) => (
                   <button
                     key={tab.id}
@@ -222,7 +238,7 @@ function ProfileContent() {
                 ))}
             </div>
 
-            {/* NEW: Dedicated Logout button (desktop) */}
+            {/* Dedicated Logout button (desktop) */}
             {user && (
               <div className="mt-auto pt-4">
                 <button
@@ -264,7 +280,7 @@ function ProfileContent() {
 function ProfileLoading() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
     </div>
   );
 }
