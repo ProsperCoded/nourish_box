@@ -60,12 +60,12 @@ const Page = () => {
        <Search_bar PageTitle='Shop'/>
 
       </div>
-      <div className='pt-32 md:px-8'>
+      <div className='md:pt-32 md:px-8'>
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl md:mx-auto'>
-          <h2 className='text-3xl sm:text-4xl px-4 lg:text-5xl font-inter font-medium text-center my-4'>
+          <h1 className='text-2xl px-4 lg:text-3xl font-inter font-medium text-center my-2 mb-4 md:my-4 md:mb-0'>
             Check out our recipes for the week
-          </h2>
+          </h1>
 
         </section>
 

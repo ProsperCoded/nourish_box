@@ -15,7 +15,7 @@ const page = () => {
           <Nav />
         </div>
         <div className="block md:hidden">
-          <Search_bar PageTitle="About us"/>
+          <Search_bar PageTitle="About us" />
               </div>
         <div className='flex  flex-col-reverse md:flex-row items-center  md:my-20 md:pt-20 lg:pt-0'>
           <div className='w-2/4 mt-20 md:mt-0 flex justify-center '> <Image src={icon} alt='nourish box icon' width={300} height={300} /></div>
