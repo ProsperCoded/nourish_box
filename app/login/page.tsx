@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState } from "react";
 import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
@@ -14,7 +14,16 @@ import { handleGoogleSignIn } from "../utils/firebase/auth.firebase";
 import Nav from "../components/nav";
 import MobileNav from "../components/mobile_nav";
 
-const LogIn: React.FC = () => {
+/** Wrapper puts a Suspense boundary above the hook usage */
+export default function LogIn() {
+  return (
+    <Suspense fallback={<div className="p-6 text-gray-500">Loading…</div>}>
+      <LogInInner />
+    </Suspense>
+  );
+}
+
+const LogInInner: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [view, setView] = useState(false);
@@ -25,13 +34,14 @@ const LogIn: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Show header only on /login
-  const isLoginRoute = pathname === "/auth/login";
+  // Show header only on /login (support both /login and /auth/login)
+  const isLoginRoute = pathname === "/login" || pathname === "/auth/login";
 
-  // Route-based top padding: pt-20 on /login, pt-0 on /profile?tab=login
+  // Route-based top padding: pt-10 on /login, pt-0 on /profile?tab=login
   const paddingTopClass = useMemo(() => {
-    const isProfileLoginTab = pathname?.startsWith("/profile") &&
-      (searchParams?.get("tab")?.toLowerCase() === "login");
+    const isProfileLoginTab =
+      pathname?.startsWith("/profile") &&
+      searchParams?.get("tab")?.toLowerCase() === "login";
 
     if (isLoginRoute) return "pt-10";
     if (isProfileLoginTab) return "pt-0";
@@ -123,7 +133,9 @@ const LogIn: React.FC = () => {
                   required
                 />
 
-                <label htmlFor="password" className="text-sm text-gray-700">Password</label>
+                <label htmlFor="password" className="text-sm text-gray-700">
+                  Password
+                </label>
                 <div className="flex items-center mt-2 mb-1 justify-between border border-gray-300 rounded-md pr-2 p-2">
                   <input
                     id="password"
@@ -147,7 +159,9 @@ const LogIn: React.FC = () => {
                 </div>
 
                 <p className="text-xs flex justify-end text-brand-text_gray">
-                  <Link href="/forgotPassword" className="hover:underline">Forgot password</Link>
+                  <Link href="/forgotPassword" className="hover:underline">
+                    Forgot password
+                  </Link>
                 </p>
 
                 <div className="flex mt-6 justify-center">
@@ -195,5 +209,3 @@ const LogIn: React.FC = () => {
     </div>
   );
 };
-
-export default LogIn;
