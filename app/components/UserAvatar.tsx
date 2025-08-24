@@ -1,8 +1,9 @@
 "use client";
-import Link from "next/link";
+import { User } from "@/app/utils/types/user.type";
 import Image from "next/image";
-import { useAuth } from "../contexts/AuthContext";
+import Link from "next/link";
 import userIcon from "../assets/icons8-user-48.png";
+import { useAuth } from "../contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { User } from "@/app/utils/types/user.type";
 interface menuProps {
   className?: string;
 }
@@ -42,12 +42,12 @@ export function UserAvatar({ className = "" }: menuProps) {
   if (!authUser) {
     return (
       <div className={`flex gap-4 ${className}`}>
-        <Link href="/login">
+        <Link href="/auth/login">
           <button className="text-brand-btn_orange font-inter hover:text-gray-600 transition-colors duration-300 px-4 py-2 font-medium text-md">
             Login
           </button>
         </Link>
-        <Link href="/sign_up">
+        <Link href="/auth/sign_up">
           <button className="bg-brand-btn_orange font-inter text-white hover:bg-opacity-90 transition-colors duration-300 px-5 py-2 rounded-lg font-medium text-md shadow-md hover:shadow-lg">
             Sign Up
           </button>

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 
 const Search_bar = ({  PageTitle, showSearchBar, setShowSearchBar, searchQuery, setSearchQuery }: {
-  
+
   PageTitle: string,
   showSearchBar?: boolean,
   setShowSearchBar?: React.Dispatch<React.SetStateAction<boolean>>,
@@ -26,7 +26,7 @@ const Search_bar = ({  PageTitle, showSearchBar, setShowSearchBar, searchQuery, 
   };
   return (
     <div>
-      <div className="flex flex-col md:hidden px-4 mb-4">
+      <div className="flex flex-col md:hidden px-4 mb-4 font-custom font-xl">
         <div className="flex justify-between w-100 items-center">
           <div>
             <button onClick={goBack} className=" transition-all">  <Image src={back} alt="left black arrow" width={20} height={10} /></button>

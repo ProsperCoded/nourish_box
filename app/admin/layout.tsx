@@ -1,25 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "../contexts/AuthContext";
-import Link from "next/link";
-import Image from "next/image";
-import logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
+import { Separator } from "@/app/components/ui/separator";
+import { cn } from "@/app/lib/utils/cn";
+import { motion } from "framer-motion";
 import {
-  LayoutDashboard,
   BookOpen,
-  Users,
-  ShoppingCart,
-  Settings,
+  LayoutDashboard,
   Menu,
+  Settings,
+  ShoppingCart,
+  Users,
   X,
 } from "lucide-react";
-import { cn } from "@/app/lib/utils/cn";
-import { Separator } from "@/app/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { User } from "../utils/types/user.type";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { useAuth } from "../contexts/AuthContext";
 
 const menuItems = [
   {
@@ -77,7 +76,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (graceExceeded) {
       if (!user) {
-        router.push("/login");
+        router.push("/auth/login");
       }
     }
   }, [graceExceeded, router, user]);
@@ -102,11 +101,10 @@ export default function AdminLayout({
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden ${
-          sidebarOpen
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden ${sidebarOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={() => setSidebarOpen(false)}
       />
 
@@ -119,18 +117,16 @@ export default function AdminLayout({
           x: isDesktop ? 0 : sidebarOpen ? 0 : -256,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`${
-          isDesktop ? "relative" : "fixed left-0"
-        } z-50 h-full bg-white shadow-lg flex flex-col overflow-hidden`}
+        className={`${isDesktop ? "relative" : "fixed left-0"
+          } z-50 h-full bg-white shadow-lg flex flex-col overflow-hidden`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <Link href="/">
             <Image
               src={logo}
               alt="Logo"
-              className={`transition-all duration-300 ${
-                sidebarCollapsed && isDesktop ? "w-8" : "w-32"
-              }`}
+              className={`transition-all duration-300 ${sidebarCollapsed && isDesktop ? "w-8" : "w-32"
+                }`}
             />
           </Link>
           {/* Collapse/Expand button for desktop */}
@@ -163,8 +159,7 @@ export default function AdminLayout({
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  `flex items-center gap-2 px-3 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-logo_green transition-colors rounded-lg mb-1 ${
-                    sidebarCollapsed && isDesktop ? "justify-center" : ""
+                  `flex items-center gap-2 px-3 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-logo_green transition-colors rounded-lg mb-1 ${sidebarCollapsed && isDesktop ? "justify-center" : ""
                   }`,
                   pathname === item.path && "bg-gray-100 text-brand-logo_green"
                 )}
@@ -184,9 +179,8 @@ export default function AdminLayout({
         <Separator />
 
         <div
-          className={`p-2 sm:p-4 flex items-center gap-3 ${
-            sidebarCollapsed && isDesktop ? "justify-center" : ""
-          }`}
+          className={`p-2 sm:p-4 flex items-center gap-3 ${sidebarCollapsed && isDesktop ? "justify-center" : ""
+            }`}
         >
           <Avatar>
             <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
