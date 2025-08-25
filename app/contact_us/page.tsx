@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import Logo from "../assets/nourish_box_folder/Logo files/icon.svg";
 import CartComponent from "../components/Cart";
-import Footer from "../components/footer";
+import Footer from "../components/Footer_main";
 import Nav from "../components/nav";
-import { usePathname } from "next/navigation";
 
 interface Props {
   className?: string;
