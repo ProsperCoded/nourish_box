@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useRef } from "react";
 import cancel_icon from "../assets/icons8-cancel-48.png";
 
 /**
@@ -51,8 +51,8 @@ const LoginPrompt: React.FC<LoginPromptProps> = ({
   title = "You need an account",
   main_text,
   message,
-  signUpHref = "/sign_up",
-  loginHref = "/login",
+  signUpHref = "/auth/sign_up",
+  loginHref = "/auth/login",
   onNeverMind,
   onClose,
   dismissOnBackdrop = true,
