@@ -6,13 +6,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import passwordView from "../assets/icons8-eye-48.png";
-import google_logo from "../assets/icons8-google-48.png";
-import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
+import passwordView from "../../assets/icons8-eye-48.png";
+import google_logo from "../../assets/icons8-google-48.png";
+import logo from "../../assets/nourish_box_folder/Logo files/icon.svg";
 import { auth } from "../../lib/firebase";
 import { handleGoogleSignIn } from "../../utils/firebase/auth.firebase";
-import Nav from "../../components/nav";
-import MobileNav from "../../components/mobile_nav";
 // import Header from "../components/header";
 
 type LogInProps = {
@@ -67,27 +65,30 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
   return (
     <div>
       {/* Desktop nav */}
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <Nav />
-      </div>
+      </div> */}
 
-      {/* Optional mobile header */}
+      {/* Mobile brand header */}
       {showHeader && (
-        <div className="block md:hidden">
-          <MobileNav />
+        <div className="md:hidden flex flex-col items-center justify-center pt-6">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src={logo} alt="Nourish Box logo" width={36} height={36} />
+            <span className="text-lg font-semibold text-black">Nourish Box</span>
+          </Link>
         </div>
       )}
 
       {/* Optional compact mobile nav without links */}
-      <div className="block md:hidden">
+      {/* <div className="block md:hidden">
         <Nav noLinks={true} />
-      </div>
+      </div> */}
 
       <div className="flex w-full justify-between md:pt-20 lg:pt-0">
         {/* Left: Logo (desktop only) */}
         <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
           <Link href="/">
-            <Image src={logo} alt="logo" width={400} />
+            <Image src={logo} alt="logo" width={500} />
           </Link>
         </div>
 

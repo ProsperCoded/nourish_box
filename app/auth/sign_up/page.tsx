@@ -8,6 +8,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   createUserWithEmailAndPassword
 } from "firebase/auth";
@@ -51,11 +52,16 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
-  ) => {
+  // handle text input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name as string]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // handle select change (MUI Select)
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target as { name: string; value: string };
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -97,9 +103,16 @@ const SignUp = () => {
   return (
     <main className="min-h-screen bg-brand-bg_white_clr md:mt-12 pt-20 lg:pt-0 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10">
       <div className="max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
+        {/* Mobile brand header */}
+        <div className="md:hidden flex w-full items-center justify-center pt-6">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src={logo} alt="Nourish Box logo" width={36} height={36} />
+            <span className="text-lg font-semibold text-black">Nourish Box</span>
+          </Link>
+        </div>
         <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
           <Link href="/">
-            <Image src={logo} alt="logo" width={400} />
+            <Image src={logo} alt="logo" width={600} />
           </Link>
         </div>
 
@@ -114,8 +127,8 @@ const SignUp = () => {
           )}
 
           <form onSubmit={handleSignUp} className="space-y-4">
-            <TextField label="Full Name" name="name" fullWidth required value={formData.name} onChange={handleChange} />
-            <TextField label="Email" name="email" type="email" fullWidth required value={formData.email} onChange={handleChange} />
+            <TextField label="Full Name" name="name" fullWidth required value={formData.name} onChange={handleInputChange} />
+            <TextField label="Email" name="email" type="email" fullWidth required value={formData.email} onChange={handleInputChange} />
 
             <div className="relative">
               <TextField
@@ -125,7 +138,7 @@ const SignUp = () => {
                 fullWidth
                 required
                 value={formData.password}
-                onChange={handleChange}
+                onChange={handleInputChange}
               />
               <button
                 type="button"
@@ -136,11 +149,11 @@ const SignUp = () => {
               </button>
             </div>
 
-            <TextField label="Phone Number" name="phone" fullWidth required value={formData.phone} onChange={handleChange} />
+            <TextField label="Phone Number" name="phone" fullWidth required value={formData.phone} onChange={handleInputChange} />
 
             <FormControl fullWidth required>
               <InputLabel>State</InputLabel>
-              <Select name="state" value={formData.state} onChange={handleChange} label="State">
+              <Select name="state" value={formData.state} onChange={handleSelectChange} label="State">
                 {nigerianStates.map((state) => (
                   <MenuItem key={state} value={state}>{state}</MenuItem>
                 ))}
@@ -155,7 +168,7 @@ const SignUp = () => {
               fullWidth
               required
               value={formData.address}
-              onChange={handleChange}
+              onChange={handleInputChange}
             />
 
             <button
