@@ -5,7 +5,7 @@ import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import passwordView from "../assets/icons8-eye-48.png";
 import google_logo from "../assets/icons8-google-48.png";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
@@ -32,21 +32,18 @@ const LogInInner: React.FC = () => {
 
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Show header only on /login (support both /login and /auth/login)
-  const isLoginRoute = pathname === "/login" || pathname === "/auth/login";
+  // Normalize path to avoid trailing slash issues
+  const normalizedPath = useMemo(
+    () => pathname?.replace(/\/+$/, "") || "",
+    [pathname]
+  );
 
-  // Route-based top padding: pt-10 on /login, pt-0 on /profile?tab=login
-  const paddingTopClass = useMemo(() => {
-    const isProfileLoginTab =
-      pathname?.startsWith("/profile") &&
-      searchParams?.get("tab")?.toLowerCase() === "login";
+  // Show header only on /auth/login
+  const showHeader = normalizedPath === "/auth/login";
 
-    if (isLoginRoute) return "pt-10";
-    if (isProfileLoginTab) return "pt-0";
-    return "pt-0";
-  }, [pathname, searchParams, isLoginRoute]);
+  // Route-based top padding: pt-10 on /auth/login, pt-0 elsewhere
+  const paddingTopClass = showHeader ? "pt-10" : "pt-0";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,8 +81,8 @@ const LogInInner: React.FC = () => {
 
   return (
     <div>
-      {/* Header only on /login */}
-      {isLoginRoute && (
+      {/* Header only on /auth/login */}
+      {showHeader && (
         <>
           <div className="hidden md:block">
             <Nav />
@@ -114,7 +111,11 @@ const LogInInner: React.FC = () => {
                 </h1>
 
                 {error && (
-                  <p className="mb-3 text-sm text-red-600" role="alert" aria-live="polite">
+                  <p
+                    className="mb-3 text-sm text-red-600"
+                    role="alert"
+                    aria-live="polite"
+                  >
                     {error}
                   </p>
                 )}
@@ -154,7 +155,12 @@ const LogInInner: React.FC = () => {
                     aria-label={view ? "Hide password" : "Show password"}
                     className="inline-flex items-center justify-center rounded-md p-1 hover:bg-gray-100 focus:outline-none focus:ring focus:ring-gray-200"
                   >
-                    <Image src={passwordView} alt="Toggle password visibility" width={20} height={20} />
+                    <Image
+                      src={passwordView}
+                      alt="Toggle password visibility"
+                      width={20}
+                      height={20}
+                    />
                   </button>
                 </div>
 
@@ -192,13 +198,22 @@ const LogInInner: React.FC = () => {
                   )
                 }
               >
-                <Image src={google_logo} alt="Google logo" className="mr-2" width={20} height={20} />
+                <Image
+                  src={google_logo}
+                  alt="Google logo"
+                  className="mr-2"
+                  width={20}
+                  height={20}
+                />
                 <span>Sign in with Google</span>
               </button>
 
               <p className="mt-6 flex justify-center items-center text-brand-text_gray text-sm">
                 Don’t have an account?
-                <Link className="ml-1 text-brand-brand_black font-semibold hover:underline" href="/sign_up">
+                <Link
+                  className="ml-1 text-brand-brand_black font-semibold hover:underline"
+                  href="/sign_up"
+                >
                   Sign up
                 </Link>
               </p>
