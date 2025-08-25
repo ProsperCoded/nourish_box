@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import logo from "../assets/nourish_box_folder/Logo files/icon.svg";
-import Nav from "../components/nav";
 import MobileNav from "../components/mobile_nav";
+import Nav from "../components/nav";
 
 const ForgotPassword = () => {
   ;
@@ -18,7 +18,7 @@ const ForgotPassword = () => {
         <Nav />
       </div>
       <div className="block md:hidden">
-        <MobileNav  />
+        <MobileNav />
       </div>
 
       <div className="flex w-100 justify-between">
@@ -41,7 +41,8 @@ const ForgotPassword = () => {
                 <h1 className="my-4 font-bold text-3xl text-black text-center md:text-left ">
                   Forgot Password
                 </h1>
-                <p className=" text-gray-500 text-sm mb-3 md:text-left text-center">Fill in your account email address to send one time password</p>
+                <p className=" text-gray-500 text-sm mb-1 md:text-left text-center">Fill in your account email address to send one time password</p>
+                <p className=" text-gray-500 text-xs mb-3 md:text-left text-center">If you don’t get the email in a few minutes, please check your Spam or Junk folder.</p>
                 <label className=" text-sm ">Email</label>
                 <input
                   width="w-full"
