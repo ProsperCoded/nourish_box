@@ -3,80 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Contact Form Submission</title>
+    <title>New Contact Form Submission - <%= companyName %></title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; }
-        .contact-info { background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .contact-info h2 { color: #f97316; margin-top: 0; }
-        .info-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { font-weight: bold; color: #374151; }
-        .info-value { color: #6b7280; }
-        .message-section { background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .message-section h3 { color: #f97316; margin-top: 0; }
-        .message-content { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #f97316; }
-        .footer { background: #f9fafb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; }
-        .footer p { margin: 0; color: #6b7280; font-size: 14px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f7fafc;
+        }
+        .email-container {
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #22c55e 0%, #f97316 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
+            background-size: cover;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        .header p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        .content {
+            background: #ffffff;
+            padding: 40px 30px;
+        }
+        .priority-banner {
+            background: linear-gradient(135deg, #fef2f2, #fed7d7);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .priority-banner h3 {
+            color: #dc2626;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .contact-info {
+            background: linear-gradient(135deg, #dcfce7, #fed7aa);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #22c55e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .contact-info h2 {
+            background: linear-gradient(135deg, #16a34a, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-item {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #22c55e;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #1a202c;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .message-section {
+            background: linear-gradient(135deg, #f8fafc, #fef3c7);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #f59e0b;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .message-section h3 {
+            color: #d97706;
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .message-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f97316;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #374151;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .action-required {
+            background: linear-gradient(135deg, #ecfdf5, #fef3c7);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border: 2px solid #22c55e;
+            text-align: center;
+        }
+        .action-required h3 {
+            color: #059669;
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .response-time {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .footer {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 30px;
+            text-align: center;
+            border-top: 3px solid #22c55e;
+        }
+        .footer p {
+            margin: 8px 0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .support-info {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .support-info strong {
+            color: #0369a1;
+        }
         @media (max-width: 600px) {
-            .info-row { flex-direction: column; }
-            .info-label { margin-bottom: 4px; }
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .footer {
+                padding: 25px 20px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🍽️ New Contact Form Submission</h1>
-        <p><%= companyName %> - Customer Support</p>
-    </div>
-
-    <div class="content">
-        <div class="contact-info">
-            <h2>Contact Information</h2>
-
-            <div class="info-row">
-                <span class="info-label">Name:</span>
-                <span class="info-value"><%= firstName %> <%= lastName %></span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Email:</span>
-                <span class="info-value"><%= email %></span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Phone:</span>
-                <span class="info-value"><%= phone %></span>
-            </div>
-
-            <% if (submittedAt) { %>
-            <div class="info-row">
-                <span class="info-label">Submitted:</span>
-                <span class="info-value"><%= new Date(submittedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) %></span>
-            </div>
-            <% } %>
+    <div class="email-container">
+        <div class="header">
+            <h1>📨 New Contact Form Submission</h1>
+            <p><%= companyName %> - Customer Support Alert</p>
         </div>
 
-        <div class="message-section">
-            <h3>Message</h3>
-            <div class="message-content">
-                <%- message.replace(/\n/g, '<br>') %>
+        <div class="content">
+            <div class="priority-banner">
+                <h3>🚨 New Customer Message Received</h3>
+                <p>A customer has submitted a contact form. Please respond promptly to maintain excellent customer service.</p>
+            </div>
+
+            <div class="contact-info">
+                <h2>👤 Customer Information</h2>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value"><%= firstName %> <%= lastName %></div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value"><%= email %></div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value"><%= phone || 'Not provided' %></div>
+                    </div>
+
+                    <% if (submittedAt) { %>
+                    <div class="info-item">
+                        <div class="info-label">Submitted At</div>
+                        <div class="info-value"><%= new Date(submittedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) %></div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="message-section">
+                <h3>💬 Customer Message</h3>
+                <div class="message-content">
+                    <%- message.replace(/\n/g, '<br>') %>
+                </div>
+            </div>
+
+            <div class="action-required">
+                <h3>⚡ Action Required</h3>
+                <p><strong>Please respond to this customer inquiry as soon as possible.</strong></p>
+                <p>Reply directly to: <strong><%= email %></strong></p>
+
+                <div class="response-time">
+                    <p style="margin: 0; color: #0369a1; font-weight: 600;">🎯 Target Response Time: Within 24 hours</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="footer">
-        <p>This message was sent from the <%= companyName %> contact form.</p>
-        <p>Please respond to the customer as soon as possible.</p>
-        <p>Reply directly to: <%= email %></p>
+        <div class="footer">
+            <p><strong>This message was sent from the <%= companyName %> contact form.</strong></p>
+            <p>Maintaining excellent customer service is our priority! 🍽️</p>
+
+            <div class="support-info">
+                <p><strong>Customer Service Guidelines:</strong></p>
+                <p>• Respond within 24 hours</p>
+                <p>• Be professional and friendly</p>
+                <p>• Provide clear and helpful solutions</p>
+                <p style="margin-top: 10px;">
+                    📧 Support Team: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong>
+                </p>
+            </div>
+        </div>
     </div>
 </body>
 </html>

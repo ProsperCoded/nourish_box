@@ -36,7 +36,7 @@ export class EmailRenderService {
         ...context,
         companyName: configService.get(ENV.COMPANY_NAME) || 'Nourish Box',
         companyEmail:
-          configService.get(ENV.COMPANY_EMAIL) || 'support@nourishbox.com',
+          configService.get(ENV.COMPANY_EMAIL) || 'hello@nourishboxng.com.com',
       };
 
       // Render the template

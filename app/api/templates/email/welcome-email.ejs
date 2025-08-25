@@ -6,142 +6,250 @@
     <title>Welcome to <%= companyName %>!</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         line-height: 1.6;
-        color: #333;
+        color: #2d3748;
         max-width: 600px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 0;
+        background-color: #f7fafc;
+      }
+      .email-container {
+        background: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 20px;
       }
       .header {
-        background: linear-gradient(135deg, #f97316, #ea580c);
+        background: linear-gradient(135deg, #22c55e 0%, #f97316 100%);
         color: white;
-        padding: 30px 20px;
+        padding: 40px 30px;
         text-align: center;
-        border-radius: 8px 8px 0 0;
+        position: relative;
+      }
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
+        background-size: cover;
       }
       .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+      }
+      .header p {
         margin: 0;
-        font-size: 24px;
+        font-size: 16px;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
       }
       .content {
         background: #ffffff;
-        padding: 30px;
-        border: 1px solid #e5e7eb;
+        padding: 40px 30px;
       }
       .welcome-section {
-        background: #fef3c7;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
+        background: linear-gradient(135deg, #dcfce7, #fed7aa);
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        border-left: 4px solid #22c55e;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
       .welcome-section h2 {
-        color: #f97316;
+        background: linear-gradient(135deg, #16a34a, #ea580c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-top: 0;
+        font-size: 22px;
+        font-weight: 600;
       }
       .feature-list {
-        background: #f9fafb;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
+        background: #f8fafc;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        border: 1px solid #e2e8f0;
+      }
+      .feature-list h3 {
+        color: #1a202c;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
       }
       .feature-item {
-        margin: 10px 0;
-        padding: 8px 0;
+        margin: 15px 0;
+        padding: 12px 0;
+        display: flex;
+        align-items: center;
+        font-size: 15px;
+      }
+      .feature-item:before {
+        content: '✓';
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 12px;
+        font-weight: bold;
       }
       .cta-button {
-        background: #f97316;
+        background: linear-gradient(135deg, #22c55e, #f97316);
         color: white;
-        padding: 12px 24px;
+        padding: 16px 32px;
         text-decoration: none;
-        border-radius: 6px;
-        font-weight: bold;
+        border-radius: 8px;
+        font-weight: 600;
         display: inline-block;
-        margin: 20px 0;
+        margin: 25px 0;
+        box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+        transition: all 0.3s ease;
       }
       .cta-button:hover {
-        background: #ea580c;
+        background: linear-gradient(135deg, #16a34a, #ea580c);
+        box-shadow: 0 6px 12px rgba(34, 197, 94, 0.4);
+      }
+      .special-offer {
+        background: linear-gradient(135deg, #ecfdf5, #fef3c7);
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        border: 2px solid #22c55e;
+        text-align: center;
+      }
+      .special-offer h3 {
+        color: #059669;
+        margin-top: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .promo-code {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin: 10px 0;
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
       }
       .footer {
-        background: #f9fafb;
-        padding: 20px;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        padding: 30px;
         text-align: center;
-        border-radius: 0 0 8px 8px;
-        border: 1px solid #e5e7eb;
-        border-top: none;
+        border-top: 3px solid #22c55e;
       }
       .footer p {
-        margin: 0;
-        color: #6b7280;
+        margin: 8px 0;
+        color: #4a5568;
         font-size: 14px;
+      }
+      .support-info {
+        background: #f0f9ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border-left: 4px solid #0ea5e9;
+      }
+      .support-info strong {
+        color: #0369a1;
+      }
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 10px;
+          border-radius: 8px;
+        }
+        .header {
+          padding: 30px 20px;
+        }
+        .content {
+          padding: 30px 20px;
+        }
+        .footer {
+          padding: 25px 20px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <h1>🍽️ Welcome to <%= companyName %>!</h1>
-      <p>Your culinary journey starts here</p>
-    </div>
-
-    <div class="content">
-      <div class="welcome-section">
-        <h2>Hello <%= userName || 'Chef' %>!</h2>
-        <p>
-          Welcome to <%= companyName %> - where delicious recipes meet your
-          kitchen!
-        </p>
-        <p>
-          We're thrilled to have you join our community of food lovers and home
-          chefs.
-        </p>
+    <div class="email-container">
+      <div class="header">
+        <h1>🍽️ Welcome to <%= companyName %>!</h1>
+        <p>Your culinary journey starts here</p>
       </div>
 
-      <div class="feature-list">
-        <h3>🌟 What you can do with <%= companyName %>:</h3>
-        <div class="feature-item">
-          🍳 Browse hundreds of chef-curated recipes
+      <div class="content">
+        <div class="welcome-section">
+          <h2>Hello <%= userName || 'Chef' %>!</h2>
+          <p>
+            Welcome to <%= companyName %> - where delicious recipes meet your
+            kitchen! We're thrilled to have you join our community of food lovers and home
+            chefs who are passionate about creating extraordinary culinary experiences.
+          </p>
+          <p>
+            Get ready to discover, cook, and share amazing recipes from professional chefs
+            around the world, delivered right to your doorstep.
+          </p>
         </div>
-        <div class="feature-item">📦 Order recipes with physical delivery</div>
-        <div class="feature-item">⭐ Rate and review recipes you've tried</div>
-        <div class="feature-item">❤️ Save your favorite recipes</div>
-        <div class="feature-item">👨‍🍳 Connect with professional chefs</div>
-      </div>
 
-      <div style="text-align: center; margin: 30px 0">
-        <a href="<%= websiteUrl || '#' %>" class="cta-button"
-          >Start Exploring Recipes</a
-        >
-      </div>
+        <div class="feature-list">
+          <h3>🌟 What you can do with <%= companyName %>:</h3>
+          <div class="feature-item">
+            Browse hundreds of chef-curated recipes
+          </div>
+          <div class="feature-item">Order recipes with physical delivery</div>
+          <div class="feature-item">Rate and review recipes you've tried</div>
+          <div class="feature-item">Save your favorite recipes for later</div>
+          <div class="feature-item">Connect with professional chefs</div>
+          <div class="feature-item">Share your cooking experiences</div>
+        </div>
 
-      <div
-        style="
-          background: #ecfdf5;
-          padding: 20px;
-          border-radius: 8px;
-          margin: 20px 0;
-        "
-      >
-        <h3 style="color: #059669; margin-top: 0">🎉 Special Welcome Offer</h3>
-        <p>
-          Use code
-          <strong
-            style="
-              background: #fef3c7;
-              padding: 4px 8px;
-              border-radius: 4px;
-              color: #92400e;
-            "
-            >WELCOME10</strong
+        <div style="text-align: center; margin: 30px 0">
+          <a href="<%= websiteUrl || '#' %>" class="cta-button"
+            >🚀 Start Exploring Recipes</a
           >
-          for 10% off your first order!
-        </p>
-      </div>
-    </div>
+        </div>
 
-    <div class="footer">
-      <p>Thank you for choosing <%= companyName %>!</p>
-      <p>Happy cooking! 🍽️</p>
-      <p>Contact us at <%= companyEmail %> if you have any questions.</p>
+        <div class="special-offer">
+          <h3>🎉 Special Welcome Offer</h3>
+          <p>
+            Use code <span class="promo-code">WELCOME10</span>
+            for 10% off your first order!
+          </p>
+          <p style="font-size: 14px; color: #6b7280; margin-top: 15px;">
+            * Valid for new customers only. Expires in 30 days.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p><strong>Thank you for choosing <%= companyName %>!</strong></p>
+        <p>Happy cooking! 🍽️</p>
+
+        <div class="support-info">
+          <p><strong>Need Help?</strong></p>
+          <p>Our support team is here to assist you:</p>
+          <p>📧 Email: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
+          <p>💬 We typically respond within 24 hours</p>
+        </div>
+      </div>
     </div>
   </body>
 </html>
