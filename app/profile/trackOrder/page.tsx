@@ -221,7 +221,7 @@ const OrderStatusPage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full md:min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Please Login</h2>
           <p className="text-gray-600 mb-6">You need to be logged in to view your orders.</p>
@@ -282,7 +282,7 @@ const OrderStatusPage = () => {
 
       {/* Delivery Notes Modal */}
       {showNotesModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className=" relative md:fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
             className={`bg-white rounded-lg shadow-xl w-full ${isMobile ? "max-w-full mx-4" : "max-w-md"
               } p-6`}

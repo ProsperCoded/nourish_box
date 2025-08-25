@@ -10,8 +10,9 @@ import passwordView from "../../assets/icons8-eye-48.png";
 import google_logo from "../../assets/icons8-google-48.png";
 import logo from "../../assets/nourish_box_folder/Logo files/icon.svg";
 import { auth } from "../../lib/firebase";
+import Footer_main from "../../components/Footer_main";
 import { handleGoogleSignIn } from "../../utils/firebase/auth.firebase";
-// import Header from "../components/header";
+import Nav from "../../components/nav";
 
 type LogInProps = {
   showHeader?: boolean; // optional header (mobile)
@@ -65,9 +66,9 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
   return (
     <div>
       {/* Desktop nav */}
-      {/* <div className="hidden md:block">
-        <Nav />
-      </div> */}
+       <div className="hidden md:block">
+     <Nav/>
+      </div>
 
       {/* Mobile brand header */}
       {showHeader && (
@@ -180,8 +181,12 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
 
               {error && <p className="text-red-500">{error}</p>}
             </div>
+
           </div>
         </div>
+      </div>
+      <div>
+        <Footer_main/>
       </div>
     </div>
   );

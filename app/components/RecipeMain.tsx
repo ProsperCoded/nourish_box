@@ -16,100 +16,140 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
     ? recipe.ingredients.map((x) => String(x).trim()).filter(Boolean)
     : typeof recipe.ingredients === "string"
       ? recipe.ingredients
-        // split by commas, new lines, semicolons, or " and "
         .split(/[,\n;]| and /i)
         .map((x) => x.trim())
         .filter(Boolean)
       : [];
 
+  // ✅ Fix: add parentheses to avoid mixing ?? and || without grouping
+  const ingredientsCount =
+    (recipe.numberOfIngredients ?? ingredientsList.length) || 0;
+
+  // Height of your bottom tab bar (override globally if needed)
+  // e.g., set :root { --app-tabbar-h: 72px; } in your globals.css if it differs
+  const tabbarVar = "var(--app-tabbar-h, 72px)";
+
   return (
     <>
+      {/* Desktop notice */}
       <div className="hidden md:h-screen md:flex justify-center items-center">
-       <h1>This page is for mobile view only</h1>
+        <h1>This page is for mobile view only</h1>
       </div>
-      <div className="md:hidden relative w-full">
-        <Search_bar PageTitle={recipe.name} />
-        {/* Main image */}
-        <div className="w-full h-1/2">
-          <img
-            src={recipe.displayMedia.url}
-            alt={recipe.name}
-            className="w-full object-cover"
-          />
+
+      {/* Mobile layout */}
+      <div className="md:hidden min-h-screen bg-white flex flex-col">
+        {/* Sticky search header */}
+        <div className="sticky top-0 z-30 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+          <div className="px-4 pt-3 pb-2">
+            <Search_bar PageTitle={recipe.name} />
+          </div>
         </div>
 
-        <div className="pt-12 rounded-t-[42px] absolute -bottom-32 bg-white w-full px-6 py-11 h-1/2 font-inter">
-          <div>
-            <h2 className="font-bold text-lg">{recipe.name}</h2>
+        {/* Hero image */}
+        <div className="w-full relative">
+          <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden">
+            <img
+              src={recipe.displayMedia.url}
+              alt={recipe.name}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+        </div>
 
-            {/* Info row */}
-            <div className="flex justify-between py-4">
+        {/* Content */}
+        <main
+          className="-mt-6 rounded-t-[28px] bg-white relative z-10 px-6 pt-6
+                     /* pad for CTA + tabbar + safe area so last items are reachable */
+                     pb-[calc(env(safe-area-inset-bottom)+10px)]
+                    "
+        >
+          <section>
+            <h2 className="font-bold text-xl">{recipe.name}</h2>
+
+            <div className="flex items-center justify-between py-4 text-sm text-gray-700">
               <div className="flex items-center">
-                <Image src={clock} alt="green clock icon" className="mr-2" />
+                <Image src={clock} alt="Time" className="mr-2" width={20} height={20} />
                 <p>10 mins</p>
               </div>
-              <p className="flex items-center">
-                <Image src={cook} alt="green chef hat icon" className="mr-2" />
-                {recipe.servings} {Number(recipe.servings) === 1 ? "portion" : "portions"}
+
+              <div className="flex items-center">
+                <Image src={cook} alt="Servings" className="mr-2" width={20} height={20} />
+                <p>
+                  {recipe.servings} {Number(recipe.servings) === 1 ? "portion" : "portions"}
+                </p>
+              </div>
+
+              <p>
+                {ingredientsCount} {ingredientsCount === 1 ? "ingredient" : "ingredients"}
               </p>
-              <p>{recipe.numberOfIngredients ?? ingredientsList.length} ingredients</p>
             </div>
-          </div>
+          </section>
 
           <hr />
 
-          {/* Description */}
-          <div className="pt-2 pb-4">
-            <h3 className="font-bold text-lg py-2">Description</h3>
-            <p>{recipe.description}</p>
-          </div>
+          <section className="pt-3 pb-4">
+            <h3 className="font-bold text-lg pb-2">Description</h3>
+            <p className="text-gray-800 leading-relaxed">{recipe.description}</p>
+          </section>
 
           <hr />
 
-          {/* Ingredients (bulleted from normalized list) */}
-          <div className="pt-2 pb-4">
-            <h3 className="font-bold text-lg py-2">Ingredients</h3>
-            <ul className="list-disc list-inside space-y-2">
+          <section className="pt-3 pb-4">
+            <h3 className="font-bold text-lg pb-2">Ingredients</h3>
+            <ul className="list-disc list-inside space-y-2 text-gray-800">
               {ingredientsList.length > 0 ? (
-                ingredientsList.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))
+                ingredientsList.map((item, index) => <li key={index}>{item}</li>)
               ) : (
                 <li>No ingredients listed</li>
               )}
             </ul>
-          </div>
+          </section>
 
           <hr />
 
-          {/* Steps (placeholder) */}
-          <div>
-            <h3 className="font-bold text-lg py-2">Steps</h3>
-            <div className="mb-5">
+          <section className="pt-3">
+            <h3 className="font-bold text-lg pb-2">Steps</h3>
+
+            {/* Scrollable steps */}
+            <div
+              className="max-h-[40vh] overflow-y-auto pr-2"
+              role="region"
+              aria-label="Recipe steps"
+            >
               {[1, 2, 3, 4].map((step) => (
-                <div key={step} className="flex">
-                  <p className="mx-2">{step}.</p>
-                  <p>
-                    Contrary to popular belief, Lorem Ipsum is not simply random
-                    text. It has roots in a piece of classical Latin literature
-                    from 45 BC, making it over 2000 years old.
+                <div key={step} className="flex pb-3">
+                  <p className="mx-2 font-semibold text-gray-700">{step}.</p>
+                  <p className="text-gray-800">
+                    Contrary to popular belief, Lorem Ipsum is not simply random text.
+                    It has roots in a piece of classical Latin literature from 45 BC,
+                    making it over 2000 years old.
                   </p>
                 </div>
               ))}
-
-              <div className="my-2 mt-4 flex justify-center">
-                <button
-                  className="bg-orange-400 rounded-lg text-white px-5 py-2"
-                  onClick={() => {
-                    console.log("Add to bag clicked");
-                  }}
-                >
-                  Add to bag
-                </button>
-              </div>
             </div>
+          </section>
+
+          {/* Spacer so content never hides behind CTA even if calculations differ */}
+          <div className="h-1" />
+        </main>
+
+        {/* Sticky CTA ABOVE the bottom nav */}
+        <div
+          className="fixed inset-x-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+          style={{ bottom: `calc(${tabbarVar})` }} // sit above your footer nav
+        >
+          <div className="px-5 py-3">
+            <button
+              className="w-full bg-orange-500 active:scale-[0.99] transition rounded-xl text-white font-medium py-3"
+              onClick={() => console.log("Add to bag clicked")}
+            >
+              Add to bag
+            </button>
           </div>
         </div>
+
+        {/* Optional: invisible spacer matching tab bar height for very short pages */}
+        <div style={{ height: `calc(${tabbarVar})` }} aria-hidden />
       </div>
     </>
   );
