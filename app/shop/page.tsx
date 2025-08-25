@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import Nav from '../components/nav';
 import RecipeCard from '../components/RecipeCard';
 import RecipeCardSkeleton from '../components/RecipeCardSkeleton';
+import Search_bar from '../components/Search_bar';
 import { useCategories } from '../contexts/CategoryContext';
 import { fetchRecipes } from '../utils/firebase/recipes.firebase';
 import { Recipe } from '../utils/types/recipe.type';
-import Search_bar from '../components/Search_bar';
+import Footer from '../components/Footer_main';
 
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,12 +53,12 @@ const Page = () => {
   return (
     <main className='min-h-screen '>
       {/* Nav with search functionality */}
-    <div className="hidden md:block">
+      <div className="hidden md:block">
         <Nav showSearch={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       </div>
       <div className="block md:hidden">
-       <Search_bar PageTitle='Shop'/>
+        <Search_bar PageTitle='Shop' />
 
       </div>
       <div className='md:pt-32 md:px-8'>
@@ -151,10 +152,17 @@ const Page = () => {
                 {visibleRecipes.map(r => (
                   <RecipeCard key={r.id} recipe={r} />
                 ))}
-              </div>
+                    </div>
+
             </section>
+
           </div>
+
         )}
+
+      </div>
+      <div className='hidden md:block'>
+        <Footer />
       </div>
     </main>
   );

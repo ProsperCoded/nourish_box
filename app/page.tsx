@@ -12,10 +12,10 @@ import search from './assets/icons8-search-48.png';
 import hero_main from './assets/Nourish Box62470.jpg';
 import Logo from './assets/nourish_box_folder/Logo files/Logomark.svg';
 import AboutUs from './components/about_us';
-import CartComponent from './components/Cart';
-import Footer from './components/footer';
+import Footer from './components/Footer_main';
 import RecipeCard from './components/RecipeCard';
 import RecipeCardSkeleton from './components/RecipeCardSkeleton';
+import { UserAvatar } from './components/UserAvatar';
 import OneTap from './lib/OneTap/OneTap';
 import { fetchRecipes } from './utils/firebase/recipes.firebase';
 import { getSiteContent } from './utils/firebase/site-content.firebase';
@@ -24,7 +24,6 @@ import {
   DEFAULT_SITE_CONTENT,
   SiteContent,
 } from './utils/types/site-content.type';
-import { UserAvatar } from './components/UserAvatar';
 
 export default function Home({
   searchQuery,
@@ -79,7 +78,7 @@ export default function Home({
         <div className='flex justify-between w-full'>
           {' '}
           <Image src={Logo} alt='logo' width={120} />
-          <UserAvatar/>
+          <UserAvatar />
         </div>
         <div className='flex items-center border-2 border-gray-300 rounded-full px-4 py-3 bg-white shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-brand-btn_orange focus-within:ring-2 focus-within:ring-brand-btn_orange focus-within:ring-opacity-20 w-full min-h-[48px] my-3'>
           <input
