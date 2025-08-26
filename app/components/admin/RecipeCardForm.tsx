@@ -195,8 +195,8 @@ export function RecipeCardForm({
       ...prev,
       ingredients: Array.isArray(prev.ingredients)
         ? (prev.ingredients as string[]).map((ing, i) =>
-            i === index ? newValue : ing
-          )
+          i === index ? newValue : ing
+        )
         : [],
     }));
   };
@@ -500,8 +500,7 @@ export function RecipeCardForm({
           }); // Samples are images
         } else {
           toast.error(
-            `Upload failed for sample '${
-              sf.variant || sf.file.name
+            `Upload failed for sample '${sf.variant || sf.file.name
             }'. It won't be included.`
           );
         }
@@ -510,8 +509,8 @@ export function RecipeCardForm({
       const finalSamples = [...existingSamples, ...uploadedSamplesMedia];
       const finalIngredients = Array.isArray(formData.ingredients)
         ? (formData.ingredients as string[])
-            .map(ing => ing.trim())
-            .filter(ing => ing !== '')
+          .map(ing => ing.trim())
+          .filter(ing => ing !== '')
         : [];
 
       const payload: any = {
@@ -619,7 +618,7 @@ export function RecipeCardForm({
                 name='name'
                 value={formData.name}
                 onChange={handleInputChange}
-                required
+                required={currentTab === 'basic'}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent'
               />
             </div>
@@ -636,7 +635,7 @@ export function RecipeCardForm({
                 value={formData.description || ''}
                 onChange={handleInputChange}
                 rows={4}
-                required
+                required={currentTab === 'basic'}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent'
               />
             </div>
@@ -654,7 +653,7 @@ export function RecipeCardForm({
                 name='categoryId'
                 value={formData.categoryId || ''}
                 onChange={handleInputChange}
-                required
+                required={currentTab === 'basic'}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent'
               >
                 <option value=''>Select a category</option>
@@ -695,7 +694,7 @@ export function RecipeCardForm({
                     setFormData(prev => ({ ...prev, price: newValue }));
                   }}
                   placeholder='e.g., 20,000'
-                  required
+                  required={currentTab === 'basic'}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent'
                 />
                 {priceDisplay && (
@@ -923,9 +922,8 @@ export function RecipeCardForm({
                         handleExistingSampleVariantChange(index, e.target.value)
                       }
                       placeholder='Variant name'
-                      aria-label={`Variant name for existing sample ${
-                        index + 1
-                      }`}
+                      aria-label={`Variant name for existing sample ${index + 1
+                        }`}
                       className='w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-sm mb-1 focus:ring-1 focus:ring-brand-logo_green focus:border-brand-logo_green'
                     />
                     <button

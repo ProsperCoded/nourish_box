@@ -71,7 +71,7 @@ async function sendBrevoEmail(emailData: EmailData): Promise<boolean> {
     const emailSender = {
       name: configService.get(ENV.COMPANY_NAME) || 'Nourish Box',
       email:
-        configService.get(ENV.BREVO_SENDER_EMAIL) || 'enweremproper@gmail.com',
+        configService.get(ENV.BREVO_SENDER_EMAIL) || 'support@nourishboxng.com',
     };
 
     const response = await axios.post(

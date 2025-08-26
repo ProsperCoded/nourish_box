@@ -205,7 +205,6 @@ export default function RecipesManagement() {
             </button>
             <RecipeCardForm
               recipe={selectedRecipe}
-              categories={categories}
               onCancel={() => setIsFormOpen(false)}
               onSuccess={() => {
                 setIsFormOpen(false);
