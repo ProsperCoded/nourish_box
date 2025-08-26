@@ -5,6 +5,7 @@ import { cn } from "@/app/lib/utils/cn";
 import { motion } from "framer-motion";
 import {
   BookOpen,
+  Calculator,
   LayoutDashboard,
   Menu,
   Settings,
@@ -40,6 +41,11 @@ const menuItems = [
     title: "Orders",
     path: "/admin/orders",
     icon: ShoppingCart,
+  },
+  {
+    title: "Business Rules",
+    path: "/admin/business-rules",
+    icon: Calculator,
   },
   {
     title: "Site Content",
@@ -102,8 +108,8 @@ export default function AdminLayout({
       {/* Mobile Sidebar Overlay */}
       <div
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden ${sidebarOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
           }`}
         onClick={() => setSidebarOpen(false)}
       />

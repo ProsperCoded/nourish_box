@@ -1,24 +1,14 @@
+import { db } from '@/app/lib/firebase';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  serverTimestamp,
-  query,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-import { db } from "@/app/lib/firebase";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
-import {
+  DEFAULT_BUSINESS_RULES,
+  DEFAULT_SITE_CONTENT,
   SiteContent,
   SiteContentUpdate,
-  DEFAULT_SITE_CONTENT,
-} from "@/app/utils/types/site-content.type";
+} from '@/app/utils/types/site-content.type';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
-const SITE_CONTENT_ID = "main-site-content";
+const SITE_CONTENT_ID = 'main-site-content';
 
 /**
  * Get site content, create default if doesn't exist
@@ -41,13 +31,30 @@ export async function getSiteContent(): Promise<SiteContent> {
       return defaultContent;
     }
 
+    const data = docSnap.data() as any;
+
+    // Migration: Add business rules if they don't exist
+    if (!data.businessRules) {
+      const updatedData = {
+        ...data,
+        businessRules: DEFAULT_BUSINESS_RULES,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await updateDoc(docRef, updatedData);
+      return {
+        id: docSnap.id,
+        ...updatedData,
+      } as SiteContent;
+    }
+
     return {
       id: docSnap.id,
-      ...docSnap.data(),
+      ...data,
     } as SiteContent;
   } catch (error) {
-    console.error("Error fetching site content:", error);
-    throw new Error("Failed to fetch site content");
+    console.error('Error fetching site content:', error);
+    throw new Error('Failed to fetch site content');
   }
 }
 
@@ -70,8 +77,8 @@ export async function updateSiteContent(
     // Return updated content
     return await getSiteContent();
   } catch (error) {
-    console.error("Error updating site content:", error);
-    throw new Error("Failed to update site content");
+    console.error('Error updating site content:', error);
+    throw new Error('Failed to update site content');
   }
 }
 
@@ -92,7 +99,7 @@ export async function initializeSiteContent(): Promise<SiteContent> {
     await setDoc(docRef, defaultContent);
     return defaultContent;
   } catch (error) {
-    console.error("Error initializing site content:", error);
-    throw new Error("Failed to initialize site content");
+    console.error('Error initializing site content:', error);
+    throw new Error('Failed to initialize site content');
   }
 }

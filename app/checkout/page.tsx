@@ -12,14 +12,16 @@ import { Card, CardContent } from "../components/ui/card";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import {
-  calculateTotalWithDelivery,
+  calculateTotalWithBusinessRules,
   validateDeliveryInfo
 } from "../utils/checkout.utils";
 import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
 import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
+import { getBusinessRules } from "../utils/firebase/business-rules.firebase";
 import { Address, CreateAddressInput } from "../utils/types/address.type";
 import { CartItem } from "../utils/types/cart.tyes";
 import { Delivery } from "../utils/types/delivery.type";
+import { BusinessRules, DEFAULT_BUSINESS_RULES } from "../utils/types/site-content.type";
 
 const CheckoutPage = () => {
   const { cart, getTotalPrice, clearCart, loading: cartLoading } = useCart();
@@ -61,6 +63,28 @@ const CheckoutPage = () => {
     isPrimary: false,
   });
   const [saveCustomAddress, setSaveCustomAddress] = useState(false);
+
+  // Business rules state
+  const [businessRules, setBusinessRules] = useState<BusinessRules>(DEFAULT_BUSINESS_RULES);
+  const [businessRulesLoading, setBusinessRulesLoading] = useState(true);
+
+  // Load business rules on component mount
+  useEffect(() => {
+    const loadBusinessRules = async () => {
+      try {
+        setBusinessRulesLoading(true);
+        const rules = await getBusinessRules();
+        setBusinessRules(rules);
+      } catch (error) {
+        console.error("Error loading business rules:", error);
+        // Keep default rules on error
+      } finally {
+        setBusinessRulesLoading(false);
+      }
+    };
+
+    loadBusinessRules();
+  }, []);
 
   // Load user data and addresses
   useEffect(() => {
@@ -183,8 +207,10 @@ const CheckoutPage = () => {
 
   const cartItems = cart?.items || [];
   const totalPrice = getTotalPrice();
-  const deliveryFee = 1500; // Fixed delivery fee
-  const finalTotal = calculateTotalWithDelivery(totalPrice, deliveryFee);
+
+  // Calculate pricing breakdown using business rules
+  const pricingBreakdown = calculateTotalWithBusinessRules(totalPrice, businessRules);
+  const { deliveryFee, tax, total: finalTotal } = pricingBreakdown;
 
   // Address management functions
   const handleAddressSelect = (addressId: string) => {
@@ -433,7 +459,7 @@ const CheckoutPage = () => {
     }
   };
 
-  if (cartLoading || authLoading) {
+  if (cartLoading || authLoading || businessRulesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <CircularProgress size={40} />
@@ -833,6 +859,12 @@ const CheckoutPage = () => {
                 <span>Delivery Fee</span>
                 <span>NGN {deliveryFee.toLocaleString()}</span>
               </div>
+              {businessRules.taxEnabled && tax > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>Tax ({businessRules.taxRate}% VAT)</span>
+                  <span>NGN {tax.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-semibold text-gray-900 border-t pt-2">
                 <span>Total</span>
                 <span>NGN {finalTotal.toLocaleString()}</span>

@@ -790,6 +790,7 @@ export function RecipeCardForm({
                         onKeyDown={e => handleIngredientKeyDown(e, index)}
                         placeholder={`Ingredient ${index + 1}`}
                         required={
+                          currentTab === 'basic' &&
                           index === 0 &&
                           (formData.ingredients || [''])[0]?.trim() === '' &&
                           (formData.ingredients?.length || 0) <= 1

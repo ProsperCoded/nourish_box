@@ -1,13 +1,15 @@
-import { adminDb } from "@/app/api/lib/firebase-admin";
+import { adminDb } from '@/app/api/lib/firebase-admin';
+import { storageService } from '@/app/api/storage/storage.service';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
 import {
+  BusinessRules,
+  DEFAULT_BUSINESS_RULES,
+  DEFAULT_SITE_CONTENT,
   SiteContent,
   SiteContentUpdate,
-  DEFAULT_SITE_CONTENT,
-} from "@/app/utils/types/site-content.type";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
-import { storageService } from "@/app/api/storage/storage.service";
+} from '@/app/utils/types/site-content.type';
 
-const SITE_CONTENT_ID = "main-site-content";
+const SITE_CONTENT_ID = 'main-site-content';
 
 /**
  * Get site content using admin SDK
@@ -32,13 +34,31 @@ export async function getSiteContentAdmin(): Promise<SiteContent> {
       return defaultContent;
     }
 
+    const data = docSnap.data() as any;
+
+    // Migration: Add business rules if they don't exist
+    if (!data.businessRules) {
+      console.log('🔄 Migrating site content to include business rules');
+      const updatedData = {
+        ...data,
+        businessRules: DEFAULT_BUSINESS_RULES,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await docRef.update(updatedData);
+      return {
+        id: docSnap.id,
+        ...updatedData,
+      } as SiteContent;
+    }
+
     return {
       id: docSnap.id,
-      ...docSnap.data(),
+      ...data,
     } as SiteContent;
   } catch (error) {
-    console.error("Error fetching site content (admin):", error);
-    throw new Error("Failed to fetch site content");
+    console.error('Error fetching site content (admin):', error);
+    throw new Error('Failed to fetch site content');
   }
 }
 
@@ -68,8 +88,8 @@ export async function updateSiteContentAdmin(
     // Return updated content
     return await getSiteContentAdmin();
   } catch (error) {
-    console.error("Error updating site content (admin):", error);
-    throw new Error("Failed to update site content");
+    console.error('Error updating site content (admin):', error);
+    throw new Error('Failed to update site content');
   }
 }
 
@@ -92,8 +112,53 @@ export async function initializeSiteContentAdmin(): Promise<SiteContent> {
     await docRef.set(defaultContent);
     return defaultContent;
   } catch (error) {
-    console.error("Error initializing site content (admin):", error);
-    throw new Error("Failed to initialize site content");
+    console.error('Error initializing site content (admin):', error);
+    throw new Error('Failed to initialize site content');
+  }
+}
+
+/**
+ * Get business rules using admin SDK
+ */
+export async function getBusinessRulesAdmin(): Promise<BusinessRules> {
+  try {
+    const siteContent = await getSiteContentAdmin();
+    return siteContent.businessRules || DEFAULT_BUSINESS_RULES;
+  } catch (error) {
+    console.error('Error fetching business rules (admin):', error);
+    throw new Error('Failed to fetch business rules');
+  }
+}
+
+/**
+ * Update business rules using admin SDK
+ */
+export async function updateBusinessRulesAdmin(
+  businessRules: Partial<BusinessRules>
+): Promise<BusinessRules> {
+  try {
+    const docRef = adminDb
+      .collection(COLLECTION.site_content)
+      .doc(SITE_CONTENT_ID);
+
+    // Merge with existing business rules
+    const currentContent = await getSiteContentAdmin();
+    const updatedBusinessRules = {
+      ...currentContent.businessRules,
+      ...businessRules,
+    };
+
+    const updateData = {
+      businessRules: updatedBusinessRules,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await docRef.update(updateData);
+
+    return updatedBusinessRules;
+  } catch (error) {
+    console.error('Error updating business rules (admin):', error);
+    throw new Error('Failed to update business rules');
   }
 }
 
@@ -103,7 +168,7 @@ export async function initializeSiteContentAdmin(): Promise<SiteContent> {
 async function cleanupOldHeroImage(newHeroImage: {
   url: string;
   publicId: string;
-  type: "image" | "video";
+  type: 'image' | 'video';
 }): Promise<void> {
   try {
     // Get current site content to check for existing image
@@ -113,13 +178,13 @@ async function cleanupOldHeroImage(newHeroImage: {
     const currentImage = currentContent.heroImage;
     const isCurrentImageDefault =
       currentImage.url === DEFAULT_SITE_CONTENT.heroImage.url ||
-      currentImage.url.includes("/hero.png") ||
+      currentImage.url.includes('/hero.png') ||
       currentImage.publicId === DEFAULT_SITE_CONTENT.heroImage.publicId;
 
     // Check if new image is the default
     const isNewImageDefault =
       newHeroImage.url === DEFAULT_SITE_CONTENT.heroImage.url ||
-      newHeroImage.url.includes("/hero.png") ||
+      newHeroImage.url.includes('/hero.png') ||
       newHeroImage.publicId === DEFAULT_SITE_CONTENT.heroImage.publicId;
 
     // If we have a non-default current image and we're setting a new one (including default),
@@ -130,7 +195,7 @@ async function cleanupOldHeroImage(newHeroImage: {
     ) {
       console.log(`🧹 Cleaning up old hero image: ${currentImage.publicId}`);
       try {
-        await storageService.deleteMedia(currentImage.publicId, "image");
+        await storageService.deleteMedia(currentImage.publicId, 'image');
         console.log(`✅ Successfully deleted old hero image`);
       } catch (deleteError) {
         console.warn(`⚠️ Failed to delete old hero image: ${deleteError}`);
@@ -138,7 +203,7 @@ async function cleanupOldHeroImage(newHeroImage: {
       }
     }
   } catch (error) {
-    console.error("Error in cleanupOldHeroImage:", error);
+    console.error('Error in cleanupOldHeroImage:', error);
     // Don't throw error for cleanup failures to prevent blocking updates
   }
 }

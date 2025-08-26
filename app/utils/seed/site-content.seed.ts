@@ -1,24 +1,29 @@
-import { initializeSiteContent } from "../firebase/site-content.firebase";
+import { initializeSiteContent } from '../firebase/site-content.firebase';
 
 /**
  * Seeds the database with default site content
  */
 export async function seedSiteContent() {
   try {
-    console.log("🌱 Seeding site content...");
+    console.log('🌱 Seeding site content...');
 
     const siteContent = await initializeSiteContent();
 
-    console.log("✅ Site content seeded successfully:", {
+    console.log('✅ Site content seeded successfully:', {
       id: siteContent.id,
       heroHeading: siteContent.heroHeading,
       heroDescription: siteContent.heroDescription,
       heroImageUrl: siteContent.heroImage.url,
+      businessRules: {
+        deliveryFee: siteContent.businessRules.deliveryFee,
+        taxRate: siteContent.businessRules.taxRate,
+        taxEnabled: siteContent.businessRules.taxEnabled,
+      },
     });
 
     return siteContent;
   } catch (error) {
-    console.error("❌ Error seeding site content:", error);
+    console.error('❌ Error seeding site content:', error);
     throw error;
   }
 }
@@ -29,9 +34,9 @@ export async function seedSiteContent() {
 export async function runSiteContentSeeding() {
   try {
     await seedSiteContent();
-    console.log("🎉 Site content seeding completed!");
+    console.log('🎉 Site content seeding completed!');
   } catch (error) {
-    console.error("💥 Site content seeding failed:", error);
+    console.error('💥 Site content seeding failed:', error);
     process.exit(1);
   }
 }
