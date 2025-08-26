@@ -184,7 +184,11 @@ export function RecipeCardForm({
         [name]: (e.target as HTMLInputElement).checked,
       }));
     } else if (name === 'order') {
-      setFormData(prev => ({ ...prev, [name]: Number(value) }));
+      // Handle order field specially to avoid leading zeros
+      const numValue = value === '' ? 0 : parseInt(value, 10);
+      if (!isNaN(numValue)) {
+        setFormData(prev => ({ ...prev, [name]: numValue }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -1011,13 +1015,13 @@ export function RecipeCardForm({
                 id='order'
                 type='number'
                 name='order'
-                value={formData.order}
+                value={formData.order === 0 ? '' : formData.order}
                 onChange={handleInputChange}
                 min='0'
                 className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-logo_green focus:border-transparent'
               />
               <p className='text-xs text-gray-500 mt-1'>
-                Lower numbers appear first. Default is 0.
+                Lower numbers appear first. Leave empty or enter 0 for default order.
               </p>
             </div>
             <div className='flex items-start mt-4'>

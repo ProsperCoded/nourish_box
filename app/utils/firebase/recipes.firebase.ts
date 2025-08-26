@@ -1,18 +1,18 @@
 import {
-  collection,
-  getDocs,
   addDoc,
-  query,
+  collection,
   doc,
   getDoc,
-  where,
+  getDocs,
   limit,
   orderBy,
+  query,
   startAfter,
-} from "firebase/firestore"; // Added getDoc
-import { db } from "../../lib/firebase";
-import { COLLECTION } from "../schema/collection.enum";
-import { Recipe } from "../types/recipe.type";
+  where,
+} from 'firebase/firestore'; // Added getDoc
+import { db } from '../../lib/firebase';
+import { COLLECTION } from '../schema/collection.enum';
+import { Recipe } from '../types/recipe.type';
 
 // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
 const chunkArray = <T>(array: T[], size: number): T[][] => {
@@ -30,9 +30,9 @@ export const seedRecipesToFirebase = async (recipes: Recipe[]) => {
     for (const recipe of recipes) {
       await addDoc(recipesCollection, recipe);
     }
-    console.log("Recipes seeded successfully");
+    console.log('Recipes seeded successfully');
   } catch (error) {
-    console.error("Error seeding recipes:", error);
+    console.error('Error seeding recipes:', error);
   }
 };
 
@@ -42,12 +42,12 @@ export const fetchRecipes = async (): Promise<Recipe[]> => {
     const q = query(recipesCollection);
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id,
     })) as unknown as Recipe[];
   } catch (error) {
-    console.error("Error fetching recipes:", error);
+    console.error('Error fetching recipes:', error);
     return [];
   }
 };
@@ -58,8 +58,8 @@ export const fetchRecipes = async (): Promise<Recipe[]> => {
 export const getPaginatedRecipes = async (
   pageSize: number = 10,
   lastRecipeId?: string,
-  orderByField: string = "createdAt",
-  orderDirection: "asc" | "desc" = "desc"
+  orderByField: string = 'order',
+  orderDirection: 'asc' | 'desc' = 'asc'
 ): Promise<{
   recipes: Recipe[];
   hasMore: boolean;
@@ -95,7 +95,7 @@ export const getPaginatedRecipes = async (
     const recipesToProcess = hasMore ? docs.slice(0, pageSize) : docs;
 
     const recipes: Recipe[] = recipesToProcess.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+      doc => ({ id: doc.id, ...doc.data() }) as Recipe
     );
 
     return {
@@ -105,8 +105,8 @@ export const getPaginatedRecipes = async (
         recipes.length > 0 ? recipes[recipes.length - 1].id : undefined,
     };
   } catch (error) {
-    console.error("Error fetching paginated recipes:", error);
-    throw new Error("Failed to fetch paginated recipes");
+    console.error('Error fetching paginated recipes:', error);
+    throw new Error('Failed to fetch paginated recipes');
   }
 };
 
@@ -122,26 +122,26 @@ export const getRecipesByIds = async (
 
   try {
     const results = await Promise.all(
-      chunkArray(recipeIds, 10).map(async (chunk) => {
+      chunkArray(recipeIds, 10).map(async chunk => {
         if (chunk.length === 0) return [];
         const recipesQuery = query(
           collection(db, COLLECTION.recipes),
-          where("__name__", "in", chunk)
+          where('__name__', 'in', chunk)
         );
         const snapshot = await getDocs(recipesQuery);
         return snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+          doc => ({ id: doc.id, ...doc.data() }) as Recipe
         );
       })
     );
 
     const recipesMap = new Map<string, Recipe>();
-    results.flat().forEach((recipe) => recipesMap.set(recipe.id, recipe));
+    results.flat().forEach(recipe => recipesMap.set(recipe.id, recipe));
 
     return recipesMap;
   } catch (error) {
-    console.error("Error batch fetching recipes:", error);
-    throw new Error("Failed to batch fetch recipes");
+    console.error('Error batch fetching recipes:', error);
+    throw new Error('Failed to batch fetch recipes');
   }
 };
 
@@ -154,10 +154,10 @@ export const getMultipleRecipes = async (
   try {
     const recipesMap = await getRecipesByIds(recipeIds);
     return recipeIds
-      .map((id) => recipesMap.get(id))
+      .map(id => recipesMap.get(id))
       .filter((recipe): recipe is Recipe => recipe !== undefined);
   } catch (error) {
-    console.error("Error fetching multiple recipes:", error);
+    console.error('Error fetching multiple recipes:', error);
     return [];
   }
 };
@@ -172,11 +172,11 @@ export const getRecipeById = async (
     if (recipeDocSnap.exists()) {
       return { ...recipeDocSnap.data(), id: recipeDocSnap.id } as Recipe;
     } else {
-      console.log("No such document!");
+      console.log('No such document!');
       return null;
     }
   } catch (error) {
-    console.error("Error fetching recipe by ID:", error);
+    console.error('Error fetching recipe by ID:', error);
     return null;
   }
 };
@@ -200,17 +200,19 @@ export const searchRecipes = async (
 
     const searchLower = searchTerm.toLowerCase();
     const filteredRecipes = allRecipes.filter(
-      (recipe) =>
+      recipe =>
         recipe.name.toLowerCase().includes(searchLower) ||
-        recipe.description.toLowerCase().includes(searchLower) ||
-        recipe.ingredients.some((ingredient) =>
-          ingredient.toLowerCase().includes(searchLower)
-        )
+        (recipe.description &&
+          recipe.description.toLowerCase().includes(searchLower)) ||
+        (Array.isArray(recipe.ingredients) &&
+          recipe.ingredients.some(ingredient =>
+            ingredient.toLowerCase().includes(searchLower)
+          ))
     );
 
     // Apply pagination to filtered results
     const startIndex = lastRecipeId
-      ? filteredRecipes.findIndex((recipe) => recipe.id === lastRecipeId) + 1
+      ? filteredRecipes.findIndex(recipe => recipe.id === lastRecipeId) + 1
       : 0;
 
     const endIndex = startIndex + pageSize;
@@ -226,8 +228,8 @@ export const searchRecipes = async (
           : undefined,
     };
   } catch (error) {
-    console.error("Error searching recipes:", error);
-    throw new Error("Failed to search recipes");
+    console.error('Error searching recipes:', error);
+    throw new Error('Failed to search recipes');
   }
 };
 
@@ -246,8 +248,8 @@ export const getRecipesByCategory = async (
   try {
     let recipesQuery = query(
       collection(db, COLLECTION.recipes),
-      where("category", "==", category),
-      orderBy("createdAt", "desc"),
+      where('category', '==', category),
+      orderBy('order', 'asc'),
       limit(pageSize + 1)
     );
 
@@ -258,8 +260,8 @@ export const getRecipesByCategory = async (
       if (lastRecipeDoc.exists()) {
         recipesQuery = query(
           collection(db, COLLECTION.recipes),
-          where("category", "==", category),
-          orderBy("createdAt", "desc"),
+          where('category', '==', category),
+          orderBy('order', 'asc'),
           startAfter(lastRecipeDoc),
           limit(pageSize + 1)
         );
@@ -273,7 +275,7 @@ export const getRecipesByCategory = async (
     const recipesToProcess = hasMore ? docs.slice(0, pageSize) : docs;
 
     const recipes: Recipe[] = recipesToProcess.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+      doc => ({ id: doc.id, ...doc.data() }) as Recipe
     );
 
     return {
@@ -283,7 +285,7 @@ export const getRecipesByCategory = async (
         recipes.length > 0 ? recipes[recipes.length - 1].id : undefined,
     };
   } catch (error) {
-    console.error("Error fetching recipes by category:", error);
-    throw new Error("Failed to fetch recipes by category");
+    console.error('Error fetching recipes by category:', error);
+    throw new Error('Failed to fetch recipes by category');
   }
 };
