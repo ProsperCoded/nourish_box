@@ -959,15 +959,6 @@ const CheckoutPage = () => {
 
             {/* Payment Button */}
             <div className="mt-6">
-              {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
-                  <div>isFormValid: {(isFormValid ?? false).toString()}</div>
-                  <div>agreedToTerms: {agreedToTerms.toString()}</div>
-                  <div>selectedAddressId: {selectedAddressId}</div>
-                  <div>useCustomAddress: {useCustomAddress.toString()}</div>
-                  <div>deliveryInfo: {JSON.stringify(deliveryInfo, null, 2)}</div>
-                </div>
-              )}
               <button
                 onClick={handlePayment}
                 disabled={paymentLoading || !(isFormValid ?? false)}
