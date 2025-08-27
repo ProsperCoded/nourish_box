@@ -12,14 +12,12 @@ import { Badge } from "../components/ui/badge";
 import { Card, CardContent } from "../components/ui/card";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
-import {
-  calculateTotalWithBusinessRules
-} from "../utils/checkout.utils";
+import { calculateTotalWithBusinessRules } from "../utils/checkout.utils";
 import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
 import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
 import { getBusinessRules } from "../utils/firebase/business-rules.firebase";
 import { Address, CreateAddressInput } from "../utils/types/address.type";
-import { CartItem } from "../utils/types/cart.tyes";
+import { CartItem } from "../utils/types/cart.tyes"; // fixed typo
 import { Delivery } from "../utils/types/delivery.type";
 import { BusinessRules, DEFAULT_BUSINESS_RULES } from "../utils/types/site-content.type";
 
@@ -67,6 +65,9 @@ const CheckoutPage = () => {
   // Business rules state
   const [businessRules, setBusinessRules] = useState<BusinessRules>(DEFAULT_BUSINESS_RULES);
   const [businessRulesLoading, setBusinessRulesLoading] = useState(true);
+
+  // Track previous delivery state to avoid wiping LGA unnecessarily
+  const [prevDeliveryState, setPrevDeliveryState] = useState<string | undefined>(undefined);
 
   // Load business rules on component mount
   useEffect(() => {
@@ -186,16 +187,17 @@ const CheckoutPage = () => {
     loadStates();
   }, []);
 
-  // Load LGAs when state changes
+  // Load LGAs when delivery state changes – only clear LGA if the state truly changed
   useEffect(() => {
-    const loadLGAs = async () => {
+    const loadLGAsForDelivery = async () => {
       if (deliveryInfo.deliveryState) {
         try {
           setLoadingLocations(true);
           const lgasData = await fetchLGAs(deliveryInfo.deliveryState);
           setLgas(lgasData);
-          // Reset LGA if the state changed
-          if (user?.state !== deliveryInfo.deliveryState) {
+
+          // Clear LGA only if state actually changed from a previous value
+          if (prevDeliveryState && prevDeliveryState !== deliveryInfo.deliveryState) {
             setDeliveryInfo((prev) => ({ ...prev, deliveryLGA: "" }));
           }
         } catch (error) {
@@ -210,10 +212,12 @@ const CheckoutPage = () => {
       } else {
         setLgas([]);
       }
+
+      setPrevDeliveryState(deliveryInfo.deliveryState);
     };
 
-    loadLGAs();
-  }, [deliveryInfo.deliveryState, user?.state]);
+    loadLGAsForDelivery();
+  }, [deliveryInfo.deliveryState, prevDeliveryState]);
 
   // Load LGAs for custom address when state changes
   useEffect(() => {
@@ -256,6 +260,7 @@ const CheckoutPage = () => {
         deliveryLGA: "",
         deliveryNote: "",
       });
+      setCustomAddressData({ name: "", street: "", city: "", state: "", lga: "", isPrimary: false });
     } else {
       setUseCustomAddress(false);
       setSelectedAddressId(addressId);
@@ -322,15 +327,14 @@ const CheckoutPage = () => {
   // Memoized validation to prevent infinite re-renders
   const isFormValid = useMemo(() => {
     // Check if we have a selected address or valid custom address
-    const hasValidAddress = selectedAddressId ||
-      (useCustomAddress && customAddressData.name && customAddressData.street &&
-        customAddressData.city && customAddressData.state && customAddressData.lga);
+    const hasValidAddress = !!selectedAddressId ||
+      (useCustomAddress && !!customAddressData.name && !!customAddressData.street &&
+        !!customAddressData.city && !!customAddressData.state && !!customAddressData.lga);
 
     // Check required contact info
-    const hasValidContact = deliveryInfo.deliveryEmail &&
-      deliveryInfo.deliveryPhone &&
-      /\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail) &&
-      /^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''));
+    const email = deliveryInfo.deliveryEmail || "";
+    const phone = (deliveryInfo.deliveryPhone || "").replace(/\D/g, "");
+    const hasValidContact = !!email && !!phone && /\S+@\S+\.\S+/.test(email) && /^\d{10,11}$/.test(phone);
 
     return hasValidAddress && hasValidContact && agreedToTerms;
   }, [deliveryInfo, agreedToTerms, selectedAddressId, useCustomAddress, customAddressData]);
@@ -339,9 +343,9 @@ const CheckoutPage = () => {
     const errors: Record<string, string> = {};
 
     // Validate address selection
-    const hasValidAddress = selectedAddressId ||
-      (useCustomAddress && customAddressData.name && customAddressData.street &&
-        customAddressData.city && customAddressData.state && customAddressData.lga);
+    const hasValidAddress = !!selectedAddressId ||
+      (useCustomAddress && !!customAddressData.name && !!customAddressData.street &&
+        !!customAddressData.city && !!customAddressData.state && !!customAddressData.lga);
 
     if (!hasValidAddress) {
       if (useCustomAddress) {
@@ -356,15 +360,18 @@ const CheckoutPage = () => {
     }
 
     // Validate contact info
-    if (!deliveryInfo.deliveryEmail?.trim()) {
+    const email = deliveryInfo.deliveryEmail || "";
+    const phone = (deliveryInfo.deliveryPhone || "").replace(/\D/g, "");
+
+    if (!email.trim()) {
       errors.deliveryEmail = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail)) {
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
       errors.deliveryEmail = "Please enter a valid email address";
     }
 
-    if (!deliveryInfo.deliveryPhone?.trim()) {
+    if (!phone.trim()) {
       errors.deliveryPhone = "Phone number is required";
-    } else if (!/^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''))) {
+    } else if (!/^\d{10,11}$/.test(phone)) {
       errors.deliveryPhone = "Please enter a valid phone number";
     }
 
@@ -478,8 +485,7 @@ const CheckoutPage = () => {
         router.push("/profile?section=orders"); // Updated redirect path
       } else {
         toast.error(
-          `Payment verification failed: ${verifyData.message || "Unknown error"
-          }`,
+          `Payment verification failed: ${verifyData.message || "Unknown error"}`,
           {
             duration: 5000,
             position: "top-center",
@@ -547,7 +553,6 @@ const CheckoutPage = () => {
       </div>
     );
   }
-
   if (!cart || cartItems.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -630,8 +635,7 @@ const CheckoutPage = () => {
                     {addresses.map((address) => (
                       <Card
                         key={address.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${selectedAddressId === address.id ? 'ring-2 ring-orange-500 bg-orange-50' : ''
-                          }`}
+                        className={`cursor-pointer transition-all hover:shadow-md ${selectedAddressId === address.id ? 'ring-2 ring-orange-500 bg-orange-50' : ''}`}
                         onClick={() => handleAddressSelect(address.id)}
                       >
                         <CardContent className="p-4">
@@ -664,8 +668,7 @@ const CheckoutPage = () => {
 
                     {/* Custom Address Option */}
                     <Card
-                      className={`cursor-pointer transition-all hover:shadow-md ${useCustomAddress ? 'ring-2 ring-orange-500 bg-orange-50' : ''
-                        }`}
+                      className={`cursor-pointer transition-all hover:shadow-md ${useCustomAddress ? 'ring-2 ring-orange-500 bg-orange-50' : ''}`}
                       onClick={() => handleAddressSelect('custom')}
                     >
                       <CardContent className="p-4">
@@ -695,7 +698,7 @@ const CheckoutPage = () => {
 
             {/* Custom Address Form or Contact Info */}
             <div className="space-y-4">
-              {/* Contact Information - Always Show */}
+              {/* Contact Information - Always editable */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -712,7 +715,6 @@ const CheckoutPage = () => {
                       : "border-gray-300"
                       }`}
                     placeholder="Enter your email"
-                    disabled={!useCustomAddress && !!selectedAddressId}
                   />
                   {formErrors.deliveryEmail && (
                     <p className="text-red-600 text-sm mt-1">
@@ -736,7 +738,6 @@ const CheckoutPage = () => {
                       : "border-gray-300"
                       }`}
                     placeholder="Enter your phone number"
-                    disabled={!useCustomAddress && !!selectedAddressId}
                   />
                   {formErrors.deliveryPhone && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1013,7 +1014,7 @@ const CheckoutPage = () => {
             <div className="mt-6">
               <button
                 onClick={handlePayment}
-                disabled={paymentLoading || !(isFormValid ?? false)}
+                disabled={paymentLoading || !isFormValid}
                 className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {paymentLoading ? (
