@@ -12,8 +12,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import {
-  calculateTotalWithBusinessRules,
-  validateDeliveryInfo
+  calculateTotalWithBusinessRules
 } from "../utils/checkout.utils";
 import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
 import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
@@ -293,19 +292,59 @@ const CheckoutPage = () => {
 
   // Memoized validation to prevent infinite re-renders
   const isFormValid = useMemo(() => {
-    const { isValid } = validateDeliveryInfo(deliveryInfo);
-    return isValid && agreedToTerms;
-  }, [deliveryInfo, agreedToTerms]);
+    // Check if we have a selected address or valid custom address
+    const hasValidAddress = selectedAddressId ||
+      (useCustomAddress && customAddressData.name && customAddressData.street &&
+        customAddressData.city && customAddressData.state && customAddressData.lga);
+
+    // Check required contact info
+    const hasValidContact = deliveryInfo.deliveryEmail &&
+      deliveryInfo.deliveryPhone &&
+      /\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail) &&
+      /^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''));
+
+    return hasValidAddress && hasValidContact && agreedToTerms;
+  }, [deliveryInfo, agreedToTerms, selectedAddressId, useCustomAddress, customAddressData]);
 
   const validateForm = (): boolean => {
-    const { isValid, errors } = validateDeliveryInfo(deliveryInfo);
+    const errors: Record<string, string> = {};
+
+    // Validate address selection
+    const hasValidAddress = selectedAddressId ||
+      (useCustomAddress && customAddressData.name && customAddressData.street &&
+        customAddressData.city && customAddressData.state && customAddressData.lga);
+
+    if (!hasValidAddress) {
+      if (useCustomAddress) {
+        if (!customAddressData.name) errors.deliveryName = "Name is required";
+        if (!customAddressData.street) errors.deliveryAddress = "Address is required";
+        if (!customAddressData.city) errors.deliveryCity = "City is required";
+        if (!customAddressData.state) errors.deliveryState = "State is required";
+        if (!customAddressData.lga) errors.deliveryLGA = "LGA is required";
+      } else {
+        errors.address = "Please select a delivery address";
+      }
+    }
+
+    // Validate contact info
+    if (!deliveryInfo.deliveryEmail?.trim()) {
+      errors.deliveryEmail = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail)) {
+      errors.deliveryEmail = "Please enter a valid email address";
+    }
+
+    if (!deliveryInfo.deliveryPhone?.trim()) {
+      errors.deliveryPhone = "Phone number is required";
+    } else if (!/^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''))) {
+      errors.deliveryPhone = "Please enter a valid phone number";
+    }
 
     if (!agreedToTerms) {
       errors.terms = "You must agree to the terms and conditions";
     }
 
     setFormErrors(errors);
-    return isValid && agreedToTerms;
+    return Object.keys(errors).length === 0;
   };
 
   // Initialize transaction with backend
@@ -313,19 +352,32 @@ const CheckoutPage = () => {
     try {
       setPaymentLoading(true);
 
+      // Prepare delivery info based on selection
+      const finalDeliveryInfo = useCustomAddress ? {
+        name: customAddressData.name,
+        email: deliveryInfo.deliveryEmail,
+        phone: deliveryInfo.deliveryPhone,
+        address: customAddressData.street,
+        city: customAddressData.city,
+        state: customAddressData.state,
+        lga: customAddressData.lga,
+        note: deliveryInfo.deliveryNote || "",
+      } : {
+        name: deliveryInfo.deliveryName,
+        email: deliveryInfo.deliveryEmail,
+        phone: deliveryInfo.deliveryPhone,
+        address: deliveryInfo.deliveryAddress,
+        city: deliveryInfo.deliveryCity,
+        state: deliveryInfo.deliveryState,
+        lga: deliveryInfo.deliveryLGA,
+        note: deliveryInfo.deliveryNote || "",
+      };
+
       const payload = {
         amount: finalTotal,
         recipes: cartItems.map((item) => item.recipeId),
         ...(user ? { userId: user.id } : { email: deliveryInfo.deliveryEmail }),
-        delivery: {
-          name: deliveryInfo.deliveryName,
-          email: deliveryInfo.deliveryEmail,
-          phone: deliveryInfo.deliveryPhone,
-          address: deliveryInfo.deliveryAddress,
-          city: deliveryInfo.deliveryCity,
-          state: deliveryInfo.deliveryState,
-          note: deliveryInfo.deliveryNote || "",
-        },
+        delivery: finalDeliveryInfo,
       };
 
       const response = await fetch("/api/paystack/initialize", {
@@ -907,9 +959,18 @@ const CheckoutPage = () => {
 
             {/* Payment Button */}
             <div className="mt-6">
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
+                  <div>isFormValid: {(isFormValid ?? false).toString()}</div>
+                  <div>agreedToTerms: {agreedToTerms.toString()}</div>
+                  <div>selectedAddressId: {selectedAddressId}</div>
+                  <div>useCustomAddress: {useCustomAddress.toString()}</div>
+                  <div>deliveryInfo: {JSON.stringify(deliveryInfo, null, 2)}</div>
+                </div>
+              )}
               <button
                 onClick={handlePayment}
-                disabled={paymentLoading || !isFormValid}
+                disabled={paymentLoading || !(isFormValid ?? false)}
                 className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {paymentLoading ? (

@@ -62,6 +62,9 @@ export async function POST(request: NextRequest) {
       previousStatus: body.previousStatus,
       updatedAt: body.updatedAt,
       trackingUrl: body.trackingUrl,
+      // Add company information
+      companyName: 'Nourish Box',
+      companyEmail: 'hello@nourishboxng.com',
     };
 
     // Send the order status update email

@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
     const orderData = {
       customerName: customerName.trim(),
       customerEmail: customerEmail.trim().toLowerCase(),
+      customerPhone: body.customerPhone || null, // Add customer phone if provided
       orderId: orderId.trim(),
       orderAmount: Number(orderAmount),
       recipes: recipes.map((recipe: any) => ({
@@ -76,6 +77,13 @@ export async function POST(request: NextRequest) {
       deliveryCity: deliveryCity.trim(),
       deliveryState: deliveryState.trim(),
       createdAt: createdAt || new Date().toISOString(),
+      // Add company information
+      companyName: 'Nourish Box',
+      companyEmail: 'hello@nourishboxng.com',
+      // Add tracking URL for customer
+      trackingUrl: `${process.env.NEXT_PUBLIC_DOMAIN || 'https://nourish-box.vercel.app'}/profile?tab=track`,
+      // Add admin panel URL for admin emails
+      adminPanelUrl: `${process.env.NEXT_PUBLIC_DOMAIN || 'https://nourish-box.vercel.app'}/admin/orders`,
     };
 
     // Send customer confirmation email

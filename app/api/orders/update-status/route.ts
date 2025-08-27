@@ -76,6 +76,7 @@ export async function PUT(request: NextRequest) {
       const emailData = {
         customerName: `${currentOrder.user.firstName} ${currentOrder.user.lastName}`,
         customerEmail: currentOrder.user.email,
+        customerPhone: currentOrder.user.phone || null, // Add customer phone from user data
         orderId: currentOrder.id,
         orderAmount: currentOrder.amount,
         recipes: [
@@ -91,6 +92,9 @@ export async function PUT(request: NextRequest) {
         previousStatus: previousStatus,
         updatedAt: new Date().toISOString(),
         trackingUrl,
+        // Add company information
+        companyName: 'Nourish Box',
+        companyEmail: 'hello@nourishboxng.com',
       };
 
       // Send email notification directly
