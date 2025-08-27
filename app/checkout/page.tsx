@@ -93,40 +93,50 @@ const CheckoutPage = () => {
         if (user.address && (!user.addresses || user.addresses.length === 0)) {
           try {
             await migrateLegacyAddress(user.id);
-            await refreshAuth();
+            await refreshAuth(); // This will re-trigger the effect, which is fine
+            return; // Exit early and let the effect re-run with fresh user data
           } catch (error) {
             console.error('Migration error:', error);
           }
         }
 
-        // Set addresses
         const userAddresses = user.addresses || [];
         setAddresses(userAddresses);
 
-        // Get primary address and prefill form
-        const primaryAddress = getPrimaryAddress(user);
-        if (primaryAddress) {
-          setSelectedAddressId(primaryAddress.id);
-          setDeliveryInfo({
-            deliveryName: primaryAddress.name,
-            deliveryEmail: user.email,
-            deliveryPhone: user.phone || "",
-            deliveryAddress: primaryAddress.street,
-            deliveryCity: primaryAddress.city,
-            deliveryState: primaryAddress.state,
-            deliveryLGA: primaryAddress.lga,
-            deliveryNote: "",
-          });
+        if (userAddresses.length > 0) {
+          setUseCustomAddress(false);
+          const primaryAddress = getPrimaryAddress(user); // Should not be null if addresses exist
+
+          if (primaryAddress) {
+            setSelectedAddressId(primaryAddress.id);
+            setDeliveryInfo({
+              deliveryName: primaryAddress.name,
+              deliveryEmail: user.email,
+              deliveryPhone: user.phone || "",
+              deliveryAddress: primaryAddress.street,
+              deliveryCity: primaryAddress.city,
+              deliveryState: primaryAddress.state,
+              deliveryLGA: primaryAddress.lga,
+              deliveryNote: "",
+            });
+          }
         } else {
-          // Fallback to legacy fields or empty
+          // No addresses: setup for custom address entry
+          setUseCustomAddress(true);
+          setSelectedAddressId("");
+          setSaveCustomAddress(true); // Default to saving for new users
+
+          const initialName = user.firstName ? `${user.firstName} ${user.lastName}` : "";
+          setCustomAddressData(prev => ({ ...prev, name: initialName }));
+
           setDeliveryInfo({
-            deliveryName: `${user.firstName} ${user.lastName}`,
+            deliveryName: initialName,
             deliveryEmail: user.email,
             deliveryPhone: user.phone || "",
-            deliveryAddress: user.address || "",
-            deliveryCity: user.city || "",
-            deliveryState: user.state || "",
-            deliveryLGA: user.lga || "",
+            deliveryAddress: "",
+            deliveryCity: "",
+            deliveryState: "",
+            deliveryLGA: "",
             deliveryNote: "",
           });
         }
@@ -563,6 +573,16 @@ const CheckoutPage = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Delivery Information
             </h2>
+
+            {/* Message for users with no saved address */}
+            {user && addresses.length === 0 && (
+              <div className="mb-6 p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-lg">
+                <h3 className="font-semibold text-md">No Saved Addresses</h3>
+                <p className="text-sm mt-1">
+                  Please provide your delivery address below. You can save it for future orders.
+                </p>
+              </div>
+            )}
 
             {/* Address Selection Section */}
             {user && addresses.length > 0 && (
