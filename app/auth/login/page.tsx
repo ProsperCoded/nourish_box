@@ -185,7 +185,7 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
           </div>
         </div>
       </div>
-      <div>
+      <div className="hidden md:block ">
         <Footer_main/>
       </div>
     </div>

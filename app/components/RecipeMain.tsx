@@ -1,16 +1,26 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import clock from "../assets/icons8-clock-24.png";
 import cook from "../assets/icons8-chef-hat-24.png";
 import { Recipe } from "../utils/types/recipe.type";
 import Image from "next/image";
 import Search_bar from "./Search_bar";
+import toast from "react-hot-toast";
+import { useCart } from "../contexts/CartContext";
+import { useRouter } from "next/navigation";
 
 interface RecipeCardProps {
   recipe: Recipe;
 }
 
 const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
+  const router = useRouter();
+
+  // cart + local state
+  const { addToCart, loading: cartLoading } = useCart();
+  const [option, setOption] = useState<string>(""); // optional packaging choice (kept for parity)
+  const [count, setCount] = useState(1);
+
   // Normalize ingredients into a clean string[]
   const ingredientsList: string[] = Array.isArray(recipe.ingredients)
     ? recipe.ingredients.map((x) => String(x).trim()).filter(Boolean)
@@ -26,8 +36,29 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
     (recipe.numberOfIngredients ?? ingredientsList.length) || 0;
 
   // Height of your bottom tab bar (override globally if needed)
-  // e.g., set :root { --app-tabbar-h: 72px; } in your globals.css if it differs
   const tabbarVar = "var(--app-tabbar-h, 72px)";
+
+  // --- NEW: add-to-cart handler (same behavior as modal) ---
+  const handleAddToCartClick = async () => {
+    try {
+      await addToCart(recipe, count, option);
+      toast.success(`${recipe.name} added to cart!`, {
+        duration: 2500,
+        position: "top-center",
+      });
+      // reset lightweight local state
+      setCount(1);
+      setOption("");
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add item to cart. Please try again.", {
+        duration: 3500,
+        position: "top-center",
+      });
+    }
+  };
+  // ---------------------------------------------------------
 
   return (
     <>
@@ -59,7 +90,6 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
         {/* Content */}
         <main
           className="-mt-6 rounded-t-[28px] bg-white relative z-10 px-6 pt-6
-                     /* pad for CTA + tabbar + safe area so last items are reachable */
                      pb-[calc(env(safe-area-inset-bottom)+10px)]
                     "
         >
@@ -129,26 +159,28 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
             </div>
           </section>
 
-          {/* Spacer so content never hides behind CTA even if calculations differ */}
+          {/* Spacer */}
           <div className="h-1" />
         </main>
 
         {/* Sticky CTA ABOVE the bottom nav */}
         <div
           className="fixed inset-x-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60"
-          style={{ bottom: `calc(${tabbarVar})` }} // sit above your footer nav
+          style={{ bottom: `calc(${tabbarVar})` }}
         >
-          <div className="px-5 py-3">
+          <div className="px-5 py-3 flex justify-center">
             <button
-              className="w-full bg-orange-500 active:scale-[0.99] transition rounded-xl text-white font-medium py-3"
-              onClick={() => console.log("Add to bag clicked")}
+              type="button"
+              onClick={handleAddToCartClick}
+              disabled={cartLoading}
+              className="w-full bg-orange-500 active:scale-[0.99] transition rounded-xl text-white font-medium py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Add to bag
+              {cartLoading ? "Adding..." : "Add to bag"}
             </button>
           </div>
         </div>
 
-        {/* Optional: invisible spacer matching tab bar height for very short pages */}
+        {/* Optional spacer for very short pages */}
         <div style={{ height: `calc(${tabbarVar})` }} aria-hidden />
       </div>
     </>
