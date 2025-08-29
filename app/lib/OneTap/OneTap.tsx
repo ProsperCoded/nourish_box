@@ -162,7 +162,7 @@ export default function OneTap() {
         }
       }
     };
-  }, [user, loading, isScriptLoaded, hasShownPrompt]);
+  }, [user, loading, isScriptLoaded]);
 
   // Reset hasShownPrompt when user logs out
   useEffect(() => {
