@@ -64,6 +64,17 @@ const SignUp = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Subscribe a user to mailing list (best-effort)
+  const subscribeUser = async (payload: { email: string; firstName?: string; lastName?: string }) => {
+    try {
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (_) { }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -85,6 +96,12 @@ const SignUp = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+
+      // Subscribe newly created user
+      const nameParts = (userDetails.name || '').split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      subscribeUser({ email: userDetails.email, firstName, lastName });
 
       router.push("/");
     } catch (err: unknown) {
@@ -190,7 +207,13 @@ const SignUp = () => {
             className="flex items-center justify-center gap-2 bg-gray-100 py-3 px-4 rounded-lg w-full"
             onClick={() =>
               handleGoogleSignIn(
-                () => router.push("/"),
+                async (firebaseUser) => {
+                  const displayName = firebaseUser.displayName || '';
+                  const [firstName = '', ...rest] = displayName.split(' ');
+                  const lastName = rest.join(' ') || '';
+                  await subscribeUser({ email: firebaseUser.email || '', firstName, lastName });
+                  router.push("/");
+                },
                 (errMsg) => setError(errMsg)
               )
             }

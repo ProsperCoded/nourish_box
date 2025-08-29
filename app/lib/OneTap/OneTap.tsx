@@ -39,6 +39,13 @@ export default function OneTap() {
       }
     } catch (err: any) {
       console.error('❌ OneTap sign-in error:', err);
+      if (err.code) {
+        console.error(`Error Code: ${err.code}`);
+      }
+      if (err.message) {
+        console.error(`Error Message: ${err.message}`);
+      }
+
 
       // Handle specific errors
       if (err.code === 'auth/popup-closed-by-user') {
@@ -74,23 +81,26 @@ export default function OneTap() {
         cancel_on_tap_outside: true, // Allow users to dismiss by clicking outside
         context: 'signin', // Context for the prompt
         itp_support: true, // Enable Intelligent Tracking Prevention support
+        ux_mode: 'popup',
       });
 
       // Only show prompt if user is not authenticated and we haven't shown it yet
       if (!user && !hasShownPrompt) {
         console.log('🔄 Showing OneTap prompt...');
         window.google.accounts.id.prompt((notification: any) => {
-          if (notification.isNotDisplayed()) {
+          if (notification.getNotDisplayedReason) {
             console.log(
               'OneTap prompt not displayed:',
               notification.getNotDisplayedReason()
             );
-          } else if (notification.isSkippedMoment()) {
+          }
+          if (notification.getSkippedReason) {
             console.log(
               'OneTap prompt skipped:',
               notification.getSkippedReason()
             );
-          } else if (notification.isDismissedMoment()) {
+          }
+          if (notification.getDismissedReason) {
             console.log(
               'OneTap prompt dismissed:',
               notification.getDismissedReason()

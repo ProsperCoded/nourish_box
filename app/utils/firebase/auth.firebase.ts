@@ -50,7 +50,7 @@ export const createUserDocument = async (
 };
 
 export const handleGoogleSignIn = async (
-  onSuccess: () => void,
+  onSuccess: (firebaseUser: any) => void,
   onFailure: (error: string) => void
 ) => {
   try {
@@ -59,7 +59,7 @@ export const handleGoogleSignIn = async (
     // Use the shared function to create user document
     await createUserDocument(result.user);
 
-    onSuccess();
+    onSuccess(result.user);
     console.log('✅ Google sign-in successful:', result.user.email);
   } catch (error) {
     console.error('❌ Error signing in with Google:', error);
