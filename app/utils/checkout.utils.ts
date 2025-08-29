@@ -23,51 +23,6 @@ export const useCheckoutNavigation = () => {
 };
 
 /**
- * Validate delivery information
- */
-export const validateDeliveryInfo = (
-  deliveryInfo: any
-): { isValid: boolean; errors: Record<string, string> } => {
-  const errors: Record<string, string> = {};
-  const requiredFields = [
-    'deliveryName',
-    'deliveryEmail',
-    'deliveryPhone',
-    'deliveryAddress',
-    'deliveryCity',
-    'deliveryState',
-    'deliveryLGA',
-  ];
-
-  requiredFields.forEach(field => {
-    if (!deliveryInfo[field]?.trim()) {
-      errors[field] = 'This field is required';
-    }
-  });
-
-  // Email validation
-  if (
-    deliveryInfo.deliveryEmail &&
-    !/\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail)
-  ) {
-    errors.deliveryEmail = 'Please enter a valid email address';
-  }
-
-  // Phone validation
-  if (
-    deliveryInfo.deliveryPhone &&
-    !/^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''))
-  ) {
-    errors.deliveryPhone = 'Please enter a valid phone number';
-  }
-
-  return {
-    isValid: Object.keys(errors).length === 0,
-    errors,
-  };
-};
-
-/**
  * Calculate tax amount based on subtotal and business rules
  */
 export const calculateTax = (
