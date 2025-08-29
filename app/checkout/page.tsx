@@ -475,7 +475,7 @@ const CheckoutPage = () => {
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        newErrors[issue.path[0]] = issue.message;
+        newErrors[issue.path[0] as string] = issue.message;
       });
     }
     if (!agreedToTerms) {
