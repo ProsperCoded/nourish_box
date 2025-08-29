@@ -5,7 +5,7 @@ import { ArrowLeft, Clock, MapPin, Plus, ShoppingBag, Star, Users } from "lucide
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import PaystackModal from "../components/PaystackModal";
 import { Badge } from "../components/ui/badge";
@@ -18,6 +18,7 @@ import {
 import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
 import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
 import { getBusinessRules } from "../utils/firebase/business-rules.firebase";
+import { contactInfoSchema, deliveryInfoSchema } from "../utils/schema/checkout.schema";
 import { Address, CreateAddressInput } from "../utils/types/address.type";
 import { CartItem } from "../utils/types/cart.tyes";
 import { Delivery } from "../utils/types/delivery.type";
@@ -319,63 +320,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // Memoized validation to prevent infinite re-renders
-  const isFormValid = useMemo(() => {
-    // Check if we have a selected address or valid custom address
-    const hasValidAddress = selectedAddressId ||
-      (useCustomAddress && customAddressData.name && customAddressData.street &&
-        customAddressData.city && customAddressData.state && customAddressData.lga);
-
-    // Check required contact info
-    const hasValidContact = deliveryInfo.deliveryEmail &&
-      deliveryInfo.deliveryPhone &&
-      /\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail) &&
-      /^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''));
-
-    return hasValidAddress && hasValidContact && agreedToTerms;
-  }, [deliveryInfo, agreedToTerms, selectedAddressId, useCustomAddress, customAddressData]);
-
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    // Validate address selection
-    const hasValidAddress = selectedAddressId ||
-      (useCustomAddress && customAddressData.name && customAddressData.street &&
-        customAddressData.city && customAddressData.state && customAddressData.lga);
-
-    if (!hasValidAddress) {
-      if (useCustomAddress) {
-        if (!customAddressData.name) errors.deliveryName = "Name is required";
-        if (!customAddressData.street) errors.deliveryAddress = "Address is required";
-        if (!customAddressData.city) errors.deliveryCity = "City is required";
-        if (!customAddressData.state) errors.deliveryState = "State is required";
-        if (!customAddressData.lga) errors.deliveryLGA = "LGA is required";
-      } else {
-        errors.address = "Please select a delivery address";
-      }
-    }
-
-    // Validate contact info
-    if (!deliveryInfo.deliveryEmail?.trim()) {
-      errors.deliveryEmail = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(deliveryInfo.deliveryEmail)) {
-      errors.deliveryEmail = "Please enter a valid email address";
-    }
-
-    if (!deliveryInfo.deliveryPhone?.trim()) {
-      errors.deliveryPhone = "Phone number is required";
-    } else if (!/^\d{10,11}$/.test(deliveryInfo.deliveryPhone.replace(/\D/g, ''))) {
-      errors.deliveryPhone = "Please enter a valid phone number";
-    }
-
-    if (!agreedToTerms) {
-      errors.terms = "You must agree to the terms and conditions";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   // Initialize transaction with backend
   const initializeTransaction = async () => {
     try {
@@ -519,7 +463,33 @@ const CheckoutPage = () => {
   };
 
   const handlePayment = async () => {
-    if (!validateForm()) {
+    // Zod validation
+    const result = useCustomAddress
+      ? deliveryInfoSchema.safeParse(deliveryInfo)
+      : contactInfoSchema.safeParse({
+        deliveryEmail: deliveryInfo.deliveryEmail,
+        deliveryPhone: deliveryInfo.deliveryPhone,
+      });
+
+    const newErrors: Record<string, string> = {};
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path[0]] = issue.message;
+      });
+    }
+    if (!agreedToTerms) {
+      newErrors.terms = "You must agree to the terms and conditions";
+    }
+    // For logged-in users, if not using custom address, one must be selected.
+    if (user && !useCustomAddress && !selectedAddressId) {
+      newErrors.address = "Please select a delivery address to proceed.";
+    }
+
+    setFormErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please review your information and fill all required fields.");
       return;
     }
 
@@ -736,7 +706,7 @@ const CheckoutPage = () => {
                       : "border-gray-300"
                       }`}
                     placeholder="Enter your phone number"
-                    disabled={!useCustomAddress && !!selectedAddressId}
+                  // disabled={!useCustomAddress && !!selectedAddressId}
                   />
                   {formErrors.deliveryPhone && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1013,7 +983,7 @@ const CheckoutPage = () => {
             <div className="mt-6">
               <button
                 onClick={handlePayment}
-                disabled={paymentLoading || !(isFormValid ?? false)}
+                disabled={paymentLoading}
                 className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {paymentLoading ? (
