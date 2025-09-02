@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useInProfile } from "@/app/lib/useInProfile";
 import { getPaginatedUserOrdersWithDetails } from "@/app/utils/firebase/orders.firebase";
 import { Delivery } from "@/app/utils/types/delivery.type";
 import {
@@ -17,7 +18,6 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useInProfile } from "@/app/lib/useInProfile";
 
 type OrderWithDetails = Order & {
   recipes?: Recipe[];
@@ -42,7 +42,7 @@ const statusDisplayMap = {
   [DeliveryStatus.FAILED]: "Failed",
 };
 
-const OrderHistory = ({showHeader}) => {
+const OrderHistory = ({ showHeader }) => {
   const inProfile = useInProfile();
   const shouldShowHeader = showHeader ?? !inProfile;
   const { user, loading: authLoading } = useAuth();
@@ -248,8 +248,8 @@ const OrderHistory = ({showHeader}) => {
                             </h3>
                             {order.recipes && order.recipes.length > 0 && (
                               <p className="text-sm text-gray-600">
-                                {order.recipes.length === 1 
-                                  ? order.recipes[0].name 
+                                {order.recipes.length === 1
+                                  ? order.recipes[0].name
                                   : `${order.recipes.length} recipes`}
                               </p>
                             )}
@@ -299,7 +299,7 @@ const OrderHistory = ({showHeader}) => {
                         <Package className="h-4 w-4" />
                         Recipe{order.recipes.length > 1 ? 's' : ''} ({order.recipes.length})
                       </h4>
-                      
+
                       {/* Recipe Grid for Multiple Recipes */}
                       {order.recipes.length > 1 ? (
                         <div className="space-y-3">

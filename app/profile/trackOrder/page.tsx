@@ -507,7 +507,7 @@ const OrderStatusPage = () => {
                       <p className="text-sm text-gray-500 mt-1">
                         Order #{selectedOrder.id}
                       </p>
-                      
+
                       {/* Recipe Images Preview */}
                       {selectedOrder.recipes && selectedOrder.recipes.length > 0 && (
                         <div className="flex items-center space-x-2 mt-3">
@@ -852,7 +852,7 @@ const OrderStatusPage = () => {
                                   }}
                                 />
                               </div>
-                              
+
                               {/* Recipe Info */}
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-gray-800 mb-1">
