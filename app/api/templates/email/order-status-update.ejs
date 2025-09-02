@@ -8,158 +8,135 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #2d3748;
+            color: #374151;
             max-width: 600px;
             margin: 0 auto;
             padding: 0;
-            background-color: #f7fafc;
+            background-color: #f9fafb;
         }
         .email-container {
             background: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
             margin: 20px;
         }
         .header {
-            background: linear-gradient(135deg, #22c55e 0%, #f97316 100%);
+            background: #22c55e;
             color: white;
-            padding: 40px 30px;
+            padding: 30px;
             text-align: center;
-            position: relative;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
-            background-size: cover;
         }
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            font-weight: 600;
         }
         .header p {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.9;
-            position: relative;
-            z-index: 1;
         }
         .content {
-            background: #ffffff;
-            padding: 40px 30px;
+            padding: 30px;
         }
         .status-alert {
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
             border-left: 4px solid;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .order-summary {
-            background: #f8fafc;
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border: 1px solid #e2e8f0;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #e5e7eb;
         }
         .order-summary h3 {
-            color: #1a202c;
+            color: #1f2937;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .order-id {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            background: linear-gradient(135deg, #22c55e, #f97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block;
+            color: #22c55e;
         }
         .recipes-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            border-radius: 8px;
+            margin: 20px 0;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
         }
         .recipes-table th {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #22c55e;
             color: white;
-            padding: 15px 12px;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 14px;
         }
         .recipes-table td {
             padding: 12px;
             border-bottom: 1px solid #e5e7eb;
             background: #ffffff;
+            font-size: 14px;
         }
         .total-row {
-            background: linear-gradient(135deg, #dcfce7, #fed7aa);
+            background: #f9fafb;
             font-weight: bold;
-            font-size: 16px;
         }
         .delivery-info {
-            background: linear-gradient(135deg, #f0f9ff, #fef3c7);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 4px solid #0ea5e9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
         }
         .delivery-info h3 {
-            color: #0369a1;
+            color: #1d4ed8;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .track-button {
-            background: linear-gradient(135deg, #22c55e, #f97316);
+            background: #22c55e;
             color: white;
-            padding: 16px 32px;
+            padding: 12px 24px;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
             display: inline-block;
-            margin: 25px 0;
-            box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
-            transition: all 0.3s ease;
-        }
-        .track-button:hover {
-            background: linear-gradient(135deg, #16a34a, #ea580c);
-            box-shadow: 0 6px 12px rgba(34, 197, 94, 0.4);
-        }
-        .footer {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 30px;
-            text-align: center;
-            border-top: 3px solid #22c55e;
-        }
-        .footer p {
-            margin: 8px 0;
-            color: #4a5568;
+            margin: 20px 0;
             font-size: 14px;
         }
+        .track-button:hover {
+            background: #16a34a;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 6px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
         .support-info {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #0ea5e9;
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border-left: 3px solid #3b82f6;
         }
         .support-info strong {
-            color: #0369a1;
+            color: #1d4ed8;
         }
         @media (max-width: 600px) {
             .email-container {
@@ -262,14 +239,14 @@
 
         <div class="content">
             <div class="status-alert" style="background: <%= statusInfo.bgColor %>; border-left-color: <%= statusInfo.color %>;">
-                <h2 style="color: <%= statusInfo.color %>; margin-top: 0; font-size: 22px; font-weight: 600;">
+                <h2 style="color: <%= statusInfo.color %>; margin-top: 0; font-size: 18px; font-weight: 600;">
                     <%= statusInfo.title %>
                 </h2>
-                <p style="font-size: 16px; margin: 15px 0;"><strong><%= statusInfo.message %></strong></p>
-                <p style="font-size: 15px; color: #4a5568;"><%- statusInfo.actionText %></p>
+                <p style="font-size: 14px; margin: 12px 0;"><strong><%= statusInfo.message %></strong></p>
+                <p style="font-size: 14px; color: #6b7280;"><%- statusInfo.actionText %></p>
                 <% if (currentStatus.toLowerCase() === 'delivered') { %>
-                <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 3px solid #22c55e;">
-                    <p style="margin: 0; color: #059669; font-weight: 600;">Enjoy your meal and don't forget to rate your experience!</p>
+                <div style="background: #f0fdf4; padding: 12px; border-radius: 4px; margin-top: 15px; border: 1px solid #bbf7d0;">
+                    <p style="margin: 0; color: #166534; font-weight: 600; font-size: 13px;">Enjoy your meal and don't forget to rate your experience!</p>
                 </div>
                 <% } %>
             </div>
@@ -286,7 +263,7 @@
                     minute: '2-digit'
                 }) %></p>
                 <% if (currentStatus.toLowerCase() === 'in_transit') { %>
-                <p style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 15px; border-left: 3px solid #f59e0b;">
+                <p style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-top: 12px; border: 1px solid #bfdbfe; font-size: 13px;">
                     <strong>Tip:</strong> Have your Order ID ready: <strong>#<%= orderId.slice(-8).toUpperCase() %></strong>
                 </p>
                 <% } %>
@@ -340,13 +317,13 @@
                     <%= deliveryCity %>, <%= deliveryState %>
                 </p>
                 <% if (currentStatus.toLowerCase() === 'in_transit') { %>
-                <p style="background: #f0f9ff; padding: 10px; border-radius: 6px; margin-top: 15px; border-left: 3px solid #0ea5e9;">
+                <p style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-top: 12px; border: 1px solid #bfdbfe; font-size: 13px;">
                     <strong>Delivery in progress!</strong> Please stay available at this address.
                 </p>
                 <% } %>
             </div>
 
-            <div style="text-align: center; margin: 30px 0;">
+            <div style="text-align: center; margin: 25px 0;">
                 <a href="<%= websiteUrl %>/profile?tab=track" class="track-button">View All Orders</a>
             </div>
         </div>
@@ -357,10 +334,10 @@
 
             <div class="support-info">
                 <p><strong>Need Help?</strong></p>
-                <p>Our support team is here to assist you:</p>
-                <p>Email: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
-                <p>We typically respond within 24 hours</p>
-                <p style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+                <p style="font-size: 13px; margin: 4px 0;">Our support team is here to assist you:</p>
+                <p style="font-size: 13px; margin: 4px 0;">Email: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
+                <p style="font-size: 13px; margin: 4px 0;">We typically respond within 24 hours</p>
+                <p style="margin-top: 8px; font-size: 12px; color: #6b7280;">
                     Order questions? Include your Order ID: #<%= orderId.slice(-8).toUpperCase() %>
                 </p>
             </div>

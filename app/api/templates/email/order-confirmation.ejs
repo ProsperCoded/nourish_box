@@ -8,192 +8,170 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #2d3748;
+            color: #374151;
             max-width: 600px;
             margin: 0 auto;
             padding: 0;
-            background-color: #f7fafc;
+            background-color: #f9fafb;
         }
         .email-container {
             background: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
             margin: 20px;
         }
         .header {
-            background: linear-gradient(135deg, #22c55e 0%, #f97316 100%);
+            background: #22c55e;
             color: white;
-            padding: 40px 30px;
+            padding: 30px;
             text-align: center;
-            position: relative;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
-            background-size: cover;
         }
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            font-weight: 600;
         }
         .header p {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.9;
-            position: relative;
-            z-index: 1;
         }
         .content {
-            background: #ffffff;
-            padding: 40px 30px;
+            padding: 30px;
         }
         .order-summary {
-            background: linear-gradient(135deg, #dcfce7, #fed7aa);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
             border-left: 4px solid #22c55e;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .order-summary h2 {
-            background: linear-gradient(135deg, #16a34a, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #166534;
             margin-top: 0;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
         }
         .order-id {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            background: linear-gradient(135deg, #22c55e, #f97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block;
+            color: #22c55e;
         }
         .status-badge {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #22c55e;
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: 600;
             display: inline-block;
-            margin: 10px 0;
+            margin: 8px 0;
         }
         .recipes-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            border-radius: 8px;
+            margin: 20px 0;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
         }
         .recipes-table th {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #22c55e;
             color: white;
-            padding: 15px 12px;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 14px;
         }
         .recipes-table td {
             padding: 12px;
             border-bottom: 1px solid #e5e7eb;
             background: #ffffff;
+            font-size: 14px;
         }
         .total-row {
-            background: linear-gradient(135deg, #dcfce7, #fed7aa);
+            background: #f9fafb;
             font-weight: bold;
-            font-size: 16px;
         }
         .delivery-info {
-            background: linear-gradient(135deg, #f0f9ff, #fef3c7);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 4px solid #0ea5e9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
         }
         .delivery-info h3 {
-            color: #0369a1;
+            color: #1d4ed8;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .next-steps {
-            background: linear-gradient(135deg, #ecfdf5, #fef3c7);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border: 2px solid #22c55e;
+            background: #fffbeb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #fbbf24;
         }
         .next-steps h3 {
-            color: #059669;
+            color: #92400e;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .step-item {
-            margin: 12px 0;
-            padding: 8px 0;
+            margin: 10px 0;
+            padding: 6px 0;
             display: flex;
             align-items: center;
+            font-size: 14px;
         }
         .step-item:before {
             content: '→';
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #22c55e;
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
+            margin-right: 10px;
             font-weight: bold;
+            font-size: 12px;
         }
         .track-link {
-            background: linear-gradient(135deg, #22c55e, #f97316);
+            background: #22c55e;
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
             display: inline-block;
             margin: 15px 0;
-            box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
-        }
-        .footer {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 30px;
-            text-align: center;
-            border-top: 3px solid #22c55e;
-        }
-        .footer p {
-            margin: 8px 0;
-            color: #4a5568;
             font-size: 14px;
         }
+        .footer {
+            background: #f9fafb;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 6px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
         .support-info {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #0ea5e9;
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border-left: 3px solid #3b82f6;
         }
         .support-info strong {
-            color: #0369a1;
+            color: #1d4ed8;
         }
         @media (max-width: 600px) {
             .email-container {
@@ -288,7 +266,7 @@
                     <%= deliveryAddress %><br>
                     <%= deliveryCity %>, <%= deliveryState %>
                 </p>
-                <p style="font-size: 14px; color: #6b7280; margin-top: 15px;">
+                <p style="font-size: 13px; color: #6b7280; margin-top: 12px;">
                     Please ensure someone is available at this address to receive your order
                 </p>
             </div>
@@ -299,7 +277,7 @@
                 <div class="step-item">You'll receive email updates as your order progresses</div>
                 <div class="step-item">Track your order status anytime on our website</div>
                 <div class="step-item">Estimated delivery time: 2-4 hours</div>
-                <div style="text-align: center; margin-top: 20px;">
+                <div style="text-align: center; margin-top: 15px;">
                     <a href="<%= websiteUrl %>/profile?tab=track" class="track-link">Track Your Orders</a>
                 </div>
             </div>
@@ -311,10 +289,10 @@
 
             <div class="support-info">
                 <p><strong>Need Help?</strong></p>
-                <p>Our support team is here to assist you:</p>
-                <p>Email: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
-                <p>We typically respond within 24 hours</p>
-                <p style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+                <p style="font-size: 13px; margin: 4px 0;">Our support team is here to assist you:</p>
+                <p style="font-size: 13px; margin: 4px 0;">Email: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
+                <p style="font-size: 13px; margin: 4px 0;">We typically respond within 24 hours</p>
+                <p style="margin-top: 8px; font-size: 12px; color: #6b7280;">
                     Order questions? Include your Order ID: #<%= orderId.slice(-8).toUpperCase() %>
                 </p>
             </div>
