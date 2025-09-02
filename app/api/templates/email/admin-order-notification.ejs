@@ -274,18 +274,18 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>🚨 New Order Alert</h1>
+            <h1>New Order Alert</h1>
             <p><%= companyName %> Admin Notification</p>
         </div>
 
         <div class="content">
             <div class="urgent-banner">
-                <h3>🔔 URGENT: New Order Received</h3>
+                <h3>URGENT: New Order Received</h3>
                 <p><strong>Immediate action required!</strong> A customer has placed a new order that needs to be processed.</p>
             </div>
 
             <div class="order-alert">
-                <h2>📋 Order Summary</h2>
+                <h2>Order Summary</h2>
                 <p class="order-id">Order ID: #<%= orderId.slice(-8).toUpperCase() %></p>
                 <p><strong>Order Date:</strong> <%= new Date(createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -295,7 +295,7 @@
                     minute: '2-digit'
                 }) %></p>
                 <div class="order-value">
-                    💰 Total: <%= new Intl.NumberFormat('en-NG', {
+                    Total: <%= new Intl.NumberFormat('en-NG', {
                         style: 'currency',
                         currency: 'NGN'
                     }).format(orderAmount) %>
@@ -303,7 +303,7 @@
             </div>
 
             <div class="customer-info">
-                <h3>👤 Customer Information</h3>
+                <h3>Customer Information</h3>
                 <div class="customer-details">
                     <div class="customer-item">
                         <div class="customer-label">Customer Name</div>
@@ -375,19 +375,19 @@
             </table>
 
             <div class="delivery-info">
-                <h3>🚚 Delivery Information</h3>
+                <h3>Delivery Information</h3>
                 <p><strong>Delivery Address:</strong></p>
                 <p style="margin-left: 20px; color: #4a5568; font-size: 15px;">
-                    📍 <%= deliveryAddress %><br>
-                    🏙️ <%= deliveryCity %>, <%= deliveryState %>
+                    <%= deliveryAddress %><br>
+                    <%= deliveryCity %>, <%= deliveryState %>
                 </p>
                 <p style="background: #ffffff; padding: 12px; border-radius: 6px; margin-top: 15px; border-left: 3px solid #f59e0b;">
-                    <strong>⏰ Expected Delivery Window:</strong> 2-4 hours from order confirmation
+                    <strong>Expected Delivery Window:</strong> 2-4 hours from order confirmation
                 </p>
             </div>
 
             <div class="action-required">
-                <h3>⚡ Immediate Actions Required</h3>
+                <h3>Immediate Actions Required</h3>
 
                 <div class="action-item">
                     <strong>1. Order Processing:</strong> Review and confirm the order details above
@@ -406,11 +406,11 @@
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <a href="<%= websiteUrl %>/admin/orders" class="admin-button">🎛️ Access Admin Panel</a>
+                    <a href="<%= websiteUrl %>/admin/orders" class="admin-button">Access Admin Panel</a>
                 </div>
 
                 <p style="font-size: 14px; color: #059669; margin-top: 15px;">
-                    📞 <strong>Customer Contact:</strong> <%= customerEmail %>
+                    <strong>Customer Contact:</strong> <%= customerEmail %>
                     <% if (customerPhone) { %> | <%= customerPhone %><% } %>
                 </p>
             </div>
@@ -418,12 +418,12 @@
 
         <div class="footer">
             <p><strong>This notification was sent from the <%= companyName %> order management system.</strong></p>
-            <p>🚀 Process orders quickly to maintain customer satisfaction!</p>
+            <p>Process orders quickly to maintain customer satisfaction!</p>
 
             <div class="support-info">
                 <p><strong>Admin Support:</strong></p>
                 <p>Need technical assistance with order processing?</p>
-                <p>📧 Contact: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
+                <p>Contact: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
                 <p style="margin-top: 10px; font-size: 13px; color: #6b7280;">
                     Order Reference: #<%= orderId.slice(-8).toUpperCase() %> | <%= new Date(createdAt).toLocaleDateString() %>
                 </p>

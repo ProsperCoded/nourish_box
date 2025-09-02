@@ -203,18 +203,18 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>📨 New Contact Form Submission</h1>
+            <h1>New Contact Form Submission</h1>
             <p><%= companyName %> - Customer Support Alert</p>
         </div>
 
         <div class="content">
             <div class="priority-banner">
-                <h3>🚨 New Customer Message Received</h3>
+                <h3>New Customer Message Received</h3>
                 <p>A customer has submitted a contact form. Please respond promptly to maintain excellent customer service.</p>
             </div>
 
             <div class="contact-info">
-                <h2>👤 Customer Information</h2>
+                <h2>Customer Information</h2>
 
                 <div class="info-grid">
                     <div class="info-item">
@@ -248,26 +248,26 @@
             </div>
 
             <div class="message-section">
-                <h3>💬 Customer Message</h3>
+                <h3>Customer Message</h3>
                 <div class="message-content">
                     <%- message.replace(/\n/g, '<br>') %>
                 </div>
             </div>
 
             <div class="action-required">
-                <h3>⚡ Action Required</h3>
+                <h3>Action Required</h3>
                 <p><strong>Please respond to this customer inquiry as soon as possible.</strong></p>
                 <p>Reply directly to: <strong><%= email %></strong></p>
 
                 <div class="response-time">
-                    <p style="margin: 0; color: #0369a1; font-weight: 600;">🎯 Target Response Time: Within 24 hours</p>
+                    <p style="margin: 0; color: #0369a1; font-weight: 600;">Target Response Time: Within 24 hours</p>
                 </div>
             </div>
         </div>
 
         <div class="footer">
             <p><strong>This message was sent from the <%= companyName %> contact form.</strong></p>
-            <p>Maintaining excellent customer service is our priority! 🍽️</p>
+            <p>Maintaining excellent customer service is our priority!</p>
 
             <div class="support-info">
                 <p><strong>Customer Service Guidelines:</strong></p>
@@ -275,7 +275,7 @@
                 <p>• Be professional and friendly</p>
                 <p>• Provide clear and helpful solutions</p>
                 <p style="margin-top: 10px;">
-                    📧 Support Team: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong>
+                    Support Team: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong>
                 </p>
             </div>
         </div>
