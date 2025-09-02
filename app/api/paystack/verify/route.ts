@@ -70,58 +70,42 @@ export async function GET(request: NextRequest) {
         paymentDate: paystackData.data.paid_at || new Date().toISOString(),
       });
 
-      // Create separate orders for each recipe
-      const orderPromises = transaction.recipes.map(
+      // Calculate total amount from all recipes
+      const recipePromises = transaction.recipes.map(
         async (recipeId: string) => {
-          try {
-            // Get recipe to calculate individual price
-            const recipe = await getRecipeById(recipeId);
-            if (!recipe) {
-              console.error(`Recipe not found: ${recipeId}`);
-              return null;
-            }
-
-            const orderData: Partial<Order> = {
-              ...(transaction.userId && { userId: transaction.userId }),
-              recipeId: recipeId,
-              amount: recipe.price, // Individual recipe price
-              deliveryId: transaction.deliveryId,
-              deliveryStatus: DeliveryStatus.PENDING,
-              deliveryDate: '', // Will be set when delivered
-              deliveryDurationRange: '2-3 days',
-              transactionId: transaction.id!,
-            };
-
-            const orderResult = await createOrder(orderData);
-            console.log(
-              `Order created for recipe ${recipeId}: ${orderResult.id}`
-            );
-            return orderResult;
-          } catch (error) {
-            console.error(
-              `Error creating order for recipe ${recipeId}:`,
-              error
-            );
-            return null;
-          }
+          const recipe = await getRecipeById(recipeId);
+          return recipe ? recipe.price : 0;
         }
       );
 
-      const orderResults = await Promise.allSettled(orderPromises);
-      const successfulOrders = orderResults.filter(
-        result => result.status === 'fulfilled' && result.value !== null
-      ).length;
+      const recipePrices = await Promise.all(recipePromises);
+      const totalAmount = recipePrices.reduce((sum, price) => sum + price, 0);
 
-      const failedOrders = orderResults.filter(
-        result => result.status === 'rejected' || result.value === null
-      ).length;
+      // Create a single order with multiple recipes
+      const orderData: Partial<Order> = {
+        ...(transaction.userId && { userId: transaction.userId }),
+        recipeIds: transaction.recipes, // Array of recipe IDs
+        amount: totalAmount, // Total amount for all recipes
+        deliveryId: transaction.deliveryId,
+        deliveryStatus: DeliveryStatus.PENDING,
+        deliveryDate: '', // Will be set when delivered
+        deliveryDurationRange: '2-3 days',
+        transactionId: transaction.id!,
+      };
 
-      console.log(
-        `Created ${successfulOrders} orders successfully, ${failedOrders} failed`
-      );
+      let orderResult;
+      try {
+        orderResult = await createOrder(orderData);
+        console.log(
+          `Order created with ${transaction.recipes.length} recipes: ${orderResult.id}`
+        );
+      } catch (error) {
+        console.error('Error creating order:', error);
+        throw error;
+      }
 
       // Send email notifications after successful order creation
-      if (successfulOrders > 0) {
+      if (orderResult) {
         try {
           // Get delivery information
           const delivery = await getDeliveryById(transaction.deliveryId);
@@ -149,8 +133,9 @@ export async function GET(request: NextRequest) {
             const orderEmailData = {
               customerName: delivery.deliveryName,
               customerEmail: delivery.deliveryEmail,
-              orderId: transaction.id!,
-              orderAmount: transaction.amount,
+              customerPhone: delivery.deliveryPhone || null,
+              orderId: orderResult.id,
+              orderAmount: totalAmount,
               recipes: recipes,
               deliveryAddress: delivery.deliveryAddress,
               deliveryCity: delivery.deliveryCity,
@@ -175,18 +160,23 @@ export async function GET(request: NextRequest) {
             // Send admin notification emails
             const adminUsers = await getAllAdminUsers();
             if (adminUsers.length > 0) {
-              const adminEmails = adminUsers.map(admin => admin.email);
-              console.log(
-                `Sending order notification to ${adminEmails.length} admins`
-              );
-              const adminEmailSent = await sendEmailNotification({
-                type: EmailType.ADMIN_ORDER,
-                to: adminEmails,
-                context: orderEmailData,
-              });
+              const adminEmails = adminUsers
+                .map(admin => admin.email)
+                .filter(email => !!email);
 
-              if (!adminEmailSent) {
-                console.error('Failed to send order notification to admins');
+              if (adminEmails.length > 0) {
+                console.log(
+                  `Sending order notification to ${adminEmails.length} admins`
+                );
+                const adminEmailSent = await sendEmailNotification({
+                  type: EmailType.ADMIN_ORDER,
+                  to: adminEmails,
+                  context: orderEmailData,
+                });
+
+                if (!adminEmailSent) {
+                  console.error('Failed to send order notification to admins');
+                }
               }
             } else {
               console.warn('No admin users found to send order notification');
@@ -215,10 +205,10 @@ export async function GET(request: NextRequest) {
             status: TransactionStatus.SUCCESS,
             deliveryId: transaction.deliveryId,
           },
-          orders: {
-            total: transaction.recipes.length,
-            successful: successfulOrders,
-            failed: failedOrders,
+          order: {
+            id: orderResult.id,
+            recipeCount: transaction.recipes.length,
+            totalAmount: totalAmount,
           },
         }
       );

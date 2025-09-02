@@ -10,12 +10,12 @@ import {
   QuerySnapshot,
   limit,
   startAfter,
-} from "firebase/firestore";
-import { db } from "../../lib/firebase";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
-import { Order } from "@/app/utils/types/order.type";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { Delivery } from "@/app/utils/types/delivery.type";
+} from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { Order } from '@/app/utils/types/order.type';
+import { Recipe } from '@/app/utils/types/recipe.type';
+import { Delivery } from '@/app/utils/types/delivery.type';
 
 // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
 const chunkArray = <T>(array: T[], size: number): T[][] => {
@@ -34,8 +34,8 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
     const ordersRef = collection(db, COLLECTION.orders);
     const q = query(
       ordersRef,
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
@@ -44,12 +44,10 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
     for (const doc of querySnapshot.docs) {
       const orderData = { id: doc.id, ...doc.data() } as Order;
 
-      // Fetch recipe data if recipeId exists
-      if (orderData.recipeId) {
-        const recipe = await getRecipeById(orderData.recipeId);
-        if (recipe) {
-          orderData.recipe = recipe;
-        }
+      // Fetch recipes data if recipeIds exist
+      if (orderData.recipeIds && orderData.recipeIds.length > 0) {
+        const recipes = await getRecipesByIds(orderData.recipeIds);
+        orderData.recipes = recipes;
       }
 
       orders.push(orderData);
@@ -57,8 +55,8 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
 
     return orders;
   } catch (error) {
-    console.error("Error fetching user orders:", error);
-    throw new Error("Failed to fetch orders");
+    console.error('Error fetching user orders:', error);
+    throw new Error('Failed to fetch orders');
   }
 }
 
@@ -71,7 +69,7 @@ export async function getPaginatedUserOrdersWithDetails(
   lastOrderId?: string
 ): Promise<{
   orders: (Order & {
-    recipe?: Recipe;
+    recipes?: Recipe[];
     delivery?: Delivery;
   })[];
   hasMore: boolean;
@@ -81,8 +79,8 @@ export async function getPaginatedUserOrdersWithDetails(
     // 1. Fetch paginated orders for the user
     let ordersQuery = query(
       collection(db, COLLECTION.orders),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc"),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc'),
       limit(pageSize + 1) // Fetch one extra to check if there are more
     );
 
@@ -94,8 +92,8 @@ export async function getPaginatedUserOrdersWithDetails(
       if (lastOrderDoc.exists()) {
         ordersQuery = query(
           collection(db, COLLECTION.orders),
-          where("userId", "==", userId),
-          orderBy("createdAt", "desc"),
+          where('userId', '==', userId),
+          orderBy('createdAt', 'desc'),
           startAfter(lastOrderDoc),
           limit(pageSize + 1)
         );
@@ -110,7 +108,7 @@ export async function getPaginatedUserOrdersWithDetails(
     const ordersToProcess = hasMore ? docs.slice(0, pageSize) : docs;
 
     const orders: Order[] = ordersToProcess.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
+      doc => ({ id: doc.id, ...doc.data() }) as Order
     );
 
     if (orders.length === 0) {
@@ -118,52 +116,51 @@ export async function getPaginatedUserOrdersWithDetails(
     }
 
     // Extract unique IDs for batch fetching
-    const recipeIds = [
-      ...new Set(orders.map((order) => order.recipeId).filter(Boolean)),
-    ];
+    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
-      ...new Set(orders.map((order) => order.deliveryId).filter(Boolean)),
+      ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
     ];
 
     // 2. Batch fetch recipes and deliveries
     const [recipesMap, deliveriesMap] = await Promise.all([
       // Fetch recipes
       Promise.all(
-        chunkArray(recipeIds, 10).map(async (chunk) => {
+        chunkArray(recipeIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const recipesQuery = query(
             collection(db, COLLECTION.recipes),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(recipesQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+            doc => ({ id: doc.id, ...doc.data() }) as Recipe
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const recipesMap = new Map<string, Recipe>();
-        results.flat().forEach((recipe) => recipesMap.set(recipe.id, recipe));
+        results.flat().forEach(recipe => recipesMap.set(recipe.id, recipe));
         return recipesMap;
       }),
 
       // Fetch deliveries
       Promise.all(
-        chunkArray(deliveryIds, 10).map(async (chunk) => {
+        chunkArray(deliveryIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const deliveriesQuery = query(
             collection(db, COLLECTION.deliveries),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(deliveriesQuery);
           return snapshot.docs.map(
-            (doc) => ({ deliveryId: doc.id, ...doc.data() } as Delivery)
+            doc => ({ deliveryId: doc.id, ...doc.data() }) as Delivery
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const deliveriesMap = new Map<string, Delivery>();
         results
           .flat()
-          .forEach((delivery) =>
+          .forEach(delivery =>
             deliveriesMap.set(delivery.deliveryId!, delivery)
           );
         return deliveriesMap;
@@ -171,9 +168,12 @@ export async function getPaginatedUserOrdersWithDetails(
     ]);
 
     // 3. Combine data
-    const ordersWithDetails = orders.map((order) => ({
+    const ordersWithDetails = orders.map(order => ({
       ...order,
-      recipe: recipesMap.get(order.recipeId),
+      recipes:
+        order.recipeIds
+          ?.map(id => recipesMap.get(id))
+          .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
 
@@ -186,8 +186,8 @@ export async function getPaginatedUserOrdersWithDetails(
           : undefined,
     };
   } catch (error) {
-    console.error("Error fetching paginated user orders with details:", error);
-    throw new Error("Failed to fetch paginated user orders with details");
+    console.error('Error fetching paginated user orders with details:', error);
+    throw new Error('Failed to fetch paginated user orders with details');
   }
 }
 
@@ -196,7 +196,7 @@ export async function getPaginatedUserOrdersWithDetails(
  */
 export async function getUserOrdersWithDetails(userId: string): Promise<
   (Order & {
-    recipe?: Recipe;
+    recipes?: Recipe[];
     delivery?: Delivery;
   })[]
 > {
@@ -204,13 +204,13 @@ export async function getUserOrdersWithDetails(userId: string): Promise<
     // 1. Fetch all orders for the user
     const ordersQuery = query(
       collection(db, COLLECTION.orders),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     );
 
     const ordersSnapshot = await getDocs(ordersQuery);
     const orders: Order[] = ordersSnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
+      doc => ({ id: doc.id, ...doc.data() }) as Order
     );
 
     if (orders.length === 0) {
@@ -218,52 +218,51 @@ export async function getUserOrdersWithDetails(userId: string): Promise<
     }
 
     // Extract unique IDs for batch fetching
-    const recipeIds = [
-      ...new Set(orders.map((order) => order.recipeId).filter(Boolean)),
-    ];
+    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
-      ...new Set(orders.map((order) => order.deliveryId).filter(Boolean)),
+      ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
     ];
 
     // 2. Batch fetch recipes and deliveries
     const [recipesMap, deliveriesMap] = await Promise.all([
       // Fetch recipes
       Promise.all(
-        chunkArray(recipeIds, 10).map(async (chunk) => {
+        chunkArray(recipeIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const recipesQuery = query(
             collection(db, COLLECTION.recipes),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(recipesQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+            doc => ({ id: doc.id, ...doc.data() }) as Recipe
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const recipesMap = new Map<string, Recipe>();
-        results.flat().forEach((recipe) => recipesMap.set(recipe.id, recipe));
+        results.flat().forEach(recipe => recipesMap.set(recipe.id, recipe));
         return recipesMap;
       }),
 
       // Fetch deliveries
       Promise.all(
-        chunkArray(deliveryIds, 10).map(async (chunk) => {
+        chunkArray(deliveryIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const deliveriesQuery = query(
             collection(db, COLLECTION.deliveries),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(deliveriesQuery);
           return snapshot.docs.map(
-            (doc) => ({ deliveryId: doc.id, ...doc.data() } as Delivery)
+            doc => ({ deliveryId: doc.id, ...doc.data() }) as Delivery
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const deliveriesMap = new Map<string, Delivery>();
         results
           .flat()
-          .forEach((delivery) =>
+          .forEach(delivery =>
             deliveriesMap.set(delivery.deliveryId!, delivery)
           );
         return deliveriesMap;
@@ -271,16 +270,19 @@ export async function getUserOrdersWithDetails(userId: string): Promise<
     ]);
 
     // 3. Combine data
-    const ordersWithDetails = orders.map((order) => ({
+    const ordersWithDetails = orders.map(order => ({
       ...order,
-      recipe: recipesMap.get(order.recipeId),
+      recipes:
+        order.recipeIds
+          ?.map(id => recipesMap.get(id))
+          .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
 
     return ordersWithDetails;
   } catch (error) {
-    console.error("Error fetching user orders with details:", error);
-    throw new Error("Failed to fetch user orders with details");
+    console.error('Error fetching user orders with details:', error);
+    throw new Error('Failed to fetch user orders with details');
   }
 }
 
@@ -298,18 +300,16 @@ export async function getOrderById(orderId: string): Promise<Order | null> {
 
     const orderData = { id: orderSnap.id, ...orderSnap.data() } as Order;
 
-    // Fetch recipe data if recipeId exists
-    if (orderData.recipeId) {
-      const recipe = await getRecipeById(orderData.recipeId);
-      if (recipe) {
-        orderData.recipe = recipe;
-      }
+    // Fetch recipes data if recipeIds exist
+    if (orderData.recipeIds && orderData.recipeIds.length > 0) {
+      const recipes = await getRecipesByIds(orderData.recipeIds);
+      orderData.recipes = recipes;
     }
 
     return orderData;
   } catch (error) {
-    console.error("Error fetching order by ID:", error);
-    throw new Error("Failed to fetch order");
+    console.error('Error fetching order by ID:', error);
+    throw new Error('Failed to fetch order');
   }
 }
 
@@ -327,8 +327,37 @@ async function getRecipeById(recipeId: string): Promise<Recipe | null> {
 
     return { id: recipeSnap.id, ...recipeSnap.data() } as Recipe;
   } catch (error) {
-    console.error("Error fetching recipe:", error);
+    console.error('Error fetching recipe:', error);
     return null;
+  }
+}
+
+/**
+ * Get multiple recipes by IDs
+ */
+async function getRecipesByIds(recipeIds: string[]): Promise<Recipe[]> {
+  try {
+    if (recipeIds.length === 0) return [];
+
+    const recipes: Recipe[] = [];
+    const chunks = chunkArray(recipeIds, 10);
+
+    for (const chunk of chunks) {
+      const recipesQuery = query(
+        collection(db, COLLECTION.recipes),
+        where('__name__', 'in', chunk)
+      );
+      const snapshot = await getDocs(recipesQuery);
+      const chunkRecipes = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Recipe
+      );
+      recipes.push(...chunkRecipes);
+    }
+
+    return recipes;
+  } catch (error) {
+    console.error('Error fetching recipes by IDs:', error);
+    return [];
   }
 }
 
@@ -348,7 +377,7 @@ export async function getDeliveryById(
 
     return { deliveryId: deliverySnap.id, ...deliverySnap.data() } as Delivery;
   } catch (error) {
-    console.error("Error fetching delivery:", error);
+    console.error('Error fetching delivery:', error);
     return null;
   }
 }
@@ -370,8 +399,8 @@ export async function getOrderWithDelivery(
 
     return order;
   } catch (error) {
-    console.error("Error fetching order with delivery:", error);
-    throw new Error("Failed to fetch order with delivery information");
+    console.error('Error fetching order with delivery:', error);
+    throw new Error('Failed to fetch order with delivery information');
   }
 }
 
@@ -396,7 +425,7 @@ export async function getUserOrdersWithDelivery(
 
     return ordersWithDelivery;
   } catch (error) {
-    console.error("Error fetching user orders with delivery:", error);
-    throw new Error("Failed to fetch orders with delivery information");
+    console.error('Error fetching user orders with delivery:', error);
+    throw new Error('Failed to fetch orders with delivery information');
   }
 }

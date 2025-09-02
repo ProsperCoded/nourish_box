@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 // Extended order type with additional details
 type OrderWithDetails = Order & {
-  recipe?: Recipe;
+  recipes?: Recipe[];
   delivery?: Delivery;
 };
 
@@ -174,16 +174,16 @@ const OrderStatusPage = () => {
   };
 
   const handleReorder = (order: OrderWithDetails) => {
-    if (!order.recipe) return;
+    if (!order.recipes || order.recipes.length === 0) return;
 
-    const newItem = {
-      id: order.id,
-      name: order.recipe.name,
-      price: order.amount,
+    const newItems = order.recipes.map(recipe => ({
+      id: `${order.id}-${recipe.id}`,
+      name: recipe.name,
+      price: recipe.price,
       quantity: 1,
-    };
+    }));
 
-    setCartItems([...cartItems, newItem]);
+    setCartItems([...cartItems, ...newItems]);
     setShowCartNotification(true);
 
     setTimeout(() => {
@@ -422,29 +422,66 @@ const OrderStatusPage = () => {
                           : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">
-                              {order.recipe?.name || "Recipe"}
-                            </h4>
-                            <p className="text-sm text-gray-500">
-                              Order #{order.id.slice(-8)}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </p>
+                        <div className="flex items-center space-x-3">
+                          {/* Order Image - Show first recipe image */}
+                          <div className="flex-shrink-0">
+                            {order.recipes && order.recipes.length > 0 ? (
+                              <div className="relative">
+                                <img
+                                  src={order.recipes[0].displayMedia?.url || '/app/assets/food.png'}
+                                  alt={order.recipes[0].name}
+                                  className="w-12 h-12 rounded-md object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/app/assets/food.png';
+                                  }}
+                                />
+                                {order.recipes.length > 1 && (
+                                  <div className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                    {order.recipes.length}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-md bg-gray-200 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </div>
+                            )}
                           </div>
-                          <div className="mt-2 sm:mt-0 flex items-center space-x-4">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                order.deliveryStatus
-                              )}`}
-                            >
-                              {formatStatus(order.deliveryStatus)}
-                            </span>
-                            <span className="text-sm font-medium">
-                              ₦{order.amount.toLocaleString()}
-                            </span>
+
+                          {/* Order Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-medium text-gray-900 truncate">
+                                  {order.recipes && order.recipes.length > 0
+                                    ? order.recipes.length === 1
+                                      ? order.recipes[0].name
+                                      : `${order.recipes.length} recipes`
+                                    : "Recipe"}
+                                </h4>
+                                <p className="text-sm text-gray-500">
+                                  Order #{order.id.slice(-8)}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {new Date(order.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="mt-2 sm:mt-0 flex items-center space-x-4">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                    order.deliveryStatus
+                                  )}`}
+                                >
+                                  {formatStatus(order.deliveryStatus)}
+                                </span>
+                                <span className="text-sm font-medium">
+                                  ₦{order.amount.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -458,14 +495,47 @@ const OrderStatusPage = () => {
             {selectedOrder && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0">
+                    <div className="flex-1">
                       <h2 className="text-xl font-semibold text-gray-800">
-                        {selectedOrder.recipe?.name || "Recipe"}
+                        {selectedOrder.recipes && selectedOrder.recipes.length > 0
+                          ? selectedOrder.recipes.length === 1
+                            ? selectedOrder.recipes[0].name
+                            : `Order with ${selectedOrder.recipes.length} recipes`
+                          : "Recipe Order"}
                       </h2>
                       <p className="text-sm text-gray-500 mt-1">
                         Order #{selectedOrder.id}
                       </p>
+                      
+                      {/* Recipe Images Preview */}
+                      {selectedOrder.recipes && selectedOrder.recipes.length > 0 && (
+                        <div className="flex items-center space-x-2 mt-3">
+                          <span className="text-sm text-gray-600">Recipes:</span>
+                          <div className="flex space-x-2">
+                            {selectedOrder.recipes.slice(0, 3).map((recipe, index) => (
+                              <img
+                                key={recipe.id}
+                                src={recipe.displayMedia?.url || '/app/assets/food.png'}
+                                alt={recipe.name}
+                                className="w-8 h-8 rounded object-cover border border-gray-200"
+                                title={recipe.name}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/app/assets/food.png';
+                                }}
+                              />
+                            ))}
+                            {selectedOrder.recipes.length > 3 && (
+                              <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                <span className="text-xs text-gray-600 font-medium">
+                                  +{selectedOrder.recipes.length - 3}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <span
                       className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
@@ -694,9 +764,13 @@ const OrderStatusPage = () => {
                     <span className="font-medium">#{selectedOrder.id.slice(-8)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">Recipe</span>
-                    <span className="font-medium text-right max-w-32 truncate">
-                      {selectedOrder.recipe?.name || "Recipe"}
+                    <span className="text-gray-600">Recipes</span>
+                    <span className="font-medium text-right max-w-32">
+                      {selectedOrder.recipes && selectedOrder.recipes.length > 0
+                        ? selectedOrder.recipes.length === 1
+                          ? selectedOrder.recipes[0].name
+                          : `${selectedOrder.recipes.length} recipes`
+                        : "No recipes"}
                     </span>
                   </div>
                   <div className="flex justify-between mb-2">
@@ -757,30 +831,57 @@ const OrderStatusPage = () => {
                   )}
 
                   {/* Recipe Details */}
-                  {selectedOrder.recipe && (
+                  {selectedOrder.recipes && selectedOrder.recipes.length > 0 && (
                     <div className="mt-6">
                       <h4 className="text-sm font-medium text-gray-900 mb-2">
-                        Recipe Details
+                        Recipe Details ({selectedOrder.recipes.length} recipe{selectedOrder.recipes.length > 1 ? 's' : ''})
                       </h4>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p>
-                          <span className="font-medium">Duration:</span>{" "}
-                          {selectedOrder.recipe.duration ? `${Math.floor(selectedOrder.recipe.duration / 60)} min` : "N/A"}
-                        </p>
-                        <p>
-                          <span className="font-medium">Difficulty:</span>{" "}
-                          {selectedOrder.recipe.difficulty || "N/A"}
-                        </p>
-                        <p>
-                          <span className="font-medium">Servings:</span>{" "}
-                          {selectedOrder.recipe.servings || "N/A"}
-                        </p>
-                        {selectedOrder.recipe.description && (
-                          <p className="mt-2 text-xs">
-                            {selectedOrder.recipe.description.slice(0, 100)}
-                            {selectedOrder.recipe.description.length > 100 ? "..." : ""}
-                          </p>
-                        )}
+                      <div className="space-y-3">
+                        {selectedOrder.recipes.map((recipe, index) => (
+                          <div key={recipe.id} className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-start space-x-3">
+                              {/* Recipe Image */}
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={recipe.displayMedia?.url || '/app/assets/food.png'}
+                                  alt={recipe.name}
+                                  className="w-16 h-16 rounded-md object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/app/assets/food.png';
+                                  }}
+                                />
+                              </div>
+                              
+                              {/* Recipe Info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-800 mb-1">
+                                  {index + 1}. {recipe.name}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <span>Duration: {recipe.duration ? `${Math.floor(recipe.duration / 60)} min` : "N/A"}</span>
+                                  <span className="font-medium text-orange-600">Price: ₦{recipe.price.toLocaleString()}</span>
+                                  {recipe.difficulty && <span>Difficulty: {recipe.difficulty}</span>}
+                                  {recipe.servings && <span>Servings: {recipe.servings}</span>}
+                                </div>
+                                {recipe.description && (
+                                  <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                                    {recipe.description.slice(0, 100)}
+                                    {recipe.description.length > 100 ? "..." : ""}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="text-sm font-medium text-gray-800 bg-orange-50 p-3 rounded-lg border-l-4 border-orange-400">
+                          <div className="flex justify-between items-center">
+                            <span>Total Value:</span>
+                            <span className="text-orange-600 font-bold">
+                              ₦{selectedOrder.recipes.reduce((sum, recipe) => sum + recipe.price, 0).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}

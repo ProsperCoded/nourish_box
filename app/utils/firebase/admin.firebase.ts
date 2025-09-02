@@ -1,26 +1,26 @@
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-  where,
-  getCountFromServer,
-  doc,
-  getDoc,
-  updateDoc,
-  startAfter,
-} from "firebase/firestore";
-import { db } from "@/app/lib/firebase";
-import { COLLECTION } from "@/app/utils/schema/collection.enum";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { User } from "@/app/utils/types/user.type";
+import { db } from '@/app/lib/firebase';
+import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { Delivery } from '@/app/utils/types/delivery.type';
+import { DeliveryStatus, Order } from '@/app/utils/types/order.type';
+import { Recipe } from '@/app/utils/types/recipe.type';
 import {
   Transaction,
   TransactionStatus,
-} from "@/app/utils/types/transaction.type";
-import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
-import { Delivery } from "@/app/utils/types/delivery.type";
+} from '@/app/utils/types/transaction.type';
+import { User } from '@/app/utils/types/user.type';
+import {
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 
 // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
 const chunkArray = <T>(array: T[], size: number): T[][] => {
@@ -35,33 +35,33 @@ const chunkArray = <T>(array: T[], size: number): T[][] => {
 const batchFetchDocuments = async <T>(
   collectionName: string,
   ids: string[],
-  mapKey: keyof T | "id" = "id"
+  mapKey: keyof T | 'id' = 'id'
 ): Promise<Map<string, T>> => {
   if (ids.length === 0) {
     return new Map<string, T>();
   }
 
   const results = await Promise.all(
-    chunkArray(ids, 10).map(async (chunk) => {
+    chunkArray(ids, 10).map(async chunk => {
       if (chunk.length === 0) return [];
       const queryRef = query(
         collection(db, collectionName),
-        where("__name__", "in", chunk)
+        where('__name__', 'in', chunk)
       );
       const snapshot = await getDocs(queryRef);
       return snapshot.docs.map(
-        (doc) =>
+        doc =>
           ({
             id: doc.id,
             ...doc.data(),
-          } as T)
+          }) as T
       );
     })
   );
 
   const documentsMap = new Map<string, T>();
-  results.flat().forEach((doc) => {
-    const key = mapKey === "id" ? (doc as any).id : (doc as any)[mapKey];
+  results.flat().forEach(doc => {
+    const key = mapKey === 'id' ? (doc as any).id : (doc as any)[mapKey];
     documentsMap.set(key, doc);
   });
 
@@ -110,8 +110,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       totalFavorites: favoritesCount.data().count,
     };
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
-    throw new Error("Failed to fetch dashboard statistics");
+    console.error('Error fetching dashboard stats:', error);
+    throw new Error('Failed to fetch dashboard statistics');
   }
 }
 
@@ -122,20 +122,20 @@ export async function getRecentRecipes(): Promise<Recipe[]> {
   try {
     const recentRecipesQuery = query(
       collection(db, COLLECTION.recipes),
-      orderBy("createdAt", "desc"),
+      orderBy('createdAt', 'desc'),
       limit(5)
     );
 
     const snapshot = await getDocs(recentRecipesQuery);
     return snapshot.docs.map(
-      (doc) =>
+      doc =>
         ({
           id: doc.id,
           ...doc.data(),
-        } as Recipe)
+        }) as Recipe
     );
   } catch (error) {
-    console.error("Error fetching recent recipes:", error);
+    console.error('Error fetching recent recipes:', error);
     return [];
   }
 }
@@ -147,20 +147,20 @@ export async function getRecentUsers(): Promise<User[]> {
   try {
     const recentUsersQuery = query(
       collection(db, COLLECTION.users),
-      orderBy("createdAt", "desc"),
+      orderBy('createdAt', 'desc'),
       limit(5)
     );
 
     const snapshot = await getDocs(recentUsersQuery);
     return snapshot.docs.map(
-      (doc) =>
+      doc =>
         ({
           id: doc.id,
           ...doc.data(),
-        } as User)
+        }) as User
     );
   } catch (error) {
-    console.error("Error fetching recent users:", error);
+    console.error('Error fetching recent users:', error);
     return [];
   }
 }
@@ -172,20 +172,20 @@ export async function getRecentTransactions(): Promise<Transaction[]> {
   try {
     const recentTransactionsQuery = query(
       collection(db, COLLECTION.transactions),
-      orderBy("createdAt", "desc"),
+      orderBy('createdAt', 'desc'),
       limit(5)
     );
 
     const snapshot = await getDocs(recentTransactionsQuery);
     return snapshot.docs.map(
-      (doc) =>
+      doc =>
         ({
           id: doc.id,
           ...doc.data(),
-        } as Transaction)
+        }) as Transaction
     );
   } catch (error) {
-    console.error("Error fetching recent transactions:", error);
+    console.error('Error fetching recent transactions:', error);
     return [];
   }
 }
@@ -197,20 +197,20 @@ export async function getTopRecipes(): Promise<Recipe[]> {
   try {
     const topRecipesQuery = query(
       collection(db, COLLECTION.recipes),
-      orderBy("clicks", "desc"),
+      orderBy('clicks', 'desc'),
       limit(5)
     );
 
     const snapshot = await getDocs(topRecipesQuery);
     return snapshot.docs.map(
-      (doc) =>
+      doc =>
         ({
           id: doc.id,
           ...doc.data(),
-        } as Recipe)
+        }) as Recipe
     );
   } catch (error) {
-    console.error("Error fetching top recipes:", error);
+    console.error('Error fetching top recipes:', error);
     return [];
   }
 }
@@ -221,7 +221,7 @@ export async function getTopRecipes(): Promise<Recipe[]> {
 export async function getAllOrdersWithDetails(): Promise<
   (Order & {
     user?: User;
-    recipe?: Recipe;
+    recipes?: Recipe[];
     delivery?: Delivery;
   })[]
 > {
@@ -229,12 +229,12 @@ export async function getAllOrdersWithDetails(): Promise<
     // 1. Fetch all orders
     const ordersQuery = query(
       collection(db, COLLECTION.orders),
-      orderBy("createdAt", "desc")
+      orderBy('createdAt', 'desc')
     );
 
     const ordersSnapshot = await getDocs(ordersQuery);
     const orders: Order[] = ordersSnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
+      doc => ({ id: doc.id, ...doc.data() }) as Order
     );
 
     if (orders.length === 0) {
@@ -243,13 +243,12 @@ export async function getAllOrdersWithDetails(): Promise<
 
     // Extract unique IDs for batch fetching
     const userIds = [
-      ...new Set(orders.map((order) => order.userId).filter(Boolean)),
+      ...new Set(orders.map(order => order.userId).filter(Boolean)),
     ];
-    const recipeIds = [
-      ...new Set(orders.map((order) => order.recipeId).filter(Boolean)),
-    ];
+    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
-      ...new Set(orders.map((order) => order.deliveryId).filter(Boolean)),
+      ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
     ];
 
     // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
@@ -265,60 +264,60 @@ export async function getAllOrdersWithDetails(): Promise<
     const [usersMap, recipesMap, deliveriesMap] = await Promise.all([
       // Fetch users
       Promise.all(
-        chunkArray(userIds, 10).map(async (chunk) => {
+        chunkArray(userIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const usersQuery = query(
             collection(db, COLLECTION.users),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(usersQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as User)
+            doc => ({ id: doc.id, ...doc.data() }) as User
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const usersMap = new Map<string, User>();
-        results.flat().forEach((user) => usersMap.set(user.id, user));
+        results.flat().forEach(user => usersMap.set(user.id, user));
         return usersMap;
       }),
 
       // Fetch recipes
       Promise.all(
-        chunkArray(recipeIds, 10).map(async (chunk) => {
+        chunkArray(recipeIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const recipesQuery = query(
             collection(db, COLLECTION.recipes),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(recipesQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+            doc => ({ id: doc.id, ...doc.data() }) as Recipe
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const recipesMap = new Map<string, Recipe>();
-        results.flat().forEach((recipe) => recipesMap.set(recipe.id, recipe));
+        results.flat().forEach(recipe => recipesMap.set(recipe.id, recipe));
         return recipesMap;
       }),
 
       // Fetch deliveries
       Promise.all(
-        chunkArray(deliveryIds, 10).map(async (chunk) => {
+        chunkArray(deliveryIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const deliveriesQuery = query(
             collection(db, COLLECTION.deliveries),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(deliveriesQuery);
           return snapshot.docs.map(
-            (doc) => ({ deliveryId: doc.id, ...doc.data() } as Delivery)
+            doc => ({ deliveryId: doc.id, ...doc.data() }) as Delivery
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const deliveriesMap = new Map<string, Delivery>();
         results
           .flat()
-          .forEach((delivery) =>
+          .forEach(delivery =>
             deliveriesMap.set(delivery.deliveryId!, delivery)
           );
         return deliveriesMap;
@@ -326,17 +325,20 @@ export async function getAllOrdersWithDetails(): Promise<
     ]);
 
     // 3. Combine data
-    const ordersWithDetails = orders.map((order) => ({
+    const ordersWithDetails = orders.map(order => ({
       ...order,
       user: order.userId ? usersMap.get(order.userId) : undefined,
-      recipe: recipesMap.get(order.recipeId),
+      recipes:
+        order.recipeIds
+          ?.map(id => recipesMap.get(id))
+          .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
 
     return ordersWithDetails;
   } catch (error) {
-    console.error("Error fetching orders with details:", error);
-    throw new Error("Failed to fetch orders with details");
+    console.error('Error fetching orders with details:', error);
+    throw new Error('Failed to fetch orders with details');
   }
 }
 
@@ -349,7 +351,7 @@ export async function getPaginatedOrdersWithDetails(
 ): Promise<{
   orders: (Order & {
     user?: User;
-    recipe?: Recipe;
+    recipes?: Recipe[];
     delivery?: Delivery;
   })[];
   hasMore: boolean;
@@ -359,7 +361,7 @@ export async function getPaginatedOrdersWithDetails(
     // 1. Fetch paginated orders
     let ordersQuery = query(
       collection(db, COLLECTION.orders),
-      orderBy("createdAt", "desc"),
+      orderBy('createdAt', 'desc'),
       limit(pageSize + 1) // Fetch one extra to check if there are more
     );
 
@@ -371,7 +373,7 @@ export async function getPaginatedOrdersWithDetails(
       if (lastOrderDoc.exists()) {
         ordersQuery = query(
           collection(db, COLLECTION.orders),
-          orderBy("createdAt", "desc"),
+          orderBy('createdAt', 'desc'),
           startAfter(lastOrderDoc),
           limit(pageSize + 1)
         );
@@ -386,7 +388,7 @@ export async function getPaginatedOrdersWithDetails(
     const ordersToProcess = hasMore ? docs.slice(0, pageSize) : docs;
 
     const orders: Order[] = ordersToProcess.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
+      doc => ({ id: doc.id, ...doc.data() }) as Order
     );
 
     if (orders.length === 0) {
@@ -395,13 +397,12 @@ export async function getPaginatedOrdersWithDetails(
 
     // Extract unique IDs for batch fetching
     const userIds = [
-      ...new Set(orders.map((order) => order.userId).filter(Boolean)),
+      ...new Set(orders.map(order => order.userId).filter(Boolean)),
     ];
-    const recipeIds = [
-      ...new Set(orders.map((order) => order.recipeId).filter(Boolean)),
-    ];
+    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
-      ...new Set(orders.map((order) => order.deliveryId).filter(Boolean)),
+      ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
     ];
 
     // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
@@ -417,60 +418,60 @@ export async function getPaginatedOrdersWithDetails(
     const [usersMap, recipesMap, deliveriesMap] = await Promise.all([
       // Fetch users
       Promise.all(
-        chunkArray(userIds, 10).map(async (chunk) => {
+        chunkArray(userIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const usersQuery = query(
             collection(db, COLLECTION.users),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(usersQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as User)
+            doc => ({ id: doc.id, ...doc.data() }) as User
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const usersMap = new Map<string, User>();
-        results.flat().forEach((user) => usersMap.set(user.id, user));
+        results.flat().forEach(user => usersMap.set(user.id, user));
         return usersMap;
       }),
 
       // Fetch recipes
       Promise.all(
-        chunkArray(recipeIds, 10).map(async (chunk) => {
+        chunkArray(recipeIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const recipesQuery = query(
             collection(db, COLLECTION.recipes),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(recipesQuery);
           return snapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Recipe)
+            doc => ({ id: doc.id, ...doc.data() }) as Recipe
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const recipesMap = new Map<string, Recipe>();
-        results.flat().forEach((recipe) => recipesMap.set(recipe.id, recipe));
+        results.flat().forEach(recipe => recipesMap.set(recipe.id, recipe));
         return recipesMap;
       }),
 
       // Fetch deliveries
       Promise.all(
-        chunkArray(deliveryIds, 10).map(async (chunk) => {
+        chunkArray(deliveryIds, 10).map(async chunk => {
           if (chunk.length === 0) return [];
           const deliveriesQuery = query(
             collection(db, COLLECTION.deliveries),
-            where("__name__", "in", chunk)
+            where('__name__', 'in', chunk)
           );
           const snapshot = await getDocs(deliveriesQuery);
           return snapshot.docs.map(
-            (doc) => ({ deliveryId: doc.id, ...doc.data() } as Delivery)
+            doc => ({ deliveryId: doc.id, ...doc.data() }) as Delivery
           );
         })
-      ).then((results) => {
+      ).then(results => {
         const deliveriesMap = new Map<string, Delivery>();
         results
           .flat()
-          .forEach((delivery) =>
+          .forEach(delivery =>
             deliveriesMap.set(delivery.deliveryId!, delivery)
           );
         return deliveriesMap;
@@ -478,10 +479,13 @@ export async function getPaginatedOrdersWithDetails(
     ]);
 
     // 3. Combine data
-    const ordersWithDetails = orders.map((order) => ({
+    const ordersWithDetails = orders.map(order => ({
       ...order,
       user: order.userId ? usersMap.get(order.userId) : undefined,
-      recipe: recipesMap.get(order.recipeId),
+      recipes:
+        order.recipeIds
+          ?.map(id => recipesMap.get(id))
+          .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
 
@@ -494,8 +498,8 @@ export async function getPaginatedOrdersWithDetails(
           : undefined,
     };
   } catch (error) {
-    console.error("Error fetching paginated orders with details:", error);
-    throw new Error("Failed to fetch paginated orders with details");
+    console.error('Error fetching paginated orders with details:', error);
+    throw new Error('Failed to fetch paginated orders with details');
   }
 }
 
@@ -507,7 +511,7 @@ export async function getTotalOrdersCount(): Promise<number> {
     const ordersSnapshot = await getDocs(collection(db, COLLECTION.orders));
     return ordersSnapshot.size;
   } catch (error) {
-    console.error("Error getting total orders count:", error);
+    console.error('Error getting total orders count:', error);
     return 0;
   }
 }
@@ -526,8 +530,8 @@ export async function updateOrderDeliveryStatus(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error updating order delivery status:", error);
-    throw new Error("Failed to update order delivery status");
+    console.error('Error updating order delivery status:', error);
+    throw new Error('Failed to update order delivery status');
   }
 }
 
@@ -538,14 +542,14 @@ export async function getRecentOrders(): Promise<Order[]> {
   try {
     const recentOrdersQuery = query(
       collection(db, COLLECTION.orders),
-      where("deliveryStatus", "==", "pending"),
-      orderBy("createdAt", "desc"),
+      where('deliveryStatus', '==', 'pending'),
+      orderBy('createdAt', 'desc'),
       limit(5)
     );
 
     const ordersSnapshot = await getDocs(recentOrdersQuery);
     const orders: Order[] = ordersSnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
+      doc => ({ id: doc.id, ...doc.data() }) as Order
     );
 
     if (orders.length === 0) {
@@ -554,7 +558,7 @@ export async function getRecentOrders(): Promise<Order[]> {
 
     return orders;
   } catch (error) {
-    console.error("Error fetching recent pending orders:", error);
+    console.error('Error fetching recent pending orders:', error);
     return [];
   }
 }
@@ -575,7 +579,7 @@ export async function getPaginatedUsersWithOrderCounts(
     // 1. Build query for users
     let usersQuery = query(
       collection(db, COLLECTION.users),
-      orderBy("createdAt", "desc"),
+      orderBy('createdAt', 'desc'),
       limit(pageSize + 1) // Fetch one extra to check if there are more
     );
 
@@ -585,7 +589,7 @@ export async function getPaginatedUsersWithOrderCounts(
       if (lastUserDoc.exists()) {
         usersQuery = query(
           collection(db, COLLECTION.users),
-          orderBy("createdAt", "desc"),
+          orderBy('createdAt', 'desc'),
           startAfter(lastUserDoc),
           limit(pageSize + 1)
         );
@@ -600,20 +604,20 @@ export async function getPaginatedUsersWithOrderCounts(
     const usersToProcess = hasMore ? docs.slice(0, pageSize) : docs;
 
     let users: User[] = usersToProcess.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as User)
+      doc => ({ id: doc.id, ...doc.data() }) as User
     );
 
     // Apply search filter if provided
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       users = users.filter(
-        (user) =>
+        user =>
           user.firstName.toLowerCase().includes(searchLower) ||
           user.lastName.toLowerCase().includes(searchLower) ||
           user.email.toLowerCase().includes(searchLower) ||
           user.phone.includes(searchTerm) ||
-          user.city.toLowerCase().includes(searchLower) ||
-          user.state.toLowerCase().includes(searchLower)
+          (user.city && user.city.toLowerCase().includes(searchLower)) ||
+          (user.state && user.state.toLowerCase().includes(searchLower))
       );
     }
 
@@ -622,21 +626,21 @@ export async function getPaginatedUsersWithOrderCounts(
     }
 
     // 2. Get order counts for each user
-    const userIds = users.map((user) => user.id);
+    const userIds = users.map(user => user.id);
     const orderCountsMap = new Map<string, number>();
 
     // Batch fetch order counts
     await Promise.all(
-      chunkArray(userIds, 10).map(async (chunk) => {
+      chunkArray(userIds, 10).map(async chunk => {
         if (chunk.length === 0) return;
         const ordersQuery = query(
           collection(db, COLLECTION.orders),
-          where("userId", "in", chunk)
+          where('userId', 'in', chunk)
         );
         const ordersSnapshot = await getDocs(ordersQuery);
 
         // Count orders for each user
-        ordersSnapshot.docs.forEach((doc) => {
+        ordersSnapshot.docs.forEach(doc => {
           const order = doc.data();
           const userId = order.userId;
           orderCountsMap.set(userId, (orderCountsMap.get(userId) || 0) + 1);
@@ -645,7 +649,7 @@ export async function getPaginatedUsersWithOrderCounts(
     );
 
     // 3. Combine users with their order counts
-    const usersWithOrderCounts = users.map((user) => ({
+    const usersWithOrderCounts = users.map(user => ({
       ...user,
       orderCount: orderCountsMap.get(user.id) || 0,
     }));
@@ -659,8 +663,8 @@ export async function getPaginatedUsersWithOrderCounts(
           : undefined,
     };
   } catch (error) {
-    console.error("Error fetching paginated users with order counts:", error);
-    throw new Error("Failed to fetch paginated users with order counts");
+    console.error('Error fetching paginated users with order counts:', error);
+    throw new Error('Failed to fetch paginated users with order counts');
   }
 }
 
@@ -674,24 +678,24 @@ export async function searchUsers(
     // Fetch all users for search
     const usersQuery = query(
       collection(db, COLLECTION.users),
-      orderBy("createdAt", "desc")
+      orderBy('createdAt', 'desc')
     );
 
     const usersSnapshot = await getDocs(usersQuery);
     const allUsers: User[] = usersSnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as User)
+      doc => ({ id: doc.id, ...doc.data() }) as User
     );
 
     // Apply search filter
     const searchLower = searchTerm.toLowerCase();
     const filteredUsers = allUsers.filter(
-      (user) =>
+      user =>
         user.firstName.toLowerCase().includes(searchLower) ||
         user.lastName.toLowerCase().includes(searchLower) ||
         user.email.toLowerCase().includes(searchLower) ||
         user.phone.includes(searchTerm) ||
-        user.city.toLowerCase().includes(searchLower) ||
-        user.state.toLowerCase().includes(searchLower)
+        (user.city && user.city.toLowerCase().includes(searchLower)) ||
+        (user.state && user.state.toLowerCase().includes(searchLower))
     );
 
     if (filteredUsers.length === 0) {
@@ -699,19 +703,19 @@ export async function searchUsers(
     }
 
     // Get order counts for filtered users
-    const userIds = filteredUsers.map((user) => user.id);
+    const userIds = filteredUsers.map(user => user.id);
     const orderCountsMap = new Map<string, number>();
 
     await Promise.all(
-      chunkArray(userIds, 10).map(async (chunk) => {
+      chunkArray(userIds, 10).map(async chunk => {
         if (chunk.length === 0) return;
         const ordersQuery = query(
           collection(db, COLLECTION.orders),
-          where("userId", "in", chunk)
+          where('userId', 'in', chunk)
         );
         const ordersSnapshot = await getDocs(ordersQuery);
 
-        ordersSnapshot.docs.forEach((doc) => {
+        ordersSnapshot.docs.forEach(doc => {
           const order = doc.data();
           const userId = order.userId;
           orderCountsMap.set(userId, (orderCountsMap.get(userId) || 0) + 1);
@@ -719,13 +723,13 @@ export async function searchUsers(
       })
     );
 
-    return filteredUsers.map((user) => ({
+    return filteredUsers.map(user => ({
       ...user,
       orderCount: orderCountsMap.get(user.id) || 0,
     }));
   } catch (error) {
-    console.error("Error searching users:", error);
-    throw new Error("Failed to search users");
+    console.error('Error searching users:', error);
+    throw new Error('Failed to search users');
   }
 }
 
@@ -739,7 +743,7 @@ export async function getTotalUsersCount(): Promise<number> {
     );
     return usersCountSnapshot.data().count;
   } catch (error) {
-    console.error("Error getting total users count:", error);
+    console.error('Error getting total users count:', error);
     return 0;
   }
 }
@@ -762,7 +766,7 @@ export async function getUserWithOrderCount(
     // Get order count for this user
     const ordersQuery = query(
       collection(db, COLLECTION.orders),
-      where("userId", "==", userId)
+      where('userId', '==', userId)
     );
     const ordersSnapshot = await getDocs(ordersQuery);
 
@@ -771,7 +775,7 @@ export async function getUserWithOrderCount(
       orderCount: ordersSnapshot.size,
     };
   } catch (error) {
-    console.error("Error fetching user with order count:", error);
-    throw new Error("Failed to fetch user with order count");
+    console.error('Error fetching user with order count:', error);
+    throw new Error('Failed to fetch user with order count');
   }
 }
