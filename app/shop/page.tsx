@@ -64,7 +64,7 @@ const Page = () => {
       <div className='md:pt-32 md:px-8'>
         {/* Title / Subtitle */}
         <section className='text-left max-w-3xl md:mx-auto'>
-          <h1 className='text-2xl px-4 lg:text-3xl font-inter font-medium text-center my-2 mb-4 md:my-4 md:mb-0'>
+          <h1 className='text-2xl px-4 lg:text-3xl font-inter font-medium  text-center my-4 mb-4 md:my-4 md:mb-0'>
             Check out our recipes for the week
           </h1>
 
@@ -88,7 +88,7 @@ const Page = () => {
                 <button
                   onClick={() => setActiveCategoryId('')}
                   className={[
-                    'pb-2 transition-colors whitespace-nowrap',
+                    'pb-2 font-medium transition-colors font-inter whitespace-nowrap',
                     !activeCategoryId
                       ? 'text-green-600 border-b-2 border-green-500 font-semibold'
                       : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent',
@@ -106,7 +106,7 @@ const Page = () => {
                     <button
                       onClick={() => setActiveCategoryId(category.id)}
                       className={[
-                        'pb-2 transition-colors whitespace-nowrap',
+                        'pb-2 transition-colors whitespace-nowrap font-medium font-inter',
                         isActive
                           ? 'text-green-600 border-b-2 border-green-500 font-semibold'
                           : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent',

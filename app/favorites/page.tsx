@@ -80,7 +80,7 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
             <hr />
           </div>
         )}
-{/*
+        {/*
         Mobile search header (kept inside container) */}
         {showHeader && (
           <div className="block md:hidden">
@@ -111,8 +111,21 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   // ---------- Empty state ----------
   if (favorites.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-[1550px] px-4 py-6">
-        No favorites yet.
+      <div className="mx-auto w-full max-w-[1550px] px-4 py-6 h-screen flex justify-center items-center flex-col">
+        <div className="font-medium font-inter">
+          Please sign in or login to access favorites
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-3">
+
+
+          <button onClick={() => setLoginOpen(true)}
+            className="w-36 rounded-lg bg-orange-500 px-4 py-2  font-semibold text-white hover:bg-orange-600 focus:outline-none focus-visible:ring focus-visible:ring-orange-300 text-center"
+          >
+            Login
+          </button>
+          <Link href="/sign_up" className="w-36 text-center px-4 py-2 rounded-md font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors">Sign in</Link>
+        </div>
+
       </div>
     );
   }
