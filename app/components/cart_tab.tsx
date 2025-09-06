@@ -196,7 +196,7 @@ const Cart_tab = () => {
       {cartItems.length > 0 && (
         <div
           className="
-            fixed bottom-[72px] left-0 right-0 z-40
+            fixed bottom-[64px] left-0 right-0 z-40
             md:static md:bottom-auto
             bg-white/95 md:bg-transparent
             supports-[backdrop-filter]:backdrop-blur
