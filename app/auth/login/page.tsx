@@ -174,7 +174,7 @@ const LogIn: React.FC<LogInProps> = ({ showHeader = true }) => {
 
               <p className="mt-4 flex justify-center items-center text-brand-text_gray">
                 Don’t have an account?{" "}
-                <Link className="ml-1 text-brand-brand_black font-semibold" href="/sign_up">
+                <Link className="ml-1 text-brand-brand_black font-semibold" href="/auth/sign_up">
                   Sign up
                 </Link>
               </p>

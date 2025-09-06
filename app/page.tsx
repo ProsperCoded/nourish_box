@@ -74,7 +74,7 @@ export default function Home({
       <OneTap />
 
       {/* Mobile header */}
-      <div className='md:hidden flex flex-col items-center justify-between gap-4 px-4 pt-2 mb-10'>
+      <div className='md:hidden mt-5 flex flex-col items-center justify-between gap-4 px-4 pt-2 mb-10'>
         <div className='flex justify-between w-full'>
           {' '}
           <Image src={Logo} alt='logo' width={120} />

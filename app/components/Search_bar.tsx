@@ -59,7 +59,7 @@ const Search_bar: React.FC<Props> = ({
           <Image src={back} alt="Back" width={20} height={20} />
         </button>
 
-        <h1 className="text-2xl font-semibold my-4 transition ease-linear duration-200">
+        <h1 className="text-2xl font-custom font-semibold my-4 transition ease-linear duration-200 tracking-wider">
           {PageTitle}
         </h1>
 
