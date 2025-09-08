@@ -48,7 +48,7 @@ const footer = () => {
     }
   };
   return (
-    <div className='flex flex-col relative overflow-y-scroll lg:flex-row items-center justify-between  lg:px-16 lg:pt-16 lg:pb-32 px-3  text-white bg-[#004c30] '>
+    <div className='flex flex-col relative overflow-y-scroll lg:flex-row items-center justify-between  lg:px-16 lg:pt-16 pb-12 lg:pb-32  px-3  text-white bg-[#004c30] '>
       <Image src={logo} alt='logo' width={150} className='my-5 mb-12' />
       <div className='flex flex-col justify-between items-center lg:flex-row lg:justify-between text-center lg:text-start w-10/12 '>
         <ul className='font-inter mb-5 lg:mb-0'>
