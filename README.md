@@ -1,6 +1,6 @@
-# 🥗 Nourish Box – Recipe Selling Platform
+# 🥗 Nourish Box – Mealkit Selling Platform
 
-**Nourish Box** is a recipe-selling web application built for chefs to upload, manage, and sell their recipes online. Customers can browse recipes, order them (with physical delivery for now), and leave “I Tried This” feedback after cooking the meal. This MVP is built using **Next.js** with **Firebase** for both database and media storage, and **Paystack** for payments.
+**Nourish Box** is a recipe-selling web application built for busy people to buy prepreped meal kits. Customers can browse meal kits or pre-marinated proteins, order them (with physical delivery for now). This MVP is built using **Next.js** with **Firebase** for both database and media storage, and **Paystack** for payments.
 
 Visit: [norish box](https://nourish-box.vercel.app)
 
