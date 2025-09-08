@@ -568,7 +568,7 @@ const CheckoutPage = () => {
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg">
                 <h3 className="font-semibold text-md">Returning Customer?</h3>
                 <p className="text-sm mt-1">
-                  <Link href="/login" className="font-medium underline hover:text-blue-600">
+                  <Link href="/auth/login" className="font-medium underline hover:text-blue-600">
                     Log in
                   </Link>{' '}
                   for a faster checkout and to manage your orders.
