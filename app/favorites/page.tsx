@@ -10,6 +10,7 @@ import SearchBar from "../components/Search_bar";
 import Nav from "../components/nav";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavContext";
+import SwipeToDeleteCard from "../components/SwipeToDelete";
 
 interface Props {
   className?: string;
@@ -19,8 +20,7 @@ interface Props {
 
 const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
   const { user } = useAuth();
-  const { favorites, isLoading, error } = useFavorites();
-
+  const { favorites, isLoading, error, deleteFavorite } = useFavorites()
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
 
@@ -175,7 +175,11 @@ const FavoritesPage: React.FC<Props> = ({ className, showHeader = true }) => {
       <div className="mx-auto w-full max-w-[1550px] px-4">
         <div className="flex flex-wrap justify-center gap-6 mt-8 animate-in fade-in">
           {(showSearch ? searchResult : favorites).map((recipe) => (
-            <RecipeList key={recipe.id} recipe={recipe} />
+            <SwipeToDeleteCard
+              key={recipe.id}
+              recipe={recipe}
+              onDelete={(id) => deleteFavorite(id)}
+            />
           ))}
         </div>
       </div>

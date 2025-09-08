@@ -125,7 +125,7 @@ function ProfileContent() {
   }, [isMobile, searchParams]);
 
   return (
-    <div className="min-h-screen bg-white overflow-y-scroll">
+    <div className="h-full md:min-h-screen bg-white overflow-y-scroll">
       {/* Desktop nav */}
       <div className="hidden h-24 md:block">
         <Nav noLinks={true} />
@@ -279,7 +279,7 @@ function ProfileContent() {
 
 function ProfileLoading() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="h-full md:min-h-screen bg-white flex items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
     </div>
   );

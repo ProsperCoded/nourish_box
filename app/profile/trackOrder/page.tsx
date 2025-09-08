@@ -210,7 +210,7 @@ const OrderStatusPage = () => {
   // Show loading or login prompt
   if (loading || ordersLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full md:min-h-screen  flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading orders...</p>
@@ -238,7 +238,7 @@ const OrderStatusPage = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full md:min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">No Orders Found</h2>
           <p className="text-gray-600 mb-6">You haven't placed any orders yet.</p>
@@ -255,7 +255,7 @@ const OrderStatusPage = () => {
 
 
   return (
-    <div className="min-h-screen font-inter">
+    <div className="h-full md:min-h-screen font-inter">
       <Head>
         <title>Order Status | NourishBox</title>
         <meta name="description" content="Track your NourishBox order status" />

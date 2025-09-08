@@ -128,29 +128,23 @@ const SignUp : React.FC<LogInProps> = ({ showHeader = true }) => {
 
             {/* Mobile brand header */}
             {showHeader && (
-              <div className="md:hidden flex flex-col items-center justify-center pt-6">
+              <div className="md:hidden flex flex-col items-center justify-center md:first-line pt-6">
                 <Link href="/" className="flex items-center gap-2">
                   <Image src={logo} alt="Nourish Box logo" width={36} height={36} />
                   <span className="text-lg font-semibold text-black">Nourish Box</span>
                 </Link>
               </div>
             )}
-      <main className="min-h-screen bg-brand-bg_white_clr md:mt-12 pt-20 lg:pt-0 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10">
+      <main className="min-h-screen bg-brand-bg_white_clr md:mt-12 pt-10 md:pt-20 lg:pt-0 md:min-h-screen flex items-center justify-center px-4 py-4 md:py-10">
         <div className="max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-10 bg-white">
-          {/* Mobile brand header */}
-          <div className="md:hidden flex w-full items-center justify-center pt-6">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src={logo} alt="Nourish Box logo" width={36} height={36} />
-              <span className="text-lg font-semibold text-black">Nourish Box</span>
-            </Link>
-          </div>
+
           <div className="hidden md:flex md:w-1/2 justify-center items-center p-4">
             <Link href="/">
               <Image src={ chicken} alt="logo" width={500} className="rounded"/>
             </Link>
           </div>
 
-          <div className="w-full md:w-1/2 md:my-14 bg-white shadow-md p-6 rounded-xl">
+          <div className="w-full md:w-1/2 md:my-14 bg-white shadow-md p-4 md:p-6 rounded-xl">
             <h2 className="text-3xl font-bold mb-6 text-center md:text-left">Create Account</h2>
 
             {error && <p className="text-red-500 mb-4 text-center">{error}</p>}

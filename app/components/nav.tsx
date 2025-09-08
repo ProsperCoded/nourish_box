@@ -12,6 +12,8 @@ import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 import icon from "../assets/nourish_box_folder/Logo files/icon.svg";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavContext";
+import { FaHeart } from "react-icons/fa";
+
 import CartComponent from "./Cart";
 
 type NavProps = {
@@ -88,16 +90,9 @@ const Nav = ({ showSearch = false, searchQuery, setSearchQuery, noLinks = false 
   const FavoritesButton = ({ isMobile = false }: { isMobile?: boolean }) => (
     <Link href="/favorites" className="relative">
       <div className="flex items-center hover:scale-105 transition-transform cursor-pointer">
-        <FavoriteIcon
-          sx={{
-            fontSize: isMobile ? 24 : 28,
-            stroke: "#222",
-            strokeWidth: 2,
-            fill: "none",
-          }}
-        />
+        <FaHeart className="w-6 h-6 text-[#004C30]"/>
         {favorites.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
+          <span className="absolute -top-3 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
             {favorites.length > 99 ? "99+" : favorites.length}
           </span>
         )}
@@ -150,8 +145,8 @@ const Nav = ({ showSearch = false, searchQuery, setSearchQuery, noLinks = false 
                 <div className="flex items-center bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
