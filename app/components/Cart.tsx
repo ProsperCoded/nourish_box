@@ -11,7 +11,7 @@ import {
   Box,
 } from "@mui/material";
 
-import { FaShoppingCart } from "react-icons/fa";
+import { Cart } from "../assets/icons8-cart-48.png";
 import cancel_icon from "../assets/icons8-cancel-48.png";
 import Logo from "../assets/nourish_box_folder/Logo files/Logomark.svg";
 import Cart_tab from "./cart_tab";
@@ -49,7 +49,7 @@ const CartComponent: React.FC<CartProps> = ({ className = "" }) => {
         size="large"
       >
         <Badge badgeContent={cartItemsCount} color="error" max={99}>
-          <FaShoppingCart />
+          <Image src={Cart} width={12} height={12} alt="cart icon"/>
         </Badge>
       </IconButton>
 
