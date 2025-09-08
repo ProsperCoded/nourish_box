@@ -212,7 +212,7 @@ const LogInInner: React.FC = () => {
                 Don’t have an account?
                 <Link
                   className="ml-1 text-brand-brand_black font-semibold hover:underline"
-                  href="/sign_up"
+                  href="/auth/sign_up"
                 >
                   Sign up
                 </Link>

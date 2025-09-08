@@ -28,7 +28,7 @@ export default function CheckoutPage() {
             <p className='my-4 text-orange-500 font-medium
                          text-sm'>To skip the hassle of filling in your delivery details on every checkout</p>
             <div className="flex justify-center text-center ">
-              <Link href="/sign_up" className="rounded-lg w-1/3 border border-grey-600 bg-[#004C30] text-white px-4 py-2 " >
+              <Link href="/auth/sign_up" className="rounded-lg w-1/3 border border-grey-600 bg-[#004C30] text-white px-4 py-2 " >
                 Sign up
               </Link>
             </div>
