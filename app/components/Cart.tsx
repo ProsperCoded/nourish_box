@@ -48,7 +48,7 @@ const CartComponent: React.FC<CartProps> = ({ className = "" }) => {
         size="large"
       >
         <Badge badgeContent={cartItemsCount} color="error" max={99}>
-          <Image src={Cart} alt="cart" width={28} height={28} />
+          <Image src={Cart} alt="cart" width={24} height={24} />
         </Badge>
       </IconButton>
 
@@ -93,7 +93,7 @@ const CartComponent: React.FC<CartProps> = ({ className = "" }) => {
           )}
 
           <div className="flex items-center gap-2">
-            <Image src={Logo} alt="Logo" width={100} height={100} />
+            <Image src={Logo} alt="Logo" width={30} height={30} />
 
           </div>
           <span className="font-semibold text-center hidden sm:inline">Your Cart</span>

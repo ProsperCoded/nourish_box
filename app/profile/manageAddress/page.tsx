@@ -1,12 +1,18 @@
 'use client';
 
-import { Edit, MapPin, Plus, Star, Trash2 } from 'lucide-react';
+import { Edit, MapPin, Plus, Star, Trash2, MoreVertical} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu"
 import { useAuth } from '../../contexts/AuthContext';
 import { fetchLGAs, fetchStates } from '../../utils/client-api/locationApi';
 import {
@@ -194,7 +200,7 @@ const ManageAddress = () => {
 
   if (!user) {
     return (
-      <div className="md:px-4 py-6 min-h-screen">
+      <div className="md:px-4 md:py-6 h-full md:min-h-screen">
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-500">Please log in to manage addresses</p>
         </div>
@@ -203,10 +209,10 @@ const ManageAddress = () => {
   }
 
   return (
-    <div className="md:px-4 py-6 min-h-screen">
-      <header className="bg-white shadow-sm mb-6">
-        <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Addresses</h1>
+    <div className="md:px-4 md:py-6 h-full md:min-h-screen font-inter">
+      <header className="hidden md:block bg-white shadow-sm mb-6">
+        <div className="flex px-4 py-4 sm:px-6 lg:px-8  justify-between items-center">
+          <h1 className=" text-3xl font-bold text-gray-900">Manage Address</h1>
         </div>
       </header>
 
@@ -228,9 +234,9 @@ const ManageAddress = () => {
               <Card key={address.id} className="relative hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg text-gray-900">{address.name}</h3>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center gap-2 mb-2 ">
+                        <h3 className="font-semibold text-lg  text-gray-900">{address.name}</h3>
                         {address.isPrimary && (
                           <Badge variant="default" className="bg-orange-100 text-orange-800">
                             <Star className="h-3 w-3 mr-1" />
@@ -238,12 +244,17 @@ const ManageAddress = () => {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-gray-600 mb-1">{address.street}</p>
-                      <p className="text-gray-600 mb-1">{address.city}, {address.state}</p>
-                      <p className="text-sm text-gray-500">{address.lga}</p>
+                      <div className='w-full'>
+                        <p className="text-gray-600 mb-1">Street: {address.street}</p>
+                        <p className="text-gray-600 mb-1">
+                          City: {address.city}, {address.state}
+                        </p>
+                        <p className=" text-gray-600">LGA: {address.lga}</p>
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    {/* Desktop actions */}
+                    <div className="hidden md:flex gap-2">
                       {!address.isPrimary && (
                         <Button
                           variant="outline"
@@ -277,6 +288,39 @@ const ManageAddress = () => {
                         Delete
                       </Button>
                     </div>
+
+                    {/* Mobile dropdown */}
+                    <div className="md:hidden">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {!address.isPrimary && (
+                            <DropdownMenuItem
+                              onClick={() => handleSetPrimary(address.id)}
+                              disabled={loading}
+                            >
+                              <Star className="h-4 w-4 mr-2 text-orange-600" />
+                              Set Primary
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => handleEdit(address)} disabled={loading}>
+                            <Edit className="h-4 w-4 mr-2 text-blue-600" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(address.id)}
+                            disabled={loading}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2 text-red-600" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -298,7 +342,7 @@ const ManageAddress = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name *
+                    Full Name <span className='text-red-500'>*</span>
                   </label>
                   <input
                     name="name"
@@ -312,7 +356,7 @@ const ManageAddress = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Street Address *
+                    Street Address <span className='text-red-500'>*</span>
                   </label>
                   <input
                     name="street"
@@ -326,7 +370,7 @@ const ManageAddress = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    City *
+                    City <span className='text-red-500'>*</span>
                   </label>
                   <input
                     name="city"
@@ -340,7 +384,7 @@ const ManageAddress = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    State *
+                    State <span className='text-red-500'>*</span>
                   </label>
                   <select
                     name="state"
@@ -360,7 +404,7 @@ const ManageAddress = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    LGA *
+                    LGA <span className='text-red-500'>*</span>
                   </label>
                   <select
                     name="lga"
@@ -385,7 +429,7 @@ const ManageAddress = () => {
                     name="isPrimary"
                     checked={formData.isPrimary}
                     onChange={(e) => setFormData({ ...formData, isPrimary: e.target.checked })}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-red-400 focus:ring-red-200 border-gray-300 rounded"
                     disabled={loading}
                   />
                   <label htmlFor="isPrimary" className="ml-2 block text-sm text-gray-900">

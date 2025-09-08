@@ -138,7 +138,7 @@ const OrderHistory = ({ showHeader }) => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8 lg:p-16 flex items-center justify-center">
+      <div className="h-full md:min-h-screen bg-gray-50 p-4 md:p-8 lg:p-16 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
           <p className="text-gray-600">Loading...</p>
@@ -149,7 +149,7 @@ const OrderHistory = ({ showHeader }) => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8 lg:p-16 flex items-center justify-center">
+      <div className="h-full md:min-h-screen bg-gray-50 p-4 md:p-8 lg:p-16 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             Please Login
@@ -169,7 +169,7 @@ const OrderHistory = ({ showHeader }) => {
   }
 
   return (
-    <div className="min-h-screen  p-4 md:p-6 ">
+    <div className="h-full md:min-h-screen   p-4 md:p-6 ">
 
       <div className="max-w-4xl mx-auto">
         {shouldShowHeader && (
