@@ -83,18 +83,7 @@ export default function Home({
           <Image src={Logo} alt='logo' width={120} />
           <UserAvatar />
         </div>
-        <div className='flex items-center border-2 border-gray-300 rounded-full px-4 py-3 bg-white shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-brand-btn_orange focus-within:ring-2 focus-within:ring-brand-btn_orange focus-within:ring-opacity-20 w-full min-h-[48px] my-3'>
-          <input
-            type='text'
-            placeholder='Search recipes...'
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className='w-full bg-transparent outline-none text-base placeholder-gray-500 text-gray-700'
-          />
-          <div className="ml-3 flex-shrink-0">
-            <Image src={search} alt='search' width={24} height={24} className="opacity-60" />
-          </div>
-        </div>
+      
       </div>
 
       {/* Hero Section */}

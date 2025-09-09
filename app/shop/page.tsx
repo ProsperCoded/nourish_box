@@ -12,6 +12,7 @@ import Footer from '../components/Footer_main';
 
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchBar, setSearchBar] = useState('');
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +59,7 @@ const Page = () => {
 
       </div>
       <div className="block md:hidden">
-        <Search_bar PageTitle='Shop' />
+        <Search_bar PageTitle='Shop' showSearchBar={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       </div>
       <div className='md:pt-32 md:px-8'>
@@ -108,7 +109,7 @@ const Page = () => {
                       className={[
                         'pb-2 transition-colors whitespace-nowrap font-medium font-inter',
                         isActive
-                          ? 'text-green-600 border-b-2 border-green-500 font-semibold'
+                          ? 'text-green-900 border-b-2 border-green-900 font-semibold'
                           : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent',
                       ].join(' ')}
                     >
