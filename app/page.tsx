@@ -14,6 +14,8 @@ import Logo from './assets/nourish_box_folder/Logo files/Logomark.svg';
 import AboutUs from './components/about_us';
 import Footer from './components/Footer_main';
 import RecipeCard from './components/RecipeCard';
+import {Typewriter} from './components/typewriter';
+
 import RecipeCardSkeleton from './components/RecipeCardSkeleton';
 import { UserAvatar } from './components/UserAvatar';
 import OneTap from './lib/OneTap/OneTap';
@@ -24,6 +26,7 @@ import {
   DEFAULT_SITE_CONTENT,
   SiteContent,
 } from './utils/types/site-content.type';
+import { FaHeart, FaUser } from 'react-icons/fa';
 
 export default function Home({
   searchQuery,
@@ -108,7 +111,7 @@ export default function Home({
               className="animate-fade-in-up"
             /> */}
             <h1 className='text-5xl font-medium font-custom'>
-              {displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading}
+              <Typewriter text={ displayContent.heroHeading || DEFAULT_SITE_CONTENT.heroHeading } />
             </h1>
             <p className='xl:text-lg text-brand-sub_gray font-inter max-w-md'>
               {displayContent.heroDescription ||
@@ -167,13 +170,25 @@ export default function Home({
                   alt='hero img'
                   className='rounded-lg'
                 />
-                <Image
+                {/* <Image
                   src={hover_img_one}
                   height={180}
                   width={180}
                   alt='float left'
                   className='absolute bottom-0 left-0 z-0'
-                />
+                /> */}
+                <div className='font-inter absolute bottom-4 left-0 z-0 rounded-lg p-2 shadow-md bg-white flex flex-col w-56'>
+                  <p className='bg-gray-100 text-sm rounded-lg p-2 m-1'>
+                    The protein portions are well marinated, juicy and generous in size!
+                  </p>
+                  <div className='flex  justify-between border-black p-2 items-center'>
+                    <div className='flex items-center'>
+                      <FaUser  className='fa-thin fa-user fa-regular text-[#004c30]'/>
+                      <p className='mx-2 text-sm'>Rere</p>
+                    </div>
+                    <FaHeart className='text-[#004c30]'/>
+                  </div>
+                </div>
                 <Image
                   src={hover_img_two}
                   height={180}
