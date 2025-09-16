@@ -16,8 +16,8 @@ export enum ReceivedStatus {
 export type Order = {
   id: string;
   userId?: string; // optional for guest users
-  recipeId: string;
-  amount: number; //naira
+  recipeIds: string[]; // changed from recipeId to recipeIds array
+  amount: number; //naira (total amount for all recipes)
 
   deliveryId: string;
 
@@ -32,5 +32,5 @@ export type Order = {
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format
 
-  recipe?: Recipe;
+  recipes?: Recipe[]; // changed from recipe to recipes array
 };

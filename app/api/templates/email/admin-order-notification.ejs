@@ -8,135 +8,104 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #2d3748;
+            color: #374151;
             max-width: 600px;
             margin: 0 auto;
             padding: 0;
-            background-color: #f7fafc;
+            background-color: #f9fafb;
         }
         .email-container {
             background: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
             margin: 20px;
         }
         .header {
-            background: linear-gradient(135deg, #dc2626 0%, #f97316 50%, #22c55e 100%);
+            background: #dc2626;
             color: white;
-            padding: 40px 30px;
+            padding: 30px;
             text-align: center;
-            position: relative;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
-            background-size: cover;
         }
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            font-weight: 600;
         }
         .header p {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.9;
-            position: relative;
-            z-index: 1;
         }
         .content {
-            background: #ffffff;
-            padding: 40px 30px;
+            padding: 30px;
         }
         .urgent-banner {
-            background: linear-gradient(135deg, #fef2f2, #fed7d7);
-            border: 2px solid #dc2626;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
             text-align: center;
-            animation: pulse 2s infinite;
         }
         .urgent-banner h3 {
             color: #dc2626;
-            margin: 0 0 10px 0;
-            font-size: 20px;
-            font-weight: 700;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
         }
         .order-alert {
-            background: linear-gradient(135deg, #dcfce7, #fed7aa);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
             border-left: 4px solid #dc2626;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .order-alert h2 {
-            background: linear-gradient(135deg, #dc2626, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #1f2937;
             margin-top: 0;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
         }
         .order-id {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            background: linear-gradient(135deg, #dc2626, #f97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block;
+            color: #dc2626;
         }
         .order-value {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #22c55e;
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 16px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: 600;
             display: inline-block;
-            margin: 10px 0;
+            margin: 8px 0;
         }
         .customer-info {
-            background: linear-gradient(135deg, #f0f9ff, #fef3c7);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 4px solid #0ea5e9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
         }
         .customer-info h3 {
-            color: #0369a1;
+            color: #1d4ed8;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .customer-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
             margin: 15px 0;
         }
         .customer-item {
             background: #ffffff;
             padding: 12px;
-            border-radius: 6px;
-            border-left: 3px solid #0ea5e9;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
         }
         .customer-label {
             font-size: 12px;
@@ -148,101 +117,102 @@
         .customer-value {
             font-size: 14px;
             font-weight: 500;
-            color: #1a202c;
+            color: #1f2937;
             margin-top: 4px;
         }
         .recipes-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            border-radius: 8px;
+            margin: 20px 0;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
         }
         .recipes-table th {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            background: #dc2626;
             color: white;
-            padding: 15px 12px;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 14px;
         }
         .recipes-table td {
             padding: 12px;
             border-bottom: 1px solid #e5e7eb;
             background: #ffffff;
+            font-size: 14px;
         }
         .total-row {
-            background: linear-gradient(135deg, #fef2f2, #fed7d7);
+            background: #f9fafb;
             font-weight: bold;
-            font-size: 16px;
         }
         .delivery-info {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
+            background: #fffbeb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
             border-left: 4px solid #f59e0b;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .delivery-info h3 {
-            color: #d97706;
+            color: #92400e;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .action-required {
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border: 2px solid #22c55e;
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #bbf7d0;
             text-align: center;
         }
         .action-required h3 {
-            color: #059669;
+            color: #166534;
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         .action-item {
             background: #ffffff;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border-left: 3px solid #22c55e;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
             text-align: left;
+            font-size: 14px;
         }
         .admin-button {
-            background: linear-gradient(135deg, #22c55e, #f97316);
+            background: #22c55e;
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
             display: inline-block;
             margin: 15px 0;
-            box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
-        }
-        .footer {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 30px;
-            text-align: center;
-            border-top: 3px solid #dc2626;
-        }
-        .footer p {
-            margin: 8px 0;
-            color: #4a5568;
             font-size: 14px;
         }
+        .footer {
+            background: #f9fafb;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 6px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
         .support-info {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #0ea5e9;
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border-left: 3px solid #3b82f6;
         }
         .support-info strong {
-            color: #0369a1;
+            color: #1d4ed8;
         }
         @media (max-width: 600px) {
             .email-container {
@@ -274,18 +244,18 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>🚨 New Order Alert</h1>
+            <h1>New Order Alert</h1>
             <p><%= companyName %> Admin Notification</p>
         </div>
 
         <div class="content">
             <div class="urgent-banner">
-                <h3>🔔 URGENT: New Order Received</h3>
+                <h3>URGENT: New Order Received</h3>
                 <p><strong>Immediate action required!</strong> A customer has placed a new order that needs to be processed.</p>
             </div>
 
             <div class="order-alert">
-                <h2>📋 Order Summary</h2>
+                <h2>Order Summary</h2>
                 <p class="order-id">Order ID: #<%= orderId.slice(-8).toUpperCase() %></p>
                 <p><strong>Order Date:</strong> <%= new Date(createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -295,7 +265,7 @@
                     minute: '2-digit'
                 }) %></p>
                 <div class="order-value">
-                    💰 Total: <%= new Intl.NumberFormat('en-NG', {
+                    Total: <%= new Intl.NumberFormat('en-NG', {
                         style: 'currency',
                         currency: 'NGN'
                     }).format(orderAmount) %>
@@ -303,7 +273,7 @@
             </div>
 
             <div class="customer-info">
-                <h3>👤 Customer Information</h3>
+                <h3>Customer Information</h3>
                 <div class="customer-details">
                     <div class="customer-item">
                         <div class="customer-label">Customer Name</div>
@@ -375,19 +345,19 @@
             </table>
 
             <div class="delivery-info">
-                <h3>🚚 Delivery Information</h3>
+                <h3>Delivery Information</h3>
                 <p><strong>Delivery Address:</strong></p>
                 <p style="margin-left: 20px; color: #4a5568; font-size: 15px;">
-                    📍 <%= deliveryAddress %><br>
-                    🏙️ <%= deliveryCity %>, <%= deliveryState %>
+                    <%= deliveryAddress %><br>
+                    <%= deliveryCity %>, <%= deliveryState %>
                 </p>
-                <p style="background: #ffffff; padding: 12px; border-radius: 6px; margin-top: 15px; border-left: 3px solid #f59e0b;">
-                    <strong>⏰ Expected Delivery Window:</strong> 2-4 hours from order confirmation
+                <p style="background: #ffffff; padding: 10px; border-radius: 4px; margin-top: 12px; border: 1px solid #e5e7eb; font-size: 14px;">
+                    <strong>Expected Delivery Window:</strong> 2-4 hours from order confirmation
                 </p>
             </div>
 
             <div class="action-required">
-                <h3>⚡ Immediate Actions Required</h3>
+                <h3>Immediate Actions Required</h3>
 
                 <div class="action-item">
                     <strong>1. Order Processing:</strong> Review and confirm the order details above
@@ -405,14 +375,12 @@
                     <strong>4. Customer Communication:</strong> Contact customer if any issues arise
                 </div>
 
-                <% if (adminPanelUrl) { %>
                 <div style="margin-top: 20px;">
-                    <a href="<%= adminPanelUrl %>" class="admin-button">🎛️ Access Admin Panel</a>
+                    <a href="<%= websiteUrl %>/admin/orders" class="admin-button">Access Admin Panel</a>
                 </div>
-                <% } %>
 
-                <p style="font-size: 14px; color: #059669; margin-top: 15px;">
-                    📞 <strong>Customer Contact:</strong> <%= customerEmail %>
+                <p style="font-size: 13px; color: #166534; margin-top: 12px;">
+                    <strong>Customer Contact:</strong> <%= customerEmail %>
                     <% if (customerPhone) { %> | <%= customerPhone %><% } %>
                 </p>
             </div>
@@ -420,13 +388,13 @@
 
         <div class="footer">
             <p><strong>This notification was sent from the <%= companyName %> order management system.</strong></p>
-            <p>🚀 Process orders quickly to maintain customer satisfaction!</p>
+            <p>Process orders quickly to maintain customer satisfaction!</p>
 
             <div class="support-info">
                 <p><strong>Admin Support:</strong></p>
-                <p>Need technical assistance with order processing?</p>
-                <p>📧 Contact: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
-                <p style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+                <p style="font-size: 13px; margin: 4px 0;">Need technical assistance with order processing?</p>
+                <p style="font-size: 13px; margin: 4px 0;">Contact: <strong><%= companyEmail || 'hello@nourishboxng.com.com' %></strong></p>
+                <p style="margin-top: 8px; font-size: 12px; color: #6b7280;">
                     Order Reference: #<%= orderId.slice(-8).toUpperCase() %> | <%= new Date(createdAt).toLocaleDateString() %>
                 </p>
             </div>

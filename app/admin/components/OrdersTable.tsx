@@ -28,7 +28,7 @@ import { Delivery } from "@/app/utils/types/delivery.type";
 
 export type OrderWithDetails = Order & {
   user?: UserType;
-  recipe?: Recipe;
+  recipes?: Recipe[];
   delivery?: Delivery;
 };
 
@@ -106,7 +106,7 @@ const OrdersTable = ({
           order.user?.firstName,
           order.user?.lastName,
           order.user?.email,
-          order.recipe?.name,
+          ...(order.recipes?.map(recipe => recipe.name) || []),
           order.delivery?.deliveryCity,
           order.delivery?.deliveryState,
         ]
@@ -263,31 +263,28 @@ const OrdersTable = ({
               <div className="flex space-x-1">
                 <button
                   onClick={() => handleSort("createdAt")}
-                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${
-                    sortField === "createdAt"
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${sortField === "createdAt"
                       ? "bg-brand-logo_green text-white border-brand-logo_green"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   Date {getSortIcon("createdAt")}
                 </button>
                 <button
                   onClick={() => handleSort("amount")}
-                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${
-                    sortField === "amount"
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${sortField === "amount"
                       ? "bg-brand-logo_green text-white border-brand-logo_green"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   Amount {getSortIcon("amount")}
                 </button>
                 <button
                   onClick={() => handleSort("deliveryStatus")}
-                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${
-                    sortField === "deliveryStatus"
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center ${sortField === "deliveryStatus"
                       ? "bg-brand-logo_green text-white border-brand-logo_green"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   Status {getSortIcon("deliveryStatus")}
                 </button>
@@ -357,11 +354,13 @@ const OrdersTable = ({
                         </span>
                       </div>
                     )}
-                    {order.recipe && (
+                    {order.recipes && order.recipes.length > 0 && (
                       <div className="flex items-center space-x-2">
                         <BookOpen className="w-4 h-4 text-brand-logo_green" />
                         <span className="text-gray-600 truncate">
-                          {order.recipe.name}
+                          {order.recipes.length === 1
+                            ? order.recipes[0].name
+                            : `${order.recipes.length} recipes`}
                         </span>
                       </div>
                     )}

@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
       'currentStatus',
       'previousStatus',
       'updatedAt',
-      'trackingUrl',
     ];
 
     for (const field of requiredFields) {
@@ -61,7 +60,6 @@ export async function POST(request: NextRequest) {
       currentStatus: body.currentStatus,
       previousStatus: body.previousStatus,
       updatedAt: body.updatedAt,
-      trackingUrl: body.trackingUrl,
       // Add company information
       companyName: 'Nourish Box',
       companyEmail: 'hello@nourishboxng.com',
