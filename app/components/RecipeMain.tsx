@@ -8,6 +8,7 @@ import Search_bar from "./Search_bar";
 import toast from "react-hot-toast";
 import { useCart } from "../contexts/CartContext";
 import { useRouter } from "next/navigation";
+import DummyReviews from "./ReviewsList";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -142,7 +143,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
 
             {/* Scrollable steps */}
             <div
-              className="max-h-[40vh] overflow-y-auto pr-2"
+              className=" overflow-y-auto pr-2"
               role="region"
               aria-label="Recipe steps"
             >
@@ -156,6 +157,9 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe }) => {
                   </p>
                 </div>
               ))}
+            </div>
+            <div>
+              <DummyReviews />
             </div>
           </section>
 

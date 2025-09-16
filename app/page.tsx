@@ -83,7 +83,7 @@ export default function Home({
           <Image src={Logo} alt='logo' width={120} />
           <UserAvatar />
         </div>
-      
+
       </div>
 
       {/* Hero Section */}
@@ -178,13 +178,19 @@ export default function Home({
                     <FaHeart className='text-[#004c30]'/>
                   </div>
                 </div>
-                <Image
-                  src={hover_img_two}
-                  height={180}
-                  width={180}
-                  alt='float right'
-                  className='absolute top-0 right-0 z-0'
-                />
+                <div className='font-inter absolute top-0 right-0 z-0 rounded-lg p-2 shadow-md bg-white flex flex-col w-56'>
+                  <p className='bg-gray-100 text-sm rounded-lg p-2 m-1'>
+                    Excllent customer service experience.
+                  </p>
+                  <div className='flex  justify-between border-black p-2 items-center'>
+                    <div className='flex items-center'>
+                      <FaUser  className='fa-thin fa-user fa-regular text-[#004c30]'/>
+                      <p className='mx-2 text-sm'>Adeola</p>
+                    </div>
+                    <FaHeart className='text-[#004c30]'/>
+                  </div>
+                </div>
+
                 {/* <Image
                     src={broccoli}
                     alt="broccoli"

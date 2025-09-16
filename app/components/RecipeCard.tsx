@@ -16,6 +16,7 @@ import { useFavorites } from '../contexts/FavContext';
 import useMobileVs from '../hooks/useMobileVs';
 import { cn } from '../lib/utils/cn';
 import { Recipe } from '../utils/types/recipe.type';
+import ReviewSection from './Review';
 
 interface RecipeCardProps {
   recipe: Recipe;

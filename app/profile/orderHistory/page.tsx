@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useInProfile } from "@/app/lib/useInProfile";
+import ReviewSection from "../../components/Review";
 
 type OrderWithDetails = Order & {
   recipe?: Recipe;
@@ -420,7 +421,11 @@ const OrderHistory = ({showHeader}) => {
                       )}
                     </div>
                   </div>
+                  <div>
+                    <ReviewSection />
+                  </div>
                 </div>
+
               ))}
             </div>
 

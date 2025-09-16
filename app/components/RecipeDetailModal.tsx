@@ -25,6 +25,8 @@ import toast from 'react-hot-toast';
 import { useCart } from '../contexts/CartContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { Recipe } from '../utils/types/recipe.type';
+import ReviewSection from './Review';
+import DummyReviews from './ReviewsList';
 
 interface RecipeDetailModalProps {
   recipe: Recipe;
@@ -302,6 +304,8 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 </>
               )}
             </div>
+            {/* Reviews */}
+            <DummyReviews/>
           </div>
 
           {/* RIGHT: Content */}
@@ -463,6 +467,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       </Box>
