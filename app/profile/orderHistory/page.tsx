@@ -579,27 +579,8 @@ const OrderHistory = ({ showHeader }) => {
                         </div>
                       )}
 
-                      {order.deliveryDurationRange && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-1">
-                            Expected Duration
-                          </h4>
-                          <p className="text-gray-600">
-                            {order.deliveryDurationRange}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="hidden md:flex items-center gap-2 ml-4">
-                      <button className="px-3 py-1 text-sm bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">
-                        Reorder
-                      </button>
-                      <button className="px-3 py-1 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
-                        Track
-                      </button>
-                    </div>
                   </div>
 
                   {/* Review Prompt for Completed Orders */}
