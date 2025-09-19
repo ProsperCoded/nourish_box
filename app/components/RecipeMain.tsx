@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import clock from "../assets/icons8-clock-24.png";
 import cook from "../assets/icons8-chef-hat-24.png";
 import { Recipe } from "../utils/types/recipe.type";
 import Image from "next/image";
@@ -121,7 +120,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
             <div className="flex items-center justify-between py-4 text-sm text-gray-700">
               {durationMinutes !== null && (
               <div className="flex items-center">
-               <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
+               <span className='mt-0.5 inline-flex mr-2 h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
                                       <Clock className='h-3.5 w-3.5' />
                                     </span>
                 <p>{ durationMinutes}</p>
@@ -130,8 +129,8 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
 
 
               <p>
-                <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
-                  <ChefHat className='h-3.5 w-3.5' />
+                <span className='mt-0.5 inline-flex h-6 w-6 mr-2 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
+                  <ChefHat className=' h-3.5 w-3.5' />
                 </span>
                 {ingredientsCount} {ingredientsCount === 1 ? "ingredient" : "ingredients"}
               </p>
@@ -159,9 +158,9 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
             <h3 className="font-bold text-lg pb-2">Ingredients</h3>
             <ul className="list-disc list-inside space-y-2 text-gray-800">
               {ingredientsList.length > 0 ? (
-                ingredientsList.map((item, index) => <div key={index}> <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
+                ingredientsList.map((item, index) => <div key={index} className="flex"> <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
                   <ChefHat className='h-3.5 w-3.5' />
-                </span> {item}</div>)
+                </span> <div className="ml-2">{item}</div></div>)
               ) : (
                 <li>No ingredients listed</li>
               )}
