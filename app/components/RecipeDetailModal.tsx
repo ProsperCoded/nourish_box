@@ -213,7 +213,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
         <div className='flex items-center justify-between px-5 py-3 border-b border-gray-200'>
           <h2
             id='recipe-title'
-            className='text-xl md:text-2xl font-semibold text-gray-900'
+            className='text-xl md:text-2xl font-inter font-bold  text-gray-900'
           >
             {recipe.name}
           </h2>
@@ -226,7 +226,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           </button>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 '>
           {/* LEFT: Carousel */}
           <div className='p-4 lg:p-6'>
             <div
@@ -309,13 +309,13 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           </div>
 
           {/* RIGHT: Content */}
-          <div className='px-5 py-5 lg:py-6 lg:pr-6 border-t lg:border-t-0 lg:border-l border-gray-200'>
+          <div className='px-5 py-5 lg:py-6 lg:pr-6 border-t lg:border-t-0 font-inter lg:border-l border-gray-200'>
             {/* Description */}
             {recipe.description && (
-              <div className='max-w-[56ch]'>
+              <div className='max-w-[56ch] font-inter'>
                 <p
                   id='recipe-description'
-                  className='text-[15px] leading-7 text-gray-700'
+                  className='text-[18px] leading-7 text-gray-700'
                 >
                   {descExpanded
                     ? recipe.description
