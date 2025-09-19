@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useInProfile } from "@/app/lib/useInProfile";
 import { getPaginatedUserOrdersWithDetails } from "@/app/utils/firebase/orders.firebase";
 import { Delivery } from "@/app/utils/types/delivery.type";
 import {
@@ -17,11 +18,12 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import { useInProfile } from "@/app/lib/useInProfile";
 import ReviewSection from "../../components/Review";
 
 type OrderWithDetails = Order & {
-  recipe?: Recipe;
+  recipes?: Recipe[];
   delivery?: Delivery;
 };
 
@@ -43,7 +45,7 @@ const statusDisplayMap = {
   [DeliveryStatus.FAILED]: "Failed",
 };
 
-const OrderHistory = ({showHeader}) => {
+const OrderHistory = ({ showHeader }) => {
   const inProfile = useInProfile();
   const shouldShowHeader = showHeader ?? !inProfile;
   const { user, loading: authLoading } = useAuth();
@@ -217,15 +219,45 @@ const OrderHistory = ({showHeader}) => {
               {orders.map((order) => (
                 <div
                   key={order.id}
-                  className="bg-white shadow-sm rounded-lg p-6 border border-gray-100 hover:shadow-md transition-shadow"
+                  className="bg-white shadow-md rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
                 >
                   {/* Order Header */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-800">
-                          Order #{order.id.slice(-8).toUpperCase()}
-                        </h3>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          {/* Recipe Image Preview */}
+                          {order.recipes && order.recipes.length > 0 && (
+                            <div className="relative">
+                              <img
+                                src={order.recipes[0].displayMedia?.url || '/app/assets/food.png'}
+                                alt={order.recipes[0].name}
+                                className="w-12 h-12 rounded-lg object-cover border-2 border-orange-200"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/app/assets/food.png';
+                                }}
+                              />
+                              {order.recipes.length > 1 && (
+                                <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold border-2 border-white">
+                                  {order.recipes.length}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-800">
+                              Order #{order.id.slice(-8).toUpperCase()}
+                            </h3>
+                            {order.recipes && order.recipes.length > 0 && (
+                              <p className="text-sm text-gray-600">
+                                {order.recipes.length === 1
+                                  ? order.recipes[0].name
+                                  : `${order.recipes.length} recipes`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                         <span
                           className={`px-3 py-1 text-sm rounded-full font-medium ${statusColorMap[order.deliveryStatus]
                             }`}
@@ -240,56 +272,182 @@ const OrderHistory = ({showHeader}) => {
                         </div>
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-4 w-4" />
-                          <span className="font-medium">
+                          <span className="font-medium text-orange-600">
                             {formatCurrency(order.amount)}
                           </span>
                         </div>
+                        {order.deliveryDurationRange && (
+                          <div className="flex items-center gap-1">
+                            <Package className="h-4 w-4" />
+                            <span>{order.deliveryDurationRange}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <button
-                      className="text-orange-500 hover:text-orange-600 text-sm font-medium md:hidden"
+                      className="text-orange-500 hover:text-orange-600 text-sm font-medium md:hidden flex items-center gap-1"
                       onClick={() => toggleExpand(order.id)}
                     >
                       {expandedOrderId === order.id
                         ? "Hide Details"
                         : "View Details"}
+                      <ChevronRight className={`h-4 w-4 transition-transform ${expandedOrderId === order.id ? 'rotate-90' : ''}`} />
                     </button>
                   </div>
 
                   {/* Recipe Information */}
-                  {order.recipe && (
+                  {order.recipes && order.recipes.length > 0 && (
                     <div className="border-t border-gray-100 pt-4 mb-4">
-                      <h4 className="font-medium text-gray-800 mb-2">Recipe</h4>
-                      <div className="flex items-center gap-3">
-                        {order.recipe.displayMedia && (
-                          <img
-                            src={order.recipe.displayMedia.url}
-                            alt={order.recipe.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-800">
-                            {order.recipe.name}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {order.recipe.description}
-                          </p>
+                      <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4" />
+                        Recipe{order.recipes.length > 1 ? 's' : ''} ({order.recipes.length})
+                      </h4>
+
+                      {/* Recipe Grid for Multiple Recipes */}
+                      {order.recipes.length > 1 ? (
+                        <div className="space-y-3">
+                          {order.recipes.map((recipe, index) => (
+                            <div key={recipe.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={recipe.displayMedia?.url || '/app/assets/food.png'}
+                                  alt={recipe.name}
+                                  className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/app/assets/food.png';
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 mb-1">
+                                  {index + 1}. {recipe.name}
+                                </p>
+                                {recipe.description && (
+                                  <p className="text-sm text-gray-600 overflow-hidden" style={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical' as any
+                                  }}>
+                                    {recipe.description.slice(0, 100)}
+                                    {recipe.description.length > 100 ? "..." : ""}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                  {recipe.duration && (
+                                    <span>⏱️ {Math.floor(recipe.duration / 60)} min</span>
+                                  )}
+                                  <span className="font-medium text-orange-600">
+                                    ₦{recipe.price.toLocaleString()}
+                                  </span>
+                                  {recipe.difficulty && (
+                                    <span>🔥 {recipe.difficulty}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="bg-orange-50 p-3 rounded-lg border-l-4 border-orange-400">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-medium text-gray-800">Total Recipe Value:</span>
+                              <span className="font-bold text-orange-600">
+                                ₦{order.recipes.reduce((sum, recipe) => sum + recipe.price, 0).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* Single Recipe Display */
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg border border-orange-100">
+                          <div className="flex-shrink-0">
+                            <img
+                              src={order.recipes[0].displayMedia?.url || '/app/assets/food.png'}
+                              alt={order.recipes[0].name}
+                              className="w-20 h-20 rounded-lg object-cover border-2 border-orange-200 shadow-sm"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/app/assets/food.png';
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-800 text-lg mb-2">
+                              {order.recipes[0].name}
+                            </p>
+                            {order.recipes[0].description && (
+                              <p className="text-sm text-gray-600 mb-2 overflow-hidden" style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical' as any
+                              }}>
+                                {order.recipes[0].description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 text-sm">
+                              {order.recipes[0].duration && (
+                                <span className="flex items-center gap-1 text-gray-600">
+                                  ⏱️ {Math.floor(order.recipes[0].duration / 60)} min
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1 font-medium text-orange-600">
+                                💰 ₦{order.recipes[0].price.toLocaleString()}
+                              </span>
+                              {order.recipes[0].difficulty && (
+                                <span className="flex items-center gap-1 text-gray-600">
+                                  🔥 {order.recipes[0].difficulty}
+                                </span>
+                              )}
+                              {order.recipes[0].servings && (
+                                <span className="flex items-center gap-1 text-gray-600">
+                                  👥 {order.recipes[0].servings} servings
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
                   {/* Mobile collapsible details */}
                   {expandedOrderId === order.id && (
-                    <div className="md:hidden mt-4 pt-4 border-t border-gray-100 space-y-3">
+                    <div className="md:hidden mt-4 pt-4 border-t border-gray-100 space-y-4">
+                      {/* Mobile Recipe List */}
+                      {order.recipes && order.recipes.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Recipe{order.recipes.length > 1 ? 's' : ''}
+                          </h4>
+                          <div className="space-y-2">
+                            {order.recipes.map((recipe, index) => (
+                              <div key={recipe.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                                <img
+                                  src={recipe.displayMedia?.url || '/app/assets/food.png'}
+                                  alt={recipe.name}
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/app/assets/food.png';
+                                  }}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-gray-800 text-sm">{recipe.name}</p>
+                                  <p className="text-xs text-orange-600 font-medium">₦{recipe.price.toLocaleString()}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {order.delivery && (
                         <div>
                           <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
                             Delivery Information
                           </h4>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
                             <p>
                               <span className="font-medium">Name:</span>{" "}
                               {order.delivery.deliveryName}
@@ -317,27 +475,41 @@ const OrderHistory = ({showHeader}) => {
                         </div>
                       )}
 
-                      {order.deliveryDate && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-1">
-                            Delivery Date
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {formatDate(order.deliveryDate)}
-                          </p>
+                      {(order.deliveryDate || order.deliveryDurationRange) && (
+                        <div className="grid grid-cols-1 gap-3">
+                          {order.deliveryDate && (
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                              <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                                Delivery Date
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {formatDate(order.deliveryDate)}
+                              </p>
+                            </div>
+                          )}
+
+                          {order.deliveryDurationRange && (
+                            <div className="bg-green-50 p-3 rounded-lg">
+                              <h4 className="font-medium text-gray-800 mb-1 text-sm">
+                                Delivery Duration
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {order.deliveryDurationRange}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {order.deliveryDurationRange && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-1">
-                            Delivery Duration
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {order.deliveryDurationRange}
-                          </p>
-                        </div>
-                      )}
+                      {/* Mobile Action Buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <button className="flex-1 px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                          Reorder
+                        </button>
+                        <button className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                          Track Order
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -419,6 +591,16 @@ const OrderHistory = ({showHeader}) => {
                           </p>
                         </div>
                       )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="hidden md:flex items-center gap-2 ml-4">
+                      <button className="px-3 py-1 text-sm bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">
+                        Reorder
+                      </button>
+                      <button className="px-3 py-1 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                        Track
+                      </button>
                     </div>
                   </div>
                   <div>

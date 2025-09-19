@@ -419,7 +419,7 @@ const CheckoutPage = () => {
           },
         });
         await clearCart();
-        router.push("/profile?section=orders"); // Updated redirect path
+        router.push("/profile?tab=orders"); // Updated redirect path
       } else {
         toast.error(
           `Payment verification failed: ${verifyData.message || "Unknown error"

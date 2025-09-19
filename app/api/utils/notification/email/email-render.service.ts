@@ -37,6 +37,9 @@ export class EmailRenderService {
         companyName: configService.get(ENV.COMPANY_NAME) || 'Nourish Box',
         companyEmail:
           configService.get(ENV.COMPANY_EMAIL) || 'hello@nourishboxng.com.com',
+        websiteUrl:
+          configService.get(ENV.NEXT_PUBLIC_APP_URL) ||
+          'https://nourishboxng.co',
       };
 
       // Render the template

@@ -1,27 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Delivery } from "@/app/utils/types/delivery.type";
+import { DeliveryStatus, Order } from "@/app/utils/types/order.type";
+import { Recipe } from "@/app/utils/types/recipe.type";
+import { User as UserType } from "@/app/utils/types/user.type";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
-  User,
-  ShoppingCart,
-  MapPin,
-  Package,
   CheckCircle,
   Clock,
+  MapPin,
+  Package,
+  ShoppingCart,
   Truck,
-  XCircle,
+  User,
   X,
+  XCircle,
 } from "lucide-react";
-import { Order, DeliveryStatus } from "@/app/utils/types/order.type";
-import { User as UserType } from "@/app/utils/types/user.type";
-import { Recipe } from "@/app/utils/types/recipe.type";
-import { Delivery } from "@/app/utils/types/delivery.type";
+import { useState } from "react";
 
 export type OrderWithDetails = Order & {
   user?: UserType;
-  recipe?: Recipe;
+  recipes?: Recipe[];
   delivery?: Delivery;
 };
 
@@ -213,42 +213,58 @@ const OrderModal = ({
                 )}
               </div>
 
-              {/* Recipe Info */}
-              {order.recipe && (
+              {/* Recipes Info */}
+              {order.recipes && order.recipes.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center">
                     <BookOpen className="w-5 h-5 mr-2 text-brand-logo_green" />
-                    Recipe Information
+                    Recipes Information ({order.recipes.length} recipe{order.recipes.length > 1 ? 's' : ''})
                   </h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-start space-x-4">
-                      {order.recipe.displayMedia && (
-                        <img
-                          src={order.recipe.displayMedia.url}
-                          alt={order.recipe.name}
-                          className="w-20 h-20 rounded-lg object-cover"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-lg">
-                          {order.recipe.name}
-                        </h4>
-                        <p className="text-gray-600 text-sm mt-1">
-                          {order.recipe.description}
-                        </p>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="text-sm text-gray-500">
-                            Price: ₦{order.recipe.price.toLocaleString()}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            Duration: {order.recipe.duration}s
-                          </span>
-                          {order.recipe.servings && (
-                            <span className="text-sm text-gray-500">
-                              Serves: {order.recipe.servings}
-                            </span>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                    {order.recipes.map((recipe, index) => (
+                      <div key={recipe.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
+                        <div className="flex items-start space-x-4">
+                          {recipe.displayMedia && (
+                            <img
+                              src={recipe.displayMedia.url}
+                              alt={recipe.name}
+                              className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                            />
                           )}
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-800 text-lg">
+                              {index + 1}. {recipe.name}
+                            </h4>
+                            <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                              {recipe.description}
+                            </p>
+                            <div className="flex items-center space-x-4 mt-2">
+                              <span className="text-sm text-gray-500">
+                                Price: ₦{recipe.price.toLocaleString()}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                Duration: {Math.floor(recipe.duration / 60)}min
+                              </span>
+                              {recipe.servings && (
+                                <span className="text-sm text-gray-500">
+                                  Serves: {recipe.servings}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
+                      </div>
+                    ))}
+                    <div className="bg-blue-50 rounded-lg p-3 mt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-blue-700">Total Recipes:</span>
+                        <span className="text-sm font-bold text-blue-800">{order.recipes.length}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-sm font-medium text-blue-700">Total Value:</span>
+                        <span className="text-sm font-bold text-blue-800">
+                          ₦{order.recipes.reduce((sum, recipe) => sum + recipe.price, 0).toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   </div>

@@ -21,6 +21,8 @@ export enum ENV {
   GOOGLE_CLIENT_ID = 'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
   RESEND_API_KEY = 'RESEND_API_KEY',
   RESEND_SENDER_EMAIL = 'RESEND_SENDER_EMAIL',
+  NEXT_PUBLIC_APP_URL = 'NEXT_PUBLIC_APP_URL',
+  WEBSITE_URL = 'WEBSITE_URL',
 }
 
 class ConfigService {
@@ -42,7 +44,11 @@ class ConfigService {
 const configService = new ConfigService();
 
 // Validate that all required environment variables are present
-configService.validateEnv(Object.values(ENV));
+// WEBSITE_URL is optional since we provide a fallback
+const requiredEnvVars = Object.values(ENV).filter(
+  env => env !== ENV.WEBSITE_URL
+);
+configService.validateEnv(requiredEnvVars);
 
 // Export the configService instance for use in other modules
 export { configService };
