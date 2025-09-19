@@ -7,7 +7,7 @@ import back from '../assets/icons8-left-arrow-50.png';
 import { usePathname, useRouter } from 'next/navigation';
 
 type Props = {
-  PageTitle: string;
+  PageTitle?: string;
   showSearchBar?: boolean;
   setShowSearchBar?: React.Dispatch<React.SetStateAction<boolean>>;
   searchQuery?: string;
@@ -53,7 +53,7 @@ const Search_bar: React.FC<Props> = ({
   };
 
   return (
-    <div className="md:hidden px-4 mb-4">
+    <div className="md:hidden px-4 mb-4 ">
       <div className="flex justify-between items-center">
         <button onClick={goBack} className="p-2 rounded hover:bg-gray-100" aria-label="Go back">
           <Image src={back} alt="Back" width={20} height={20} />
@@ -77,7 +77,13 @@ const Search_bar: React.FC<Props> = ({
       </div>
 
       {showSearchBar && (
-        <div className="mt-2 px-2 border border-gray-300 rounded-md flex items-center">
+        <div className="w-64 h-40
+            bg-white/10
+            border border-white/20
+            rounded-xl
+            backdrop-blur-md
+            shadow-lg
+            p-4 text-white">
           <input
             type="text"
             placeholder="Search recipes..."
