@@ -208,17 +208,22 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       </div>
 
       {/* Content Section */}
-      <div className='p-4 space-y-3'>
-        <div className='flex justify-between items-start'>
-          <h3 className='text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow'>
+      <div className="p-4 space-y-3">
+        <div
+          className={`flex justify-between items-start ${recipe.name.length > 7 ? "flex-col self-end " : ""
+            }`}
+        >
+          <h3 className="text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow">
             {recipe.name}
           </h3>
 
-          {/* Category Badge */}
           {categoryName && (
-            <div className='flex items-center gap-1.5 text-xs text-gray-500'>
-              <Tag className='w-3 h-3' />
-              <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium'>
+            <div
+              className={`flex items-center gap-1.5 text-xs text-gray-500 ${recipe.name.length > 7 ? "self-end mt-1" : ""
+                }`}
+            >
+              <Tag className="w-3 h-3" />
+              <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
                 {categoryName}
               </span>
             </div>
@@ -226,22 +231,20 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         </div>
 
         {recipe.description && (
-          <p className='text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed'>
+          <p className="text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed">
             {recipe.description}
           </p>
         )}
 
-
-        {/* Add to Cart Button */}
-        <div className='pt-2'>
+        <div className="pt-2">
           <button
             onClick={e => {
-              e.stopPropagation();
-              handleOpen(e);
+              e.stopPropagation()
+              handleOpen(e)
             }}
-            className='w-full bg-brand-btn_orange hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium font-inter transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]'
+            className="w-full bg-brand-btn_orange hover:from-orange-500 hover:to-[#F15A28] text-white py-2.5 px-4 rounded-lg font-medium font-inter transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
           >
-            <ShoppingBag className='w-4 h-4' />
+            <ShoppingBag className="w-4 h-4" />
             Add to Cart
           </button>
         </div>
@@ -253,6 +256,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           onAddToCart={handleModalAddToCart}
         />
       </div>
+
 
       <Modal open={showPrompt} onClose={hidePrompt}>
         <LoginPrompt

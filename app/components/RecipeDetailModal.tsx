@@ -207,6 +207,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
       onClose={(_, __) => onClose()} // wrap MUI’s onClose to your simple callback
       aria-labelledby='recipe-title'
       aria-describedby='recipe-description'
+      className='hidden lg:block'
     >
       <Box sx={modalStyle}>
         {/* Header */}
