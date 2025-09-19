@@ -210,7 +210,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       {/* Content Section */}
       <div className="p-4 space-y-3">
         <div
-          className={`flex justify-between items-start ${recipe.name.length > 7 ? "flex-col self-end " : ""
+          className={`flex justify-between items-start ${recipe.name.length > 7 ? "flex-col self-start " : ""
             }`}
         >
           <h3 className="text-md xl:text-lg font-inter font-bold text-gray-800 line-clamp-1 pr-2 flex-grow">
@@ -222,7 +222,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               className={`flex items-center gap-1.5 text-xs text-gray-500 ${recipe.name.length > 7 ? "self-end mt-1" : ""
                 }`}
             >
-              <Tag className="w-3 h-3" />
+              
               <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
                 {categoryName}
               </span>
