@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 
 export type ReviewData = {
   rating: number;
   comment: string;
-  images: File[];
 };
 
 type Props = {
@@ -51,35 +50,11 @@ export default function ReviewSection({
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
-  const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
 
   const displayRating = hoverRating || rating;
-
-  const previews = useMemo(() =>
-    files.map((f) => ({ file: f, url: URL.createObjectURL(f) })), [files]
-  );
-
-  useEffect(() => {
-    return () => {
-      // revoke object URLs on unmount
-      previews.forEach((p) => URL.revokeObjectURL(p.url));
-    };
-    // only when unmounting; previews is fine as dep here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function handleFiles(inputFiles: FileList | null) {
-    if (!inputFiles) return;
-    const list = Array.from(inputFiles).filter((f) => f.type.startsWith("image/"));
-    setFiles((prev) => [...prev, ...list]);
-  }
-
-  function removeFile(index: number) {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,7 +71,7 @@ export default function ReviewSection({
       return;
     }
 
-    const payload: ReviewData = { rating, comment: comment.trim(), images: files };
+    const payload: ReviewData = { rating, comment: comment.trim() };
 
     try {
       setSubmitting(true);
@@ -106,7 +81,6 @@ export default function ReviewSection({
       setRating(0);
       setHoverRating(0);
       setComment("");
-      setFiles([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -148,41 +122,6 @@ export default function ReviewSection({
         onChange={(e) => setComment(e.target.value)}
       />
 
-      {/* Image Upload */}
-      <div className="mt-4">
-        <label className="mb-1 block text-sm font-medium" htmlFor="images">Add photos</label>
-        <input
-          id="images"
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => handleFiles(e.currentTarget.files)}
-          className="block w-full cursor-pointer rounded-md border border-gray-300 p-2 text-sm"
-        />
-        {files.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-3">
-            {previews.map((p, idx) => (
-              <div key={idx} className="relative">
-                <img
-                  src={p.url}
-                  alt={p.file.name}
-                  className="h-20 w-20 rounded-md border object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeFile(idx)}
-                  className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-black/70 text-center text-xs text-white"
-                  aria-label={`Remove ${p.file.name}`}
-                  title="Remove"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}
       {ok && <p className="mt-3 text-sm text-green-600" role="status">{ok}</p>}
 
@@ -206,18 +145,9 @@ export default function ReviewSection({
  * export default function Page() {
  *   async function handleSubmit(data: ReviewData) {
  *     // TODO: send to your API route or server action
- *     // const res = await fetch("/api/reviews", { method: "POST", body: await toFormData(data) });
+ *     // const res = await fetch("/api/reviews", { method: "POST", body: JSON.stringify(data) });
  *     console.log(data);
  *   }
  *   return <div className="p-6"><ReviewSection onSubmit={handleSubmit} /></div>;
- * }
- *
- * // Optional helper to convert to FormData for uploads
- * export async function toFormData(data: ReviewData) {
- *   const fd = new FormData();
- *   fd.append("rating", String(data.rating));
- *   fd.append("comment", data.comment);
- *   data.images.forEach((file, i) => fd.append("images", file, file.name ?? `image-${i}.jpg`));
- *   return fd;
  * }
  */

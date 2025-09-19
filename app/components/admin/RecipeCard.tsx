@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import StarRating from '../StarRating';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -177,6 +178,18 @@ export function RecipeCard({
             <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium'>
               {categoryName}
             </span>
+          </div>
+        )}
+
+        {/* Rating Display */}
+        {(recipe.averageRating || 0) > 0 && (
+          <div className='mb-3'>
+            <StarRating
+              rating={recipe.averageRating || 0}
+              totalReviews={recipe.totalReviews || 0}
+              size="sm"
+              showCount={true}
+            />
           </div>
         )}
 

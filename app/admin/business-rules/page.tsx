@@ -24,13 +24,20 @@ const BusinessRulesPage = () => {
   const [deliveryStates, setDeliveryStates] = useState<string[]>([]);
   const [deliveryLGAs, setDeliveryLGAs] = useState<string[]>([]);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
-  const [showAddLocationForm, setShowAddLocationForm] = useState(false);
-  const [editingLocation, setEditingLocation] = useState<DeliveryCostLocation | null>(null);
-  const [newLocationData, setNewLocationData] = useState({
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Management form state
+  const [managementData, setManagementData] = useState({
     state: '',
     lga: '',
     cost: 0,
   });
+  const [isCreatingNewState, setIsCreatingNewState] = useState(false);
+  const [isCreatingNewLGA, setIsCreatingNewLGA] = useState(false);
+  const [managementLoading, setManagementLoading] = useState(false);
 
   // Fetch current business rules and delivery locations on component mount
   useEffect(() => {
@@ -140,9 +147,12 @@ const BusinessRulesPage = () => {
     }
   };
 
-  const handleStateChange = async (state: string) => {
-    setNewLocationData(prev => ({ ...prev, state, lga: '' }));
-    if (state) {
+  // Management form handlers
+  const handleManagementStateChange = async (state: string) => {
+    setManagementData(prev => ({ ...prev, state, lga: '', cost: 0 }));
+    setIsCreatingNewState(false);
+
+    if (state && deliveryStates.includes(state)) {
       try {
         const lgas = await getAvailableLGAs(state);
         setDeliveryLGAs(lgas);
@@ -155,54 +165,52 @@ const BusinessRulesPage = () => {
     }
   };
 
-  const handleAddLocation = async () => {
-    if (!newLocationData.state || !newLocationData.lga || newLocationData.cost < 0) {
+  const handleManagementLGAChange = (lga: string) => {
+    setManagementData(prev => ({ ...prev, lga }));
+    setIsCreatingNewLGA(false);
+
+    // Auto-populate cost if location exists
+    const existingLocation = deliveryLocations.find(
+      location => location.state === managementData.state && location.lga === lga
+    );
+
+    if (existingLocation) {
+      setManagementData(prev => ({ ...prev, cost: existingLocation.cost }));
+    }
+  };
+
+  const handleAddOrUpdateLocation = async () => {
+    if (!managementData.state || !managementData.lga || managementData.cost < 0) {
       toast.error('Please fill in all fields with valid values');
       return;
     }
 
-    try {
-      setDeliveryLoading(true);
-      await addDeliveryLocation(newLocationData.state, newLocationData.lga, newLocationData.cost);
-      await fetchDeliveryData();
-      setNewLocationData({ state: '', lga: '', cost: 0 });
-      setShowAddLocationForm(false);
-      toast.success('Delivery location added successfully');
-    } catch (error) {
-      console.error('Error adding location:', error);
-      toast.error('Failed to add delivery location');
-    } finally {
-      setDeliveryLoading(false);
-    }
-  };
-
-  const handleEditLocation = (location: DeliveryCostLocation) => {
-    setEditingLocation(location);
-    setNewLocationData({
-      state: location.state,
-      lga: location.lga,
-      cost: location.cost,
-    });
-  };
-
-  const handleUpdateLocation = async () => {
-    if (!editingLocation || newLocationData.cost < 0) {
-      toast.error('Please enter a valid cost');
-      return;
-    }
+    // Check if location already exists
+    const existingLocation = deliveryLocations.find(
+      location => location.state === managementData.state && location.lga === managementData.lga
+    );
 
     try {
-      setDeliveryLoading(true);
-      await updateDeliveryCost(editingLocation.state, editingLocation.lga, newLocationData.cost);
+      setManagementLoading(true);
+
+      if (existingLocation) {
+        // Update existing location
+        await updateDeliveryCost(managementData.state, managementData.lga, managementData.cost);
+        toast.success('Delivery cost updated successfully');
+      } else {
+        // Add new location
+        await addDeliveryLocation(managementData.state, managementData.lga, managementData.cost);
+        toast.success('Delivery location added successfully');
+      }
+
       await fetchDeliveryData();
-      setEditingLocation(null);
-      setNewLocationData({ state: '', lga: '', cost: 0 });
-      toast.success('Delivery cost updated successfully');
+      setManagementData({ state: '', lga: '', cost: 0 });
+      setDeliveryLGAs([]);
     } catch (error) {
-      console.error('Error updating location:', error);
-      toast.error('Failed to update delivery cost');
+      console.error('Error managing location:', error);
+      toast.error(existingLocation ? 'Failed to update delivery cost' : 'Failed to add delivery location');
     } finally {
-      setDeliveryLoading(false);
+      setManagementLoading(false);
     }
   };
 
@@ -216,6 +224,12 @@ const BusinessRulesPage = () => {
       await removeDeliveryLocation(location.state, location.lga);
       await fetchDeliveryData();
       toast.success('Delivery location removed successfully');
+
+      // Reset current page if needed
+      const totalPages = Math.ceil((deliveryLocations.length - 1) / itemsPerPage);
+      if (currentPage > totalPages) {
+        setCurrentPage(Math.max(1, totalPages));
+      }
     } catch (error) {
       console.error('Error removing location:', error);
       toast.error('Failed to remove delivery location');
@@ -224,11 +238,17 @@ const BusinessRulesPage = () => {
     }
   };
 
-  const cancelLocationOperation = () => {
-    setShowAddLocationForm(false);
-    setEditingLocation(null);
-    setNewLocationData({ state: '', lga: '', cost: 0 });
-    setDeliveryLGAs([]);
+  // Pagination helpers
+  const getCurrentPageData = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return deliveryLocations.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = () => Math.ceil(deliveryLocations.length / itemsPerPage);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, getTotalPages())));
   };
 
   if (loading) {
@@ -362,161 +382,269 @@ const BusinessRulesPage = () => {
       </div>
 
       {/* Delivery Costs Management */}
-      <Card className="shadow-sm border-blue-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Management Form */}
+        <Card className="shadow-sm border-blue-200">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <MapPin className="h-5 w-5" />
+              Manage Delivery Costs
+            </CardTitle>
+            <CardDescription>
+              Add new locations or update existing delivery costs. Auto-detects if location exists.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* State Selection */}
             <div>
-              <CardTitle className="flex items-center gap-2 text-blue-800">
-                <MapPin className="h-5 w-5" />
-                Dynamic Delivery Costs
-              </CardTitle>
-              <CardDescription>
-                Manage delivery costs for different locations. These will override the standard delivery fee above.
-              </CardDescription>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                State
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={managementData.state}
+                  onChange={(e) => handleManagementStateChange(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select State</option>
+                  {deliveryStates.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCreatingNewState(!isCreatingNewState)}
+                  className="whitespace-nowrap"
+                >
+                  {isCreatingNewState ? 'Select Existing' : 'Create New'}
+                </Button>
+              </div>
+              {isCreatingNewState && (
+                <input
+                  type="text"
+                  placeholder="Enter new state name"
+                  value={managementData.state}
+                  onChange={(e) => setManagementData(prev => ({ ...prev, state: e.target.value, lga: '', cost: 0 }))}
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </div>
+
+            {/* LGA Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                LGA
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={managementData.lga}
+                  onChange={(e) => handleManagementLGAChange(e.target.value)}
+                  disabled={!managementData.state || isCreatingNewState}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                >
+                  <option value="">Select LGA</option>
+                  {deliveryLGAs.map((lga) => (
+                    <option key={lga} value={lga}>
+                      {lga}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCreatingNewLGA(!isCreatingNewLGA)}
+                  disabled={!managementData.state}
+                  className="whitespace-nowrap"
+                >
+                  {isCreatingNewLGA ? 'Select Existing' : 'Create New'}
+                </Button>
+              </div>
+              {isCreatingNewLGA && (
+                <input
+                  type="text"
+                  placeholder="Enter new LGA name"
+                  value={managementData.lga}
+                  onChange={(e) => setManagementData(prev => ({ ...prev, lga: e.target.value }))}
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            </div>
+
+            {/* Cost Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Delivery Cost (NGN)
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  ₦
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="50"
+                  value={managementData.cost}
+                  onChange={(e) => setManagementData(prev => ({ ...prev, cost: parseInt(e.target.value) || 0 }))}
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                />
+              </div>
+              {managementData.state && managementData.lga && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {deliveryLocations.find(l => l.state === managementData.state && l.lga === managementData.lga)
+                    ? 'This location exists - will update the cost'
+                    : 'This is a new location - will create new entry'
+                  }
+                </p>
+              )}
+            </div>
+
+            {/* Action Button */}
             <Button
-              onClick={() => setShowAddLocationForm(true)}
-              disabled={deliveryLoading}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={handleAddOrUpdateLocation}
+              disabled={!managementData.state || !managementData.lga || managementData.cost < 0 || managementLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Location
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {deliveryLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <CircularProgress size={40} />
-            </div>
-          ) : (
-            <>
-              {/* Add/Edit Location Form */}
-              {(showAddLocationForm || editingLocation) && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-blue-300">
-                  <h4 className="font-medium text-gray-900 mb-4">
-                    {editingLocation ? 'Edit Delivery Cost' : 'Add New Location'}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        State
-                      </label>
-                      <select
-                        value={newLocationData.state}
-                        onChange={(e) => handleStateChange(e.target.value)}
-                        disabled={!!editingLocation}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                      >
-                        <option value="">Select State</option>
-                        {deliveryStates.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        LGA
-                      </label>
-                      <select
-                        value={newLocationData.lga}
-                        onChange={(e) => setNewLocationData(prev => ({ ...prev, lga: e.target.value }))}
-                        disabled={!newLocationData.state || !!editingLocation}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                      >
-                        <option value="">Select LGA</option>
-                        {deliveryLGAs.map((lga) => (
-                          <option key={lga} value={lga}>
-                            {lga}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cost (NGN)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="50"
-                        value={newLocationData.cost}
-                        onChange={(e) => setNewLocationData(prev => ({ ...prev, cost: parseInt(e.target.value) || 0 }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <Button
-                        onClick={editingLocation ? handleUpdateLocation : handleAddLocation}
-                        disabled={!newLocationData.state || !newLocationData.lga}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {editingLocation ? 'Update' : 'Add'}
-                      </Button>
-                      <Button
-                        onClick={cancelLocationOperation}
-                        variant="outline"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
+              {managementLoading ? (
+                <div className="flex items-center gap-2">
+                  <CircularProgress size={16} color="inherit" />
+                  Processing...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {deliveryLocations.find(l => l.state === managementData.state && l.lga === managementData.lga) ? (
+                    <>
+                      <Edit className="h-4 w-4" />
+                      Update Cost
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Add Location
+                    </>
+                  )}
                 </div>
               )}
+            </Button>
+          </CardContent>
+        </Card>
 
-              {/* Delivery Locations List */}
-              <div className="space-y-3">
-                {deliveryLocations.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No delivery locations configured yet.</p>
-                    <p className="text-sm">Add locations to set specific delivery costs for different areas.</p>
-                  </div>
-                ) : (
-                  deliveryLocations.map((location, index) => (
+        {/* Locations Overview */}
+        <Card className="shadow-sm border-green-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-green-800">
+                  <MapPin className="h-5 w-5" />
+                  Locations Overview
+                </CardTitle>
+                <CardDescription>
+                  {deliveryLocations.length} location{deliveryLocations.length !== 1 ? 's' : ''} configured
+                </CardDescription>
+              </div>
+              {getTotalPages() > 1 && (
+                <div className="text-sm text-gray-500">
+                  Page {currentPage} of {getTotalPages()}
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {deliveryLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <CircularProgress size={40} />
+              </div>
+            ) : deliveryLocations.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No delivery locations configured yet.</p>
+                <p className="text-sm">Use the form on the left to add locations.</p>
+              </div>
+            ) : (
+              <>
+                {/* Locations List */}
+                <div className="space-y-2 mb-4">
+                  {getCurrentPageData().map((location) => (
                     <div
                       key={`${location.state}-${location.lga}`}
-                      className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {location.lga}, {location.state}
-                          </div>
-                          <div className="text-lg font-semibold text-blue-600">
-                            ₦{location.cost.toLocaleString()}
-                          </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {location.lga}, {location.state}
+                        </div>
+                        <div className="text-lg font-semibold text-green-600">
+                          ₦{location.cost.toLocaleString()}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditLocation(location)}
-                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteLocation(location)}
-                          className="text-red-600 border-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteLocation(location)}
+                        className="text-red-600 border-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  ))
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {getTotalPages() > 1 && (
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex items-center space-x-2">
+                      {Array.from({ length: getTotalPages() }, (_, i) => i + 1)
+                        .filter(page => {
+                          const distance = Math.abs(page - currentPage);
+                          return distance <= 2 || page === 1 || page === getTotalPages();
+                        })
+                        .map((page, index, array) => {
+                          const prevPage = array[index - 1];
+                          const showEllipsis = prevPage && page - prevPage > 1;
+
+                          return (
+                            <div key={page} className="flex items-center">
+                              {showEllipsis && <span className="mx-1 text-gray-400">...</span>}
+                              <Button
+                                variant={page === currentPage ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => goToPage(page)}
+                                className={page === currentPage ? "bg-blue-600 text-white" : ""}
+                              >
+                                {page}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === getTotalPages()}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 )}
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Preview Section */}
       <Card className="shadow-sm border-green-200 bg-green-50">

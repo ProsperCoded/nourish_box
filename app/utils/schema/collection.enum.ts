@@ -9,4 +9,5 @@ export enum COLLECTION {
   deliveries = 'deliveries',
   site_content = 'site_content',
   categories = 'categories',
+  reviews = 'reviews',
 }

@@ -1,31 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BookOpen,
-  Users,
-  ShoppingCart,
   AlertTriangle,
-  TrendingUp,
-  Heart,
-  DollarSign,
-  Package,
+  BookOpen,
   Clock,
+  DollarSign,
+  Heart,
+  MessageSquare,
+  Package,
+  ShoppingCart,
+  Star,
+  Users
 } from "lucide-react";
-import { Recipe } from "../utils/types/recipe.type";
-import { User as UserType } from "../utils/types/user.type";
-import { Transaction } from "../utils/types/transaction.type";
-import { Order } from "../utils/types/order.type";
+import { useEffect, useState } from "react";
 import {
-  getDashboardStats,
-  getRecentRecipes,
-  getRecentUsers,
-  getRecentTransactions,
-  getTopRecipes,
-  getRecentOrders,
   DashboardStats,
+  getDashboardStats,
+  getRecentOrders,
+  getRecentRecipes,
+  getRecentTransactions,
+  getRecentUsers,
+  getTopRecipes,
 } from "../utils/firebase/admin.firebase";
+import {
+  getBestPerformingRecipes,
+  getRecentReviews,
+} from "../utils/firebase/reviews.firebase";
+import { Order } from "../utils/types/order.type";
+import { Recipe } from "../utils/types/recipe.type";
+import { Transaction } from "../utils/types/transaction.type";
+import { User as UserType } from "../utils/types/user.type";
 
 interface StatCardProps {
   title: string;
@@ -78,6 +83,8 @@ export default function AdminDashboard() {
   );
   const [topRecipes, setTopRecipes] = useState<Recipe[]>([]);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [bestPerformingRecipes, setBestPerformingRecipes] = useState<any[]>([]);
+  const [recentReviews, setRecentReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +101,8 @@ export default function AdminDashboard() {
           recentTransactionsData,
           topRecipesData,
           recentOrdersData,
+          bestPerformingRecipesData,
+          recentReviewsData,
         ] = await Promise.all([
           getDashboardStats(),
           getRecentRecipes(),
@@ -101,6 +110,8 @@ export default function AdminDashboard() {
           getRecentTransactions(),
           getTopRecipes(),
           getRecentOrders(),
+          getBestPerformingRecipes(5),
+          getRecentReviews(8),
         ]);
 
         setStats(dashboardStats);
@@ -109,6 +120,8 @@ export default function AdminDashboard() {
         setRecentTransactions(recentTransactionsData);
         setTopRecipes(topRecipesData);
         setRecentOrders(recentOrdersData);
+        setBestPerformingRecipes(bestPerformingRecipesData);
+        setRecentReviews(recentReviewsData);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
         setError("Failed to load dashboard data. Please try again.");
@@ -255,19 +268,20 @@ export default function AdminDashboard() {
             )}
           </motion.div>
 
-          {/* Top Performing Recipes */}
+          {/* Best Performing Recipes (by ratings) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.7 }}
             className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
           >
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
-              Top Performing Recipes
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              Best Performing Recipes
             </h3>
-            {topRecipes.length > 0 ? (
+            {bestPerformingRecipes.length > 0 ? (
               <ul className="space-y-2 sm:space-y-3">
-                {topRecipes.map((recipe, index) => (
+                {bestPerformingRecipes.map((recipe, index) => (
                   <motion.li
                     key={recipe.id}
                     className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -276,16 +290,18 @@ export default function AdminDashboard() {
                     transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
                   >
                     <div className="flex items-center">
-                      <TrendingUp
-                        size={18}
-                        className="mr-2 sm:mr-3 text-green-600"
-                      />
+                      <div className="flex items-center mr-2 sm:mr-3">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                        <span className="text-sm font-medium text-gray-700">
+                          {recipe.averageRating.toFixed(1)}
+                        </span>
+                      </div>
                       <div>
                         <p className="text-sm font-medium text-gray-800 break-words max-w-[160px] sm:max-w-none">
                           {recipe.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {recipe.clicks} clicks
+                          {recipe.totalReviews} review{recipe.totalReviews !== 1 ? 's' : ''}
                         </p>
                       </div>
                     </div>
@@ -296,7 +312,7 @@ export default function AdminDashboard() {
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500">No recipe data available.</p>
+              <p className="text-gray-500">No rated recipes yet.</p>
             )}
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -364,13 +380,12 @@ export default function AdminDashboard() {
                       <div className="flex items-center">
                         <DollarSign
                           size={18}
-                          className={`mr-2 sm:mr-3 ${
-                            transaction.status === "success"
-                              ? "text-green-600"
-                              : transaction.status === "failed"
+                          className={`mr-2 sm:mr-3 ${transaction.status === "success"
+                            ? "text-green-600"
+                            : transaction.status === "failed"
                               ? "text-red-600"
                               : "text-yellow-600"
-                          }`}
+                            }`}
                         />
                         <div>
                           <p className="text-sm font-medium text-gray-800">
@@ -384,13 +399,12 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          transaction.status === "success"
-                            ? "bg-green-100 text-green-800"
-                            : transaction.status === "failed"
+                        className={`text-xs px-2 py-1 rounded-full font-medium ${transaction.status === "success"
+                          ? "bg-green-100 text-green-800"
+                          : transaction.status === "failed"
                             ? "bg-red-100 text-red-800"
                             : "bg-yellow-100 text-yellow-800"
-                        }`}
+                          }`}
                       >
                         {transaction.status}
                       </span>
@@ -402,6 +416,67 @@ export default function AdminDashboard() {
               )}
             </motion.div>
           </div>
+
+          {/* Recent Reviews - Full Width */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.1 }}
+            className="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition-shadow duration-300"
+          >
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-brand-btn_orange" />
+              Recent Reviews
+            </h3>
+            {recentReviews.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {recentReviews.map((review, index) => (
+                  <motion.div
+                    key={review.id}
+                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 1.2 + index * 0.1 }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3 h-3 ${i < review.rating
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-300'
+                                }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          by {review.userName || 'Anonymous'}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                      "{review.comment}"
+                    </p>
+
+                    <p className="text-xs font-medium text-brand-btn_orange">
+                      {review.recipeName}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <MessageSquare size={32} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-gray-500">No reviews yet</p>
+              </div>
+            )}
+          </motion.div>
         </div>
 
         {/* Right Column - Recent Pending Orders */}
@@ -464,9 +539,9 @@ export default function AdminDashboard() {
                             </span>
                           </p>
                           <p className="text-xs text-gray-500">
-                            Recipe ID:{" "}
+                            Recipes:{" "}
                             <span className="font-mono text-gray-500">
-                              {order.recipeId}
+                              {order.recipeIds?.length || 0} item{order.recipeIds?.length !== 1 ? 's' : ''}
                             </span>
                           </p>
                         </div>
@@ -477,15 +552,14 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          order.deliveryStatus === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : order.deliveryStatus === "delivered"
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${order.deliveryStatus === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : order.deliveryStatus === "delivered"
                             ? "bg-green-100 text-green-800"
                             : order.deliveryStatus === "in_transit"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
                       >
                         {order.deliveryStatus}
                       </span>

@@ -8,7 +8,7 @@ import LoginPrompt from './LoginPrompt';
 import { useManualLoginPrompt } from './LoginPromptWrapper';
 import RecipeDetailModal from './RecipeDetailModal';
 
-import { Clock, Heart, Play, ShoppingBag, Tag } from 'lucide-react';
+import { Clock, Heart, Play, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategories } from '../contexts/CategoryContext';
@@ -16,7 +16,7 @@ import { useFavorites } from '../contexts/FavContext';
 import useMobileVs from '../hooks/useMobileVs';
 import { cn } from '../lib/utils/cn';
 import { Recipe } from '../utils/types/recipe.type';
-import ReviewSection from './Review';
+import StarRating from './StarRating';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -222,7 +222,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               className={`flex items-center gap-1.5 text-xs text-gray-500 ${recipe.name.length > 7 ? "self-end mt-1" : ""
                 }`}
             >
-              
+
               <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
                 {categoryName}
               </span>
@@ -234,6 +234,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <p className="text-gray-600 text-sm font-inter line-clamp-2 leading-relaxed">
             {recipe.description}
           </p>
+        )}
+
+        {/* Rating Section - Only show if there are reviews */}
+        {(recipe.totalReviews || 0) > 0 && (
+          <div className="flex items-center justify-between">
+            <StarRating
+              rating={recipe.averageRating || 0}
+              totalReviews={recipe.totalReviews || 0}
+              size="sm"
+              showCount={true}
+            />
+          </div>
         )}
 
         <div className="pt-2">
