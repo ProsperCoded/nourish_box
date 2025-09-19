@@ -18,8 +18,6 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
-
-import { useInProfile } from "@/app/lib/useInProfile";
 import ReviewSection from "../../components/Review";
 
 type OrderWithDetails = Order & {
