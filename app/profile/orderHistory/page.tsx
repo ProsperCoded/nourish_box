@@ -18,6 +18,7 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import ReviewSection from "../../components/Review";
 
 type OrderWithDetails = Order & {
   recipes?: Recipe[];
@@ -600,7 +601,11 @@ const OrderHistory = ({ showHeader }) => {
                       </button>
                     </div>
                   </div>
+                  <div>
+                    <ReviewSection />
+                  </div>
                 </div>
+
               ))}
             </div>
 
