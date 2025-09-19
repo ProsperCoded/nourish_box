@@ -13,11 +13,12 @@ import { Card, CardContent } from "../components/ui/card";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import {
-  calculateTotalWithBusinessRules
+  calculateTotalWithDynamicDelivery,
+  fetchDeliveryCostForLocation
 } from "../utils/checkout.utils";
-import { fetchLGAs, fetchStates } from "../utils/client-api/locationApi";
 import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
 import { getBusinessRules } from "../utils/firebase/business-rules.firebase";
+import { getAvailableLGAs, getAvailableStates } from "../utils/firebase/delivery-costs.firebase";
 import { contactInfoSchema, deliveryInfoSchema } from "../utils/schema/checkout.schema";
 import { Address, CreateAddressInput } from "../utils/types/address.type";
 import { CartItem } from "../utils/types/cart.tyes";
@@ -68,6 +69,10 @@ const CheckoutPage = () => {
   // Business rules state
   const [businessRules, setBusinessRules] = useState<BusinessRules>(DEFAULT_BUSINESS_RULES);
   const [businessRulesLoading, setBusinessRulesLoading] = useState(true);
+
+  // Dynamic delivery cost state
+  const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState<number>(0);
+  const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
 
   // Load business rules on component mount
   useEffect(() => {
@@ -171,13 +176,13 @@ const CheckoutPage = () => {
     const loadStates = async () => {
       try {
         setLoadingLocations(true);
-        const statesData = await fetchStates();
+        const statesData = await getAvailableStates();
         setStates(statesData);
       } catch (error) {
         console.error("Error loading states:", error);
         setFormErrors((prev) => ({
           ...prev,
-          deliveryState: "Failed to load states",
+          deliveryState: "Failed to load available delivery states",
         }));
       } finally {
         setLoadingLocations(false);
@@ -193,7 +198,7 @@ const CheckoutPage = () => {
       if (deliveryInfo.deliveryState) {
         try {
           setLoadingLocations(true);
-          const lgasData = await fetchLGAs(deliveryInfo.deliveryState);
+          const lgasData = await getAvailableLGAs(deliveryInfo.deliveryState);
           setLgas(lgasData);
           // Reset LGA if the state changed
           if (user?.state !== deliveryInfo.deliveryState) {
@@ -203,7 +208,7 @@ const CheckoutPage = () => {
           console.error("Error loading LGAs:", error);
           setFormErrors((prev) => ({
             ...prev,
-            deliveryLGA: "Failed to load LGAs",
+            deliveryLGA: "Failed to load available delivery areas",
           }));
         } finally {
           setLoadingLocations(false);
@@ -221,7 +226,7 @@ const CheckoutPage = () => {
     const loadCustomLGAs = async () => {
       if (customAddressData.state) {
         try {
-          const lgasData = await fetchLGAs(customAddressData.state);
+          const lgasData = await getAvailableLGAs(customAddressData.state);
           setLgas(lgasData);
         } catch (error) {
           console.error('Error loading LGAs for custom address:', error);
@@ -234,11 +239,45 @@ const CheckoutPage = () => {
     }
   }, [customAddressData.state, useCustomAddress]);
 
+  // Fetch delivery cost when location changes
+  useEffect(() => {
+    const fetchDeliveryCost = async () => {
+      const currentState = useCustomAddress ? customAddressData.state : deliveryInfo.deliveryState;
+      const currentLGA = useCustomAddress ? customAddressData.lga : deliveryInfo.deliveryLGA;
+
+      if (currentState && currentLGA) {
+        try {
+          setDeliveryFeeLoading(true);
+          const cost = await fetchDeliveryCostForLocation(currentState, currentLGA);
+          setDynamicDeliveryFee(cost);
+        } catch (error) {
+          console.error('Error fetching delivery cost:', error);
+          // Fallback to business rules delivery fee
+          setDynamicDeliveryFee(businessRules.deliveryFee);
+        } finally {
+          setDeliveryFeeLoading(false);
+        }
+      } else {
+        // Reset to default business rules delivery fee when no location is selected
+        setDynamicDeliveryFee(businessRules.deliveryFee);
+      }
+    };
+
+    fetchDeliveryCost();
+  }, [
+    useCustomAddress,
+    customAddressData.state,
+    customAddressData.lga,
+    deliveryInfo.deliveryState,
+    deliveryInfo.deliveryLGA,
+    businessRules.deliveryFee
+  ]);
+
   const cartItems = cart?.items || [];
   const totalPrice = getTotalPrice();
 
-  // Calculate pricing breakdown using business rules
-  const pricingBreakdown = calculateTotalWithBusinessRules(totalPrice, businessRules);
+  // Calculate pricing breakdown using dynamic delivery cost
+  const pricingBreakdown = calculateTotalWithDynamicDelivery(totalPrice, dynamicDeliveryFee, businessRules);
   const { deliveryFee, tax, total: finalTotal } = pricingBreakdown;
 
   // Address management functions
@@ -931,7 +970,16 @@ const CheckoutPage = () => {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Delivery Fee</span>
-                <span>NGN {deliveryFee.toLocaleString()}</span>
+                <span>
+                  {deliveryFeeLoading ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin"></div>
+                      <span className="text-sm">Calculating...</span>
+                    </div>
+                  ) : (
+                    `NGN ${deliveryFee.toLocaleString()}`
+                  )}
+                </span>
               </div>
               {businessRules.taxEnabled && tax > 0 && (
                 <div className="flex justify-between text-gray-600">

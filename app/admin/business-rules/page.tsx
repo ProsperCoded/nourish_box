@@ -2,9 +2,10 @@
 
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { addDeliveryLocation, getAllDeliveryLocations, getAvailableLGAs, getAvailableStates, removeDeliveryLocation, updateDeliveryCost, type DeliveryCostLocation } from "@/app/utils/firebase/delivery-costs.firebase";
 import { BusinessRules } from "@/app/utils/types/site-content.type";
 import { CircularProgress } from "@mui/material";
-import { Calculator, DollarSign, Percent, Save, ToggleLeft, ToggleRight } from "lucide-react";
+import { Calculator, DollarSign, Edit, MapPin, Percent, Plus, Save, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -18,9 +19,23 @@ const BusinessRulesPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch current business rules on component mount
+  // Delivery costs management state
+  const [deliveryLocations, setDeliveryLocations] = useState<DeliveryCostLocation[]>([]);
+  const [deliveryStates, setDeliveryStates] = useState<string[]>([]);
+  const [deliveryLGAs, setDeliveryLGAs] = useState<string[]>([]);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
+  const [showAddLocationForm, setShowAddLocationForm] = useState(false);
+  const [editingLocation, setEditingLocation] = useState<DeliveryCostLocation | null>(null);
+  const [newLocationData, setNewLocationData] = useState({
+    state: '',
+    lga: '',
+    cost: 0,
+  });
+
+  // Fetch current business rules and delivery locations on component mount
   useEffect(() => {
     fetchBusinessRules();
+    fetchDeliveryData();
   }, []);
 
   const fetchBusinessRules = async () => {
@@ -105,6 +120,115 @@ const BusinessRulesPage = () => {
       businessRules.taxRate !== formData.taxRate ||
       businessRules.taxEnabled !== formData.taxEnabled
     );
+  };
+
+  // Delivery costs management functions
+  const fetchDeliveryData = async () => {
+    try {
+      setDeliveryLoading(true);
+      const [locations, states] = await Promise.all([
+        getAllDeliveryLocations(),
+        getAvailableStates()
+      ]);
+      setDeliveryLocations(locations);
+      setDeliveryStates(states);
+    } catch (error) {
+      console.error('Error fetching delivery data:', error);
+      toast.error('Failed to load delivery locations');
+    } finally {
+      setDeliveryLoading(false);
+    }
+  };
+
+  const handleStateChange = async (state: string) => {
+    setNewLocationData(prev => ({ ...prev, state, lga: '' }));
+    if (state) {
+      try {
+        const lgas = await getAvailableLGAs(state);
+        setDeliveryLGAs(lgas);
+      } catch (error) {
+        console.error('Error fetching LGAs:', error);
+        toast.error('Failed to load LGAs');
+      }
+    } else {
+      setDeliveryLGAs([]);
+    }
+  };
+
+  const handleAddLocation = async () => {
+    if (!newLocationData.state || !newLocationData.lga || newLocationData.cost < 0) {
+      toast.error('Please fill in all fields with valid values');
+      return;
+    }
+
+    try {
+      setDeliveryLoading(true);
+      await addDeliveryLocation(newLocationData.state, newLocationData.lga, newLocationData.cost);
+      await fetchDeliveryData();
+      setNewLocationData({ state: '', lga: '', cost: 0 });
+      setShowAddLocationForm(false);
+      toast.success('Delivery location added successfully');
+    } catch (error) {
+      console.error('Error adding location:', error);
+      toast.error('Failed to add delivery location');
+    } finally {
+      setDeliveryLoading(false);
+    }
+  };
+
+  const handleEditLocation = (location: DeliveryCostLocation) => {
+    setEditingLocation(location);
+    setNewLocationData({
+      state: location.state,
+      lga: location.lga,
+      cost: location.cost,
+    });
+  };
+
+  const handleUpdateLocation = async () => {
+    if (!editingLocation || newLocationData.cost < 0) {
+      toast.error('Please enter a valid cost');
+      return;
+    }
+
+    try {
+      setDeliveryLoading(true);
+      await updateDeliveryCost(editingLocation.state, editingLocation.lga, newLocationData.cost);
+      await fetchDeliveryData();
+      setEditingLocation(null);
+      setNewLocationData({ state: '', lga: '', cost: 0 });
+      toast.success('Delivery cost updated successfully');
+    } catch (error) {
+      console.error('Error updating location:', error);
+      toast.error('Failed to update delivery cost');
+    } finally {
+      setDeliveryLoading(false);
+    }
+  };
+
+  const handleDeleteLocation = async (location: DeliveryCostLocation) => {
+    if (!confirm(`Are you sure you want to remove delivery cost for ${location.lga}, ${location.state}?`)) {
+      return;
+    }
+
+    try {
+      setDeliveryLoading(true);
+      await removeDeliveryLocation(location.state, location.lga);
+      await fetchDeliveryData();
+      toast.success('Delivery location removed successfully');
+    } catch (error) {
+      console.error('Error removing location:', error);
+      toast.error('Failed to remove delivery location');
+    } finally {
+      setDeliveryLoading(false);
+    }
+  };
+
+  const cancelLocationOperation = () => {
+    setShowAddLocationForm(false);
+    setEditingLocation(null);
+    setNewLocationData({ state: '', lga: '', cost: 0 });
+    setDeliveryLGAs([]);
   };
 
   if (loading) {
@@ -193,8 +317,8 @@ const BusinessRulesPage = () => {
               <button
                 onClick={() => handleInputChange("taxEnabled", !formData.taxEnabled)}
                 className={`p-1 rounded-full transition-colors ${formData.taxEnabled
-                    ? "text-green-600 hover:text-green-700"
-                    : "text-gray-400 hover:text-gray-500"
+                  ? "text-green-600 hover:text-green-700"
+                  : "text-gray-400 hover:text-gray-500"
                   }`}
               >
                 {formData.taxEnabled ? (
@@ -236,6 +360,163 @@ const BusinessRulesPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Delivery Costs Management */}
+      <Card className="shadow-sm border-blue-200">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-blue-800">
+                <MapPin className="h-5 w-5" />
+                Dynamic Delivery Costs
+              </CardTitle>
+              <CardDescription>
+                Manage delivery costs for different locations. These will override the standard delivery fee above.
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setShowAddLocationForm(true)}
+              disabled={deliveryLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Location
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {deliveryLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <CircularProgress size={40} />
+            </div>
+          ) : (
+            <>
+              {/* Add/Edit Location Form */}
+              {(showAddLocationForm || editingLocation) && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-blue-300">
+                  <h4 className="font-medium text-gray-900 mb-4">
+                    {editingLocation ? 'Edit Delivery Cost' : 'Add New Location'}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        State
+                      </label>
+                      <select
+                        value={newLocationData.state}
+                        onChange={(e) => handleStateChange(e.target.value)}
+                        disabled={!!editingLocation}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                      >
+                        <option value="">Select State</option>
+                        {deliveryStates.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        LGA
+                      </label>
+                      <select
+                        value={newLocationData.lga}
+                        onChange={(e) => setNewLocationData(prev => ({ ...prev, lga: e.target.value }))}
+                        disabled={!newLocationData.state || !!editingLocation}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                      >
+                        <option value="">Select LGA</option>
+                        {deliveryLGAs.map((lga) => (
+                          <option key={lga} value={lga}>
+                            {lga}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Cost (NGN)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="50"
+                        value={newLocationData.cost}
+                        onChange={(e) => setNewLocationData(prev => ({ ...prev, cost: parseInt(e.target.value) || 0 }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <Button
+                        onClick={editingLocation ? handleUpdateLocation : handleAddLocation}
+                        disabled={!newLocationData.state || !newLocationData.lga}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {editingLocation ? 'Update' : 'Add'}
+                      </Button>
+                      <Button
+                        onClick={cancelLocationOperation}
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Locations List */}
+              <div className="space-y-3">
+                {deliveryLocations.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No delivery locations configured yet.</p>
+                    <p className="text-sm">Add locations to set specific delivery costs for different areas.</p>
+                  </div>
+                ) : (
+                  deliveryLocations.map((location, index) => (
+                    <div
+                      key={`${location.state}-${location.lga}`}
+                      className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm font-medium text-gray-900">
+                            {location.lga}, {location.state}
+                          </div>
+                          <div className="text-lg font-semibold text-blue-600">
+                            ₦{location.cost.toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditLocation(location)}
+                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteLocation(location)}
+                          className="text-red-600 border-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Preview Section */}
       <Card className="shadow-sm border-green-200 bg-green-50">
