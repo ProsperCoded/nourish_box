@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '../contexts/CartContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { Recipe } from '../utils/types/recipe.type';
-import ReviewsList from './ReviewsList';
+import ReviewsHorizontalList from './ReviewsHorizontalList';
 import StarRating from './StarRating';
 
 interface RecipeDetailModalProps {
@@ -316,6 +316,15 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 />
               </div>
             )}
+
+            {/* Reviews Preview - Horizontal Scroll */}
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Customer Reviews</h4>
+              <ReviewsHorizontalList
+                recipeId={recipe.id}
+                totalReviews={recipe.totalReviews || 0}
+              />
+            </div>
           </div>
 
           {/* RIGHT: Content */}
@@ -481,19 +490,6 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Reviews Section - Full Width */}
-        <div className="border-t border-gray-200">
-          <div className="px-5 py-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
-              Customer Reviews
-            </h3>
-            <ReviewsList
-              recipeId={recipe.id}
-              averageRating={recipe.averageRating}
-              totalReviews={recipe.totalReviews}
-            />
-          </div>
-        </div>
       </Box>
     </Modal>
   );

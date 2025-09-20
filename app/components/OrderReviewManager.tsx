@@ -1,55 +1,70 @@
 'use client';
 
-import { Check, MessageSquare, Star } from 'lucide-react';
+import { Edit, MessageSquare, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils/cn';
-import { createReview, getUserReviewForRecipe } from '../utils/firebase/reviews.firebase';
+import { createReview, getUserReviewForRecipe, updateReview } from '../utils/firebase/reviews.firebase';
 import { Recipe } from '../utils/types/recipe.type';
 import { Review } from '../utils/types/review.type';
 
-interface OrderReviewPromptProps {
+interface OrderReviewManagerProps {
   recipes: Recipe[];
   orderId: string;
   onReviewSubmitted?: () => void;
 }
 
-const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
+interface RecipeReviewState {
+  recipeId: string;
+  existingReview: Review | null;
+  showForm: boolean;
+  rating: number;
+  comment: string;
+  isSubmitting: boolean;
+}
+
+const OrderReviewManager: React.FC<OrderReviewManagerProps> = ({
   recipes,
   orderId,
   onReviewSubmitted,
 }) => {
   const { user } = useAuth();
-  const [rating, setRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [existingReview, setExistingReview] = useState<Review | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [recipeStates, setRecipeStates] = useState<Record<string, RecipeReviewState>>({});
+  const [loading, setLoading] = useState(true);
 
   // Use the first recipe for the review (or primary recipe)
   const primaryRecipe = recipes[0];
 
-  // Check if user has already reviewed this recipe
   useEffect(() => {
-    const checkExistingReview = async () => {
+    const loadReviewStates = async () => {
       if (!user || !primaryRecipe) {
         setLoading(false);
         return;
       }
 
       try {
-        const review = await getUserReviewForRecipe(user.id, primaryRecipe.id);
-        setExistingReview(review);
+        // Check for existing review for the primary recipe
+        const existingReview = await getUserReviewForRecipe(user.id, primaryRecipe.id);
+
+        setRecipeStates({
+          [primaryRecipe.id]: {
+            recipeId: primaryRecipe.id,
+            existingReview,
+            showForm: false,
+            rating: existingReview?.rating || 0,
+            comment: existingReview?.comment || '',
+            isSubmitting: false,
+          }
+        });
       } catch (error) {
-        console.error('Error checking existing review:', error);
+        console.error('Error loading review states:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    checkExistingReview();
+    loadReviewStates();
   }, [user, primaryRecipe]);
 
   if (!user || !primaryRecipe) {
@@ -76,48 +91,112 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
     );
   }
 
+  const state = recipeStates[primaryRecipe.id];
+  if (!state) return null;
+
   const handleStarClick = (selectedRating: number) => {
-    setRating(selectedRating);
+    setRecipeStates(prev => ({
+      ...prev,
+      [primaryRecipe.id]: {
+        ...prev[primaryRecipe.id],
+        rating: selectedRating
+      }
+    }));
+  };
+
+  const handleCommentChange = (comment: string) => {
+    setRecipeStates(prev => ({
+      ...prev,
+      [primaryRecipe.id]: {
+        ...prev[primaryRecipe.id],
+        comment
+      }
+    }));
+  };
+
+  const toggleForm = () => {
+    setRecipeStates(prev => ({
+      ...prev,
+      [primaryRecipe.id]: {
+        ...prev[primaryRecipe.id],
+        showForm: !prev[primaryRecipe.id].showForm,
+        rating: prev[primaryRecipe.id].existingReview?.rating || 0,
+        comment: prev[primaryRecipe.id].existingReview?.comment || '',
+      }
+    }));
   };
 
   const handleSubmitReview = async () => {
     if (!user || !primaryRecipe) return;
 
-    if (rating === 0 || comment.trim().length < 10) {
+    if (state.rating === 0 || state.comment.trim().length < 10) {
       toast.error('Please provide a rating and at least 10 characters of feedback');
       return;
     }
 
-    setIsSubmitting(true);
+    setRecipeStates(prev => ({
+      ...prev,
+      [primaryRecipe.id]: {
+        ...prev[primaryRecipe.id],
+        isSubmitting: true
+      }
+    }));
 
     try {
-      await createReview(user.id, primaryRecipe.id, rating, comment.trim(), orderId);
+      if (state.existingReview) {
+        // Update existing review
+        const updatedReview = await updateReview(
+          state.existingReview.id,
+          user.id,
+          state.rating,
+          state.comment.trim()
+        );
 
-      // Update existing review state
-      const newReview: Review = {
-        id: Date.now().toString(), // Temporary ID
-        userId: user.id,
-        recipeId: primaryRecipe.id,
-        orderId,
-        rating,
-        comment: comment.trim(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setExistingReview(newReview);
+        setRecipeStates(prev => ({
+          ...prev,
+          [primaryRecipe.id]: {
+            ...prev[primaryRecipe.id],
+            existingReview: updatedReview,
+            showForm: false,
+            isSubmitting: false,
+          }
+        }));
 
-      // Reset form
-      setRating(0);
-      setComment('');
-      setShowForm(false);
+        toast.success('Review updated successfully!');
+      } else {
+        // Create new review
+        const newReview = await createReview(
+          user.id,
+          primaryRecipe.id,
+          state.rating,
+          state.comment.trim(),
+          orderId
+        );
 
-      toast.success('Thank you for your review!');
+        setRecipeStates(prev => ({
+          ...prev,
+          [primaryRecipe.id]: {
+            ...prev[primaryRecipe.id],
+            existingReview: newReview,
+            showForm: false,
+            isSubmitting: false,
+          }
+        }));
+
+        toast.success('Thank you for your review!');
+      }
+
       onReviewSubmitted?.();
     } catch (error: any) {
       console.error('Error submitting review:', error);
       toast.error(error.message || 'Failed to submit review');
-    } finally {
-      setIsSubmitting(false);
+      setRecipeStates(prev => ({
+        ...prev,
+        [primaryRecipe.id]: {
+          ...prev[primaryRecipe.id],
+          isSubmitting: false
+        }
+      }));
     }
   };
 
@@ -143,15 +222,22 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
         </div>
 
         <div className="flex-1">
-          {existingReview ? (
+          {state.existingReview && !state.showForm ? (
             // Show existing review
             <div>
               <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-600" />
                 Your Review
+                <button
+                  onClick={toggleForm}
+                  className="text-orange-600 hover:text-orange-700 text-sm flex items-center gap-1"
+                  title="Edit review"
+                >
+                  <Edit className="w-3 h-3" />
+                  Edit
+                </button>
               </h4>
               <p className="text-sm text-gray-600 mb-3">
-                You reviewed this order on {formatDate(existingReview.createdAt)}
+                Reviewed on {formatDate(state.existingReview.createdAt)}
               </p>
 
               <div className="bg-white rounded-lg p-4 border border-gray-200 space-y-3">
@@ -166,14 +252,14 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                         key={starRating}
                         className={cn(
                           'w-5 h-5',
-                          starRating <= existingReview.rating
+                          starRating <= state.existingReview!.rating
                             ? 'text-yellow-400 fill-current'
                             : 'text-gray-300'
                         )}
                       />
                     ))}
                     <span className="ml-2 text-sm text-gray-600">
-                      {existingReview.rating} star{existingReview.rating !== 1 ? 's' : ''}
+                      {state.existingReview.rating} star{state.existingReview.rating !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
@@ -184,24 +270,27 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                     Your Comment
                   </label>
                   <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-800">
-                    {existingReview.comment}
+                    {state.existingReview.comment}
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            // Show review form
+            // Show review form (new or edit)
             <div>
               <h4 className="font-medium text-gray-800 mb-2">
-                Share Your Experience!
+                {state.existingReview ? 'Edit Your Review' : 'Share Your Experience!'}
               </h4>
               <p className="text-sm text-gray-600 mb-3">
-                How was your order? Your feedback helps other food lovers!
+                {state.existingReview
+                  ? 'Update your review for this order'
+                  : 'How was your order? Your feedback helps other food lovers!'
+                }
               </p>
 
-              {!showForm ? (
+              {!state.showForm && !state.existingReview ? (
                 <button
-                  onClick={() => setShowForm(true)}
+                  onClick={toggleForm}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   Write a Review
@@ -224,7 +313,7 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                           <Star
                             className={cn(
                               'w-6 h-6',
-                              starRating <= rating
+                              starRating <= state.rating
                                 ? 'text-yellow-400 fill-current'
                                 : 'text-gray-300'
                             )}
@@ -232,7 +321,7 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                         </button>
                       ))}
                       <span className="ml-2 text-sm text-gray-600">
-                        {rating > 0 ? `${rating} star${rating !== 1 ? 's' : ''}` : 'Select rating'}
+                        {state.rating > 0 ? `${state.rating} star${state.rating !== 1 ? 's' : ''}` : 'Select rating'}
                       </span>
                     </div>
                   </div>
@@ -243,8 +332,8 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                       Comment
                     </label>
                     <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
+                      value={state.comment}
+                      onChange={(e) => handleCommentChange(e.target.value)}
                       placeholder="Share your thoughts about this order..."
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
@@ -252,7 +341,7 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                     />
                     <div className="flex justify-between text-xs text-gray-500 mt-1">
                       <span>Minimum 10 characters</span>
-                      <span>{comment.length}/500</span>
+                      <span>{state.comment.length}/500</span>
                     </div>
                   </div>
 
@@ -260,20 +349,20 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
                   <div className="flex gap-2">
                     <button
                       onClick={handleSubmitReview}
-                      disabled={isSubmitting || rating === 0 || comment.trim().length < 10}
+                      disabled={state.isSubmitting || state.rating === 0 || state.comment.trim().length < 10}
                       className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? (
+                      {state.isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Submitting...
+                          {state.existingReview ? 'Updating...' : 'Submitting...'}
                         </>
                       ) : (
-                        'Submit Review'
+                        state.existingReview ? 'Update Review' : 'Submit Review'
                       )}
                     </button>
                     <button
-                      onClick={() => setShowForm(false)}
+                      onClick={toggleForm}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50 transition-colors"
                     >
                       Cancel
@@ -289,4 +378,4 @@ const OrderReviewPrompt: React.FC<OrderReviewPromptProps> = ({
   );
 };
 
-export default OrderReviewPrompt;
+export default OrderReviewManager;

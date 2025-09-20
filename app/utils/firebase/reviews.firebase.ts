@@ -22,7 +22,8 @@ export async function createReview(
   userId: string,
   recipeId: string,
   rating: number,
-  comment: string
+  comment: string,
+  orderId?: string
 ): Promise<Review> {
   try {
     // Validate rating
@@ -40,6 +41,7 @@ export async function createReview(
     const reviewData = {
       userId,
       recipeId,
+      orderId: orderId || '', // Include orderId in review data
       rating,
       comment,
       createdAt: now,

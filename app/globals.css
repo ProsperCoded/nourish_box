@@ -5,9 +5,9 @@
 /* Fallback font styles in case Google Fonts fail to load */
 @layer base {
   :root {
-    --font-jakarta-fallback: "Inter", "system-ui", "-apple-system",
-      "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial",
-      sans-serif;
+    --font-jakarta-fallback:
+      'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI',
+      'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   }
 
   /* Ensure font fallbacks work properly */
@@ -16,12 +16,12 @@
   }
 
   .font-custom {
-    font-family: "ibrand", var(--font-jakarta-fallback);
+    font-family: 'ibrand', var(--font-jakarta-fallback);
   }
 }
 @font-face {
-  font-family: "ibrand";
-  src: url("/font/ibrand.otf") format("opentype");
+  font-family: 'ibrand';
+  src: url('/font/ibrand.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -34,6 +34,23 @@ small-header {
 }
 small-subheader {
   font-size: 1rem;
+}
+
+/* Line clamp utilities */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 @layer base {
@@ -109,11 +126,8 @@ small-subheader {
   border-radius: 50%;
   padding: 1px;
   background: conic-gradient(#0000 10%, #016e1b) content-box;
-  -webkit-mask: repeating-conic-gradient(
-      #0000 0deg,
-      #000 1deg 20deg,
-      #0000 21deg 36deg
-    ),
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
     radial-gradient(
       farthest-side,
       #0000 calc(100% - var(--b) - 1px),

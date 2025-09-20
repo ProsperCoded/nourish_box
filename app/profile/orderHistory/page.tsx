@@ -18,7 +18,7 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import OrderReviewPrompt from "../../components/OrderReviewPrompt";
+import OrderReviewManager from "../../components/OrderReviewManager";
 
 type OrderWithDetails = Order & {
   recipes?: Recipe[];
@@ -583,15 +583,15 @@ const OrderHistory = ({ showHeader }) => {
 
                   </div>
 
-                  {/* Review Prompt for Completed Orders */}
+                  {/* Review Manager for Completed Orders */}
                   {order.deliveryStatus === DeliveryStatus.DELIVERED && order.recipes && order.recipes.length > 0 && (
                     <div className="border-t border-gray-100 pt-4">
-                      <OrderReviewPrompt
+                      <OrderReviewManager
                         recipes={order.recipes}
                         orderId={order.id}
                         onReviewSubmitted={() => {
                           // Optionally refresh orders or show success message
-                          console.log('Review submitted for order:', order.id);
+                          console.log('Review submitted/updated for order:', order.id);
                         }}
                       />
                     </div>
