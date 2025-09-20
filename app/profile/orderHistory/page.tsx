@@ -18,7 +18,7 @@ import {
   Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import ReviewSection from "../../components/Review";
+import OrderReviewManager from "../../components/OrderReviewManager";
 
 type OrderWithDetails = Order & {
   recipes?: Recipe[];
@@ -579,31 +579,23 @@ const OrderHistory = ({ showHeader }) => {
                         </div>
                       )}
 
-                      {order.deliveryDurationRange && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-1">
-                            Expected Duration
-                          </h4>
-                          <p className="text-gray-600">
-                            {order.deliveryDurationRange}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="hidden md:flex items-center gap-2 ml-4">
-                      <button className="px-3 py-1 text-sm bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">
-                        Reorder
-                      </button>
-                      <button className="px-3 py-1 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
-                        Track
-                      </button>
+                  </div>
+
+                  {/* Review Manager for Completed Orders */}
+                  {order.deliveryStatus === DeliveryStatus.DELIVERED && order.recipes && order.recipes.length > 0 && (
+                    <div className="border-t border-gray-100 pt-4">
+                      <OrderReviewManager
+                        recipes={order.recipes}
+                        orderId={order.id}
+                        onReviewSubmitted={() => {
+                          // Optionally refresh orders or show success message
+                          console.log('Review submitted/updated for order:', order.id);
+                        }}
+                      />
                     </div>
-                  </div>
-                  <div>
-                    <ReviewSection />
-                  </div>
+                  )}
                 </div>
 
               ))}

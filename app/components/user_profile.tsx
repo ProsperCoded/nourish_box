@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/app/contexts/AuthContext";
-import { fetchLGAs, fetchStates } from "@/app/utils/client-api/locationApi";
+import { getAvailableLGAs, getAvailableStates } from "@/app/utils/firebase/delivery-costs.firebase";
 import { updateUserProfile } from "@/app/utils/firebase/users.firebase";
 import React, { useEffect, useState } from "react";
 
@@ -81,7 +81,7 @@ const UserProfile = () => {
     const loadStates = async () => {
       try {
         setLoading(true);
-        const statesData = await fetchStates();
+        const statesData = await getAvailableStates();
         setStates(statesData);
       } catch (error) {
         console.error("Error loading states:", error);
@@ -99,7 +99,7 @@ const UserProfile = () => {
     const loadLGAs = async () => {
       if (formData.state) {
         try {
-          const lgasData = await fetchLGAs(formData.state);
+          const lgasData = await getAvailableLGAs(formData.state);
           setLgas(lgasData);
           // Reset LGA if the state changed
           if (user?.state !== formData.state) {
@@ -255,8 +255,8 @@ const UserProfile = () => {
           {message && (
             <div
               className={`mb-4 p-4 rounded-md ${message.type === "success"
-                  ? "bg-green-100 text-green-800 border border-green-200"
-                  : "bg-red-100 text-red-800 border border-red-200"
+                ? "bg-green-100 text-green-800 border border-green-200"
+                : "bg-red-100 text-red-800 border border-red-200"
                 }`}
             >
               {message.text}
@@ -360,8 +360,8 @@ const UserProfile = () => {
                     value={formData.state}
                     onChange={handleInputChange}
                     className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.state
-                        ? "border-yellow-500 bg-yellow-50"
-                        : "border-gray-500"
+                      ? "border-yellow-500 bg-yellow-50"
+                      : "border-gray-500"
                       } focus:border-orange-500 focus:outline-none`}
                     required
                     disabled={loading || !isEditing}
@@ -393,8 +393,8 @@ const UserProfile = () => {
                     value={formData.lga}
                     onChange={handleInputChange}
                     className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.lga
-                        ? "border-yellow-500 bg-yellow-50"
-                        : "border-gray-500"
+                      ? "border-yellow-500 bg-yellow-50"
+                      : "border-gray-500"
                       } focus:border-orange-500 focus:outline-none`}
                     required
                     disabled={
@@ -433,8 +433,8 @@ const UserProfile = () => {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-8 py-3 rounded-md font-semibold text-white transition-colors ${isSubmitting
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-orange-500 hover:bg-orange-600"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
                     }`}
                 >
                   {isSubmitting ? "Updating..." : "Update Profile"}

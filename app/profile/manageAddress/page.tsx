@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit, MapPin, Plus, Star, Trash2, MoreVertical} from 'lucide-react';
+import { Edit, MapPin, MoreVertical, Plus, Star, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
@@ -12,9 +12,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu"
+} from "../../components/ui/dropdown-menu";
 import { useAuth } from '../../contexts/AuthContext';
-import { fetchLGAs, fetchStates } from '../../utils/client-api/locationApi';
 import {
   addUserAddress,
   migrateLegacyAddress,
@@ -22,6 +21,7 @@ import {
   setPrimaryAddress,
   updateUserAddress
 } from '../../utils/firebase/addresses.firebase';
+import { getAvailableLGAs, getAvailableStates } from '../../utils/firebase/delivery-costs.firebase';
 import { Address, CreateAddressInput } from '../../utils/types/address.type';
 
 
@@ -71,11 +71,11 @@ const ManageAddress = () => {
     const loadStates = async () => {
       try {
         setLoadingStates(true);
-        const statesData = await fetchStates();
+        const statesData = await getAvailableStates();
         setStates(statesData);
       } catch (error) {
         console.error('Error loading states:', error);
-        toast.error('Failed to load states');
+        toast.error('Failed to load available delivery states');
       } finally {
         setLoadingStates(false);
       }
@@ -89,11 +89,11 @@ const ManageAddress = () => {
     const loadLGAs = async () => {
       if (formData.state) {
         try {
-          const lgasData = await fetchLGAs(formData.state);
+          const lgasData = await getAvailableLGAs(formData.state);
           setLgas(lgasData);
         } catch (error) {
           console.error('Error loading LGAs:', error);
-          toast.error('Failed to load LGAs');
+          toast.error('Failed to load available delivery areas');
         }
       } else {
         setLgas([]);

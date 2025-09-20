@@ -22,4 +22,9 @@ export type Recipe = {
   clicks: number; // used for tracking recipe clicks
   createdAt: string; // date in ISO format
   updatedAt: string; // date in ISO format
+
+  // Review aggregates
+  averageRating?: number; // average rating from reviews
+  totalReviews?: number; // total number of reviews
+  ratingDistribution?: { [key: number]: number }; // distribution of ratings 1-5
 };

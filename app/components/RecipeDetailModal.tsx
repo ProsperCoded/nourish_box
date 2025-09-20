@@ -25,8 +25,8 @@ import toast from 'react-hot-toast';
 import { useCart } from '../contexts/CartContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { Recipe } from '../utils/types/recipe.type';
-import ReviewSection from './Review';
-import DummyReviews from './ReviewsList';
+import ReviewsHorizontalList from './ReviewsHorizontalList';
+import StarRating from './StarRating';
 
 interface RecipeDetailModalProps {
   recipe: Recipe;
@@ -62,7 +62,7 @@ const modalStyle = {
   boxShadow: 24,
   p: 0,
   maxHeight: '95vh',
-  overflow: 'hidden',
+  overflow: 'auto',
   outline: 'none',
   borderRadius: '14px',
 };
@@ -98,13 +98,13 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   const allMediaItems = useMemo<MediaItem[]>(() => {
     const base: MediaItem[] = recipe.displayMedia
       ? [
-          {
-            id: 'display',
-            url: recipe.displayMedia.url,
-            type: recipe.displayMedia.type as MediaKind,
-            variant: 'Display',
-          },
-        ]
+        {
+          id: 'display',
+          url: recipe.displayMedia.url,
+          type: recipe.displayMedia.type as MediaKind,
+          variant: 'Display',
+        },
+      ]
       : [];
     const samples =
       recipe.samples?.map((s, i) => ({
@@ -294,19 +294,37 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                         key={i}
                         onClick={() => setActiveIndex(i)}
                         aria-label={`Go to slide ${i + 1}`}
-                        className={`h-2.5 w-2.5 rounded-full transition ${
-                          i === activeIndex
-                            ? 'bg-gray-900'
-                            : 'bg-gray-300 hover:bg-gray-400'
-                        }`}
+                        className={`h-2.5 w-2.5 rounded-full transition ${i === activeIndex
+                          ? 'bg-gray-900'
+                          : 'bg-gray-300 hover:bg-gray-400'
+                          }`}
                       />
                     ))}
                   </div>
                 </>
               )}
             </div>
-            {/* Reviews */}
-            <DummyReviews/>
+
+            {/* Recipe Rating Summary */}
+            {(recipe.averageRating || 0) > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <StarRating
+                  rating={recipe.averageRating || 0}
+                  totalReviews={recipe.totalReviews || 0}
+                  size="md"
+                  showCount={true}
+                />
+              </div>
+            )}
+
+            {/* Reviews Preview - Horizontal Scroll */}
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Customer Reviews</h4>
+              <ReviewsHorizontalList
+                recipeId={recipe.id}
+                totalReviews={recipe.totalReviews || 0}
+              />
+            </div>
           </div>
 
           {/* RIGHT: Content */}
@@ -471,6 +489,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
           </div>
         </div>
+
       </Box>
     </Modal>
   );

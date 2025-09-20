@@ -1,3 +1,4 @@
+import { getDeliveryCostForLocation } from '@/app/utils/firebase/delivery-costs.firebase';
 import { BusinessRules } from '@/app/utils/types/site-content.type';
 import { useRouter } from 'next/navigation';
 
@@ -37,7 +38,8 @@ export const calculateTax = (
 };
 
 /**
- * Calculate total price breakdown including delivery fee and tax
+ * Calculate total price breakdown including delivery fee and tax (legacy version)
+ * @deprecated Use calculateTotalWithDynamicDelivery instead for dynamic delivery costs
  */
 export const calculateTotalWithBusinessRules = (
   subtotal: number,
@@ -58,6 +60,46 @@ export const calculateTotalWithBusinessRules = (
     tax,
     total,
   };
+};
+
+/**
+ * Calculate total price breakdown with dynamic delivery cost
+ */
+export const calculateTotalWithDynamicDelivery = (
+  subtotal: number,
+  deliveryFee: number,
+  businessRules: BusinessRules
+): {
+  subtotal: number;
+  deliveryFee: number;
+  tax: number;
+  total: number;
+} => {
+  const tax = calculateTax(subtotal, businessRules);
+  const total = subtotal + deliveryFee + tax;
+
+  return {
+    subtotal,
+    deliveryFee,
+    tax,
+    total,
+  };
+};
+
+/**
+ * Fetch delivery cost for a specific location
+ */
+export const fetchDeliveryCostForLocation = async (
+  state: string,
+  lga: string
+): Promise<number> => {
+  try {
+    const cost = await getDeliveryCostForLocation(state, lga);
+    return cost || 0; // Return 0 if no cost found
+  } catch (error) {
+    console.error('Error fetching delivery cost:', error);
+    return 0; // Return 0 as fallback
+  }
 };
 
 /**
