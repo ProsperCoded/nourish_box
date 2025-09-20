@@ -9,10 +9,10 @@ import { usePathname, useRouter } from 'next/navigation';
 type Props = {
   PageTitle?: string;
   /** show the search input? controlled from parent */
-  showSearchBar: boolean;
+  showSearchBar?: boolean;
   setShowSearchBar: React.Dispatch<React.SetStateAction<boolean>>;
   /** controlled search text */
-  searchQuery: string;
+  searchQuery?: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   /** make the search icon appear or not */
   showSearchIcon?: boolean;
@@ -77,7 +77,7 @@ const Search_bar: React.FC<Props> = ({
             <Image src={search} alt="Search" width={20} height={20} />
           </button>
         ) : (
-          <span className="w-10" />  
+          <span className="w-10" />
         )}
       </div>
 

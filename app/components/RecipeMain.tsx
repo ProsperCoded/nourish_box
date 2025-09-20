@@ -259,7 +259,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
 
         {/* Optional spacer for very short pages */}
         <div style={{ height: `calc(${tabbarVar})` }} aria-hidden />
-      </div
+      </div>
     </>
   );
 };
