@@ -12,20 +12,19 @@ import { useCategories } from '../contexts/CategoryContext';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { ChefHat, Clock, Tag } from "lucide-react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+
 interface RecipeCardProps {
   recipe: Recipe;
   categoryName?: string;
 }
 
-
 const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
-
   // cart + local state
   const { addToCart, loading: cartLoading } = useCart();
-  const [option, setOption] = useState<string>(""); // optional packaging choice (kept for parity)
+  const [option, setOption] = useState<string>(""); // packaging choice
   const [count, setCount] = useState(1);
 
-  // Normalize ingredients into a clean string[]
+  // Normalise ingredients into a clean string[]
   const ingredientsList: string[] = Array.isArray(recipe.ingredients)
     ? recipe.ingredients.map((x) => String(x).trim()).filter(Boolean)
     : typeof recipe.ingredients === "string"
@@ -35,23 +34,25 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
         .filter(Boolean)
       : [];
 
-  const handleChange = (event: SelectChangeEvent) =>
-    setOption(event.target.value);
+  const handleChange = (event: SelectChangeEvent) => setOption(event.target.value as string);
   const router = useRouter();
   const mustChoosePackaging = count > 1 && !option;
   const showPackaging = count > 1;
 
+  // Reset state ONLY when the recipe changes (or remove if you want to persist across recipes)
   useEffect(() => {
-    setOption('');
-  })
-  // ✅ Fix: add parentheses to avoid mixing ?? and || without grouping
+    setOption("");
+    setCount(1);
+  }, [recipe?.id]);
+
+  // Avoid mixing ?? and || without grouping (already handled)
   const ingredientsCount =
     (recipe.numberOfIngredients ?? ingredientsList.length) || 0;
 
   // Height of your bottom tab bar (override globally if needed)
   const tabbarVar = "var(--app-tabbar-h, 72px)";
 
-  // --- NEW: add-to-cart handler (same behavior as modal) ---
+  // Add-to-cart handler
   const handleAddToCartClick = async () => {
     try {
       await addToCart(recipe, count, option);
@@ -62,7 +63,6 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
       // reset lightweight local state
       setCount(1);
       setOption("");
-
     } catch (error) {
       console.error(error);
       toast.error("Failed to add item to cart. Please try again.", {
@@ -71,6 +71,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
       });
     }
   };
+
   const { getCategoryName } = useCategories();
   const displayCategoryName =
     categoryName ||
@@ -119,14 +120,13 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
 
             <div className="flex items-center justify-between py-4 text-sm text-gray-700">
               {durationMinutes !== null && (
-              <div className="flex items-center">
-               <span className='mt-0.5 inline-flex mr-2 h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
-                                      <Clock className='h-3.5 w-3.5' />
-                                    </span>
-                <p>{ durationMinutes}</p>
-              </div>
+                <div className="flex items-center">
+                  <span className='mt-0.5 inline-flex mr-2 h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
+                    <Clock className='h-3.5 w-3.5' />
+                  </span>
+                  <p>{durationMinutes}</p>
+                </div>
               )}
-
 
               <p>
                 <span className='mt-0.5 inline-flex h-6 w-6 mr-2 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
@@ -134,9 +134,9 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
                 </span>
                 {ingredientsCount} {ingredientsCount === 1 ? "ingredient" : "ingredients"}
               </p>
+
               {displayCategoryName && (
                 <div className='mt-3 flex items-center gap-2 text-sm text-gray-600'>
-
                   <span className='px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium'>
                     {displayCategoryName}
                   </span>
@@ -158,9 +158,14 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
             <h3 className="font-bold text-lg pb-2">Ingredients</h3>
             <ul className="list-disc list-inside space-y-2 text-gray-800">
               {ingredientsList.length > 0 ? (
-                ingredientsList.map((item, index) => <div key={index} className="flex"> <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
-                  <ChefHat className='h-3.5 w-3.5' />
-                </span> <div className="ml-2">{item}</div></div>)
+                ingredientsList.map((item, index) => (
+                  <div key={index} className="flex">
+                    <span className='mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-700 border border-green-200'>
+                      <ChefHat className='h-3.5 w-3.5' />
+                    </span>
+                    <div className="ml-2">{item}</div>
+                  </div>
+                ))
               ) : (
                 <li>No ingredients listed</li>
               )}
@@ -170,25 +175,6 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
           <hr />
 
           <section className="pt-3">
-            {/* <h3 className="font-bold text-lg pb-2">Steps</h3> */}
-
-            {/* Scrollable steps
-            <div
-              className=" overflow-y-auto pr-2"
-              role="region"
-              aria-label="Recipe steps"
-            >
-              {[1, 2, 3, 4].map((step) => (
-                <div key={step} className="flex pb-3">
-                  <p className="mx-2 font-semibold text-gray-700">{step}.</p>
-                  <p className="text-gray-800">
-                    Contrary to popular belief, Lorem Ipsum is not simply random text.
-                    It has roots in a piece of classical Latin literature from 45 BC,
-                    making it over 2000 years old.
-                  </p>
-                </div>
-              ))}
-            </div> */}
             <div>
               <DummyReviews />
             </div>
@@ -196,9 +182,10 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
 
           {/* Quantity */}
           <div className='mt-2 flex flex-col items-center gap-1'>
-            <span className='text-xl font-semibold  font-inter text-gray-600 mb-2'>Quantity</span>
+            <span className='text-xl font-semibold font-inter text-gray-600 mb-2'>Quantity</span>
             <div className='flex items-center border border-gray-300 rounded-lg overflow-hidden'>
               <button
+                type="button"  // prevent form submit
                 className='px-3 py-2 hover:bg-gray-100'
                 onClick={() => setCount(c => Math.max(1, c - 1))}
               >
@@ -211,6 +198,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
                 {count}
               </span>
               <button
+                type="button"  // prevent form submit
                 className='px-3 py-2 hover:bg-gray-100'
                 onClick={() => setCount(c => c + 1)}
               >
@@ -218,6 +206,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
               </button>
             </div>
           </div>
+
           {/* Packaging choice (only if more than one pack) */}
           {showPackaging && (
             <div className='mt-6'>
@@ -231,7 +220,8 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
                   labelId='packaging-label'
                   value={option}
                   label='Select packaging'
-                  onChange={handleChange} className="text-black"
+                  onChange={handleChange}
+                  className="text-black"
                 >
                   <MenuItem value='separate'>Packed separately</MenuItem>
                   <MenuItem value='together'>Packed as one</MenuItem>
@@ -245,6 +235,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
               )}
             </div>
           )}
+
           {/* Spacer */}
           <div className="h-1" />
         </main>
@@ -268,7 +259,7 @@ const RecipeMain: React.FC<RecipeCardProps> = ({ recipe, categoryName }) => {
 
         {/* Optional spacer for very short pages */}
         <div style={{ height: `calc(${tabbarVar})` }} aria-hidden />
-      </div>
+      </div
     </>
   );
 };

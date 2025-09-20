@@ -4,6 +4,7 @@ import { getUserOrdersWithDetails } from "@/app/utils/firebase/orders.firebase";
 import { Delivery } from "@/app/utils/types/delivery.type";
 import { DeliveryStatus, Order } from "@/app/utils/types/order.type";
 import { Recipe } from "@/app/utils/types/recipe.type";
+import { Loader2, Phone } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -211,9 +212,11 @@ const OrderStatusPage = () => {
   if (loading || ordersLoading) {
     return (
       <div className="h-full md:min-h-screen  flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading orders...</p>
+        <div className="flex flex-col justify-center items-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+
+
+          <p className="mt-4 text-gray-60 ">Loading orders...</p>
         </div>
       </div>
     );
@@ -818,7 +821,7 @@ const OrderStatusPage = () => {
                         <p>{selectedOrder.delivery.deliveryLGA}</p>
                         {selectedOrder.delivery.deliveryPhone && (
                           <p className="text-orange-600">
-                            📞 {selectedOrder.delivery.deliveryPhone}
+                            <Phone/> {selectedOrder.delivery.deliveryPhone}
                           </p>
                         )}
                         {selectedOrder.delivery.deliveryEmail && (

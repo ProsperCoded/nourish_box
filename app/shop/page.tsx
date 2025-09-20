@@ -12,14 +12,16 @@ import Footer from '../components/Footer_main';
 
 const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchBar, setSearchBar] = useState('');
+  // ❌ was: const [showSearchBar, setSearchBar] = useState('');
+  // Remove or make it a real boolean if you actually toggle it.
+  // const [showSearchBar, setShowSearchBar] = useState<boolean>(true);
+
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { categoriesArray: categories, isLoading: categoriesLoading } =
-    useCategories();
+  const { categoriesArray: categories, isLoading: categoriesLoading } = useCategories();
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,9 +41,7 @@ const Page = () => {
   const normalized = (v?: string | null) => (v || '').toLowerCase().trim();
 
   const visibleRecipes = useMemo(() => {
-    const byCategory = (r: Recipe) =>
-      !activeCategoryId || r.categoryId === activeCategoryId;
-
+    const byCategory = (r: Recipe) => !activeCategoryId || r.categoryId === activeCategoryId;
     const bySearch = (r: Recipe) =>
       normalized(r.name).includes(normalized(searchQuery)) ||
       normalized(r.description).includes(normalized(searchQuery));
@@ -49,18 +49,25 @@ const Page = () => {
     return recipes.filter(r => byCategory(r) && bySearch(r));
   }, [recipes, activeCategoryId, searchQuery]);
 
-  // No need for categoryMap - getCategoryName provides O(1) lookup
-
   return (
-    <main className='min-h-screen '>
-      {/* Nav with search functionality */}
+    <main className='min-h-screen'>
+      {/* Desktop: Nav controls search */}
       <div className="hidden md:block">
         <Nav showSearch={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
       </div>
-      <div className="block md:hidden">
-        <Search_bar PageTitle='Shop' showSearchBar={true} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
+      {/* Mobile: make Search_bar controlled too */}
+      <div className="block md:hidden">
+        {/* Ensure your Search_bar component accepts value + onChange OR these exact props */}
+        <Search_bar
+          PageTitle="Shop"
+          showSearchBar={true}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        // If your Search_bar expects value/onChange instead, use:
+        // value={searchQuery}
+        // onChange={(v: string) => setSearchQuery(v)}
+        />
       </div>
       <div className='md:pt-32 md:px-8'>
         {/* Title / Subtitle */}
