@@ -62,7 +62,7 @@ const modalStyle = {
   boxShadow: 24,
   p: 0,
   maxHeight: '95vh',
-  overflow: 'hidden',
+  overflow: 'auto',
   outline: 'none',
   borderRadius: '14px',
 };
@@ -487,13 +487,11 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Customer Reviews
             </h3>
-            <div className="max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ReviewsList
-                recipeId={recipe.id}
-                averageRating={recipe.averageRating}
-                totalReviews={recipe.totalReviews}
-              />
-            </div>
+            <ReviewsList
+              recipeId={recipe.id}
+              averageRating={recipe.averageRating}
+              totalReviews={recipe.totalReviews}
+            />
           </div>
         </div>
       </Box>
