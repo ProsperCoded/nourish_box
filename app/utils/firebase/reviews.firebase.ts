@@ -155,21 +155,29 @@ export async function getRecipeReviews(
 ): Promise<Review[]> {
   try {
     const reviewsRef = collection(db, COLLECTION.reviews);
+    // Removed orderBy from query to avoid composite index requirement
     const q = query(
       reviewsRef,
       where('recipeId', '==', recipeId),
-      orderBy('createdAt', 'desc'),
       limit(limitCount)
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
+    const reviews = querySnapshot.docs.map(
       doc =>
         ({
           id: doc.id,
           ...doc.data(),
         }) as Review
     );
+
+    // Sort client-side to avoid needing a composite index
+    reviews.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return reviews;
   } catch (error) {
     console.error('Error fetching recipe reviews:', error);
     throw new Error('Failed to fetch reviews');
@@ -240,20 +248,25 @@ export async function getRecipeReviewsWithUserDetails(
 export async function getUserReviews(userId: string): Promise<Review[]> {
   try {
     const reviewsRef = collection(db, COLLECTION.reviews);
-    const q = query(
-      reviewsRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
+    // Removed orderBy from query to avoid composite index requirement
+    const q = query(reviewsRef, where('userId', '==', userId));
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
+    const reviews = querySnapshot.docs.map(
       doc =>
         ({
           id: doc.id,
           ...doc.data(),
         }) as Review
     );
+
+    // Sort client-side to avoid needing a composite index
+    reviews.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return reviews;
   } catch (error) {
     console.error('Error fetching user reviews:', error);
     throw new Error('Failed to fetch user reviews');

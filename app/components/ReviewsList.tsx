@@ -217,12 +217,12 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3 flex-1">
                   {/* User Avatar */}
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                     {review.userAvatar ? (
                       <img
                         src={review.userAvatar}
@@ -235,8 +235,8 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                   </div>
 
                   {/* Review Content */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="font-medium text-gray-800">
                         {review.userName || 'Anonymous User'}
                       </span>
@@ -251,12 +251,15 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                       totalReviews={0}
                       size="sm"
                       showCount={false}
-                      className="mb-2"
+                      className="mb-3"
                     />
 
-                    <p className="text-gray-700 leading-relaxed">
-                      {review.comment}
-                    </p>
+                    {/* Comment with better styling */}
+                    <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-orange-200">
+                      <p className="text-gray-700 leading-relaxed text-sm">
+                        {review.comment}
+                      </p>
+                    </div>
 
                     {review.updatedAt !== review.createdAt && (
                       <p className="text-xs text-gray-400 mt-2">

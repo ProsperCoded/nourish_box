@@ -482,12 +482,19 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
         </div>
 
         {/* Reviews Section - Full Width */}
-        <div className="border-t border-gray-200 px-5 py-6">
-          <ReviewsList
-            recipeId={recipe.id}
-            averageRating={recipe.averageRating}
-            totalReviews={recipe.totalReviews}
-          />
+        <div className="border-t border-gray-200">
+          <div className="px-5 py-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Customer Reviews
+            </h3>
+            <div className="max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ReviewsList
+                recipeId={recipe.id}
+                averageRating={recipe.averageRating}
+                totalReviews={recipe.totalReviews}
+              />
+            </div>
+          </div>
         </div>
       </Box>
     </Modal>
