@@ -273,7 +273,9 @@
                 <thead>
                     <tr>
                         <th>Recipe</th>
-                        <th style="text-align: right;">Price</th>
+                        <th style="text-align: center;">Qty</th>
+                        <th style="text-align: right;">Unit Price</th>
+                        <th style="text-align: right;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -285,6 +287,11 @@
                             <br><small style="color: #6b7280;"><%= recipe.description %></small>
                             <% } %>
                         </td>
+                        <td style="text-align: center;">
+                            <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 12px;">
+                                <%= recipe.quantity || 1 %>
+                            </span>
+                        </td>
                         <td style="text-align: right;">
                             <strong>
                                 <%= new Intl.NumberFormat('en-NG', {
@@ -293,10 +300,18 @@
                                 }).format(recipe.price) %>
                             </strong>
                         </td>
+                        <td style="text-align: right;">
+                            <strong style="color: #22c55e;">
+                                <%= new Intl.NumberFormat('en-NG', {
+                                    style: 'currency',
+                                    currency: 'NGN'
+                                }).format(recipe.totalPrice || recipe.price) %>
+                            </strong>
+                        </td>
                     </tr>
                     <% }) %>
                     <tr class="total-row">
-                        <td><strong>Total Amount</strong></td>
+                        <td colspan="3"><strong>Total Amount</strong></td>
                         <td style="text-align: right;">
                             <strong style="font-size: 18px;">
                                 <%= new Intl.NumberFormat('en-NG', {

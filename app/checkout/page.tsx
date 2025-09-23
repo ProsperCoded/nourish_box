@@ -387,7 +387,10 @@ const CheckoutPage = () => {
 
       const payload = {
         amount: finalTotal,
-        recipes: cartItems.map((item) => item.recipeId),
+        recipes: cartItems.map((item) => ({
+          recipeId: item.recipeId,
+          quantity: item.quantity
+        })),
         ...(user ? { userId: user.id } : { email: deliveryInfo.deliveryEmail }),
         delivery: finalDeliveryInfo,
       };

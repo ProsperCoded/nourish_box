@@ -56,6 +56,28 @@ const OrderHistory = ({ showHeader }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Helper function to get quantity for a specific recipe in an order
+  const getRecipeQuantity = (order: Order, recipeId: string): number => {
+    if (!order.recipeIds) return 1;
+
+    const recipeItem = order.recipeIds.find(item => {
+      const itemRecipeId = typeof item === 'string' ? item : item.recipeId;
+      return itemRecipeId === recipeId;
+    });
+
+    return typeof recipeItem === 'object' ? recipeItem.quantity : 1;
+  };
+
+  // Helper function to calculate total value with quantities
+  const calculateOrderTotal = (order: Order): number => {
+    if (!order.recipes || !order.recipeIds) return order.amount;
+
+    return order.recipes.reduce((sum, recipe) => {
+      const quantity = getRecipeQuantity(order, recipe.id);
+      return sum + (recipe.price * quantity);
+    }, 0);
+  };
+
   const toggleExpand = (id: string) => {
     setExpandedOrderId((prev) => (prev === id ? null : id));
   };
@@ -320,6 +342,9 @@ const OrderHistory = ({ showHeader }) => {
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-gray-800 mb-1">
                                   {index + 1}. {recipe.name}
+                                  <span className="ml-2 text-sm bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                                    Qty: {getRecipeQuantity(order, recipe.id)}
+                                  </span>
                                 </p>
                                 {recipe.description && (
                                   <p className="text-sm text-gray-600 overflow-hidden" style={{
@@ -336,7 +361,10 @@ const OrderHistory = ({ showHeader }) => {
                                     <span>⏱️ {Math.floor(recipe.duration / 60)} min</span>
                                   )}
                                   <span className="font-medium text-orange-600">
-                                    ₦{recipe.price.toLocaleString()}
+                                    ₦{recipe.price.toLocaleString()} each
+                                  </span>
+                                  <span className="font-bold text-green-600">
+                                    ₦{(recipe.price * getRecipeQuantity(order, recipe.id)).toLocaleString()} total
                                   </span>
                                   {recipe.difficulty && (
                                     <span>🔥 {recipe.difficulty}</span>
@@ -349,7 +377,7 @@ const OrderHistory = ({ showHeader }) => {
                             <div className="flex justify-between items-center text-sm">
                               <span className="font-medium text-gray-800">Total Recipe Value:</span>
                               <span className="font-bold text-orange-600">
-                                ₦{order.recipes.reduce((sum, recipe) => sum + recipe.price, 0).toLocaleString()}
+                                ₦{calculateOrderTotal(order).toLocaleString()}
                               </span>
                             </div>
                           </div>
@@ -369,9 +397,14 @@ const OrderHistory = ({ showHeader }) => {
                             />
                           </div>
                           <div className="flex-1">
-                            <p className="font-semibold text-gray-800 text-lg mb-2">
-                              {order.recipes[0].name}
-                            </p>
+                            <div className="flex items-center gap-3 mb-2">
+                              <p className="font-semibold text-gray-800 text-lg">
+                                {order.recipes[0].name}
+                              </p>
+                              <span className="text-sm bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-medium">
+                                Qty: {getRecipeQuantity(order, order.recipes[0].id)}
+                              </span>
+                            </div>
                             {order.recipes[0].description && (
                               <p className="text-sm text-gray-600 mb-2 overflow-hidden" style={{
                                 display: '-webkit-box',
@@ -388,7 +421,10 @@ const OrderHistory = ({ showHeader }) => {
                                 </span>
                               )}
                               <span className="flex items-center gap-1 font-medium text-orange-600">
-                                💰 ₦{order.recipes[0].price.toLocaleString()}
+                                💰 ₦{order.recipes[0].price.toLocaleString()} each
+                              </span>
+                              <span className="flex items-center gap-1 font-bold text-green-600">
+                                💰 ₦{(order.recipes[0].price * getRecipeQuantity(order, order.recipes[0].id)).toLocaleString()} total
                               </span>
                               {order.recipes[0].difficulty && (
                                 <span className="flex items-center gap-1 text-gray-600">
@@ -430,8 +466,16 @@ const OrderHistory = ({ showHeader }) => {
                                   }}
                                 />
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-800 text-sm">{recipe.name}</p>
-                                  <p className="text-xs text-orange-600 font-medium">₦{recipe.price.toLocaleString()}</p>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-medium text-gray-800 text-sm">{recipe.name}</p>
+                                    <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                                      Qty: {getRecipeQuantity(order, recipe.id)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-orange-600 font-medium">₦{recipe.price.toLocaleString()} each</span>
+                                    <span className="text-green-600 font-bold">₦{(recipe.price * getRecipeQuantity(order, recipe.id)).toLocaleString()} total</span>
+                                  </div>
                                 </div>
                               </div>
                             ))}

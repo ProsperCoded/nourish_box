@@ -1,21 +1,19 @@
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  getDocs,
-  doc,
-  getDoc,
-  DocumentSnapshot,
-  QuerySnapshot,
-  limit,
-  startAfter,
-} from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import { COLLECTION } from '@/app/utils/schema/collection.enum';
+import { Delivery } from '@/app/utils/types/delivery.type';
 import { Order } from '@/app/utils/types/order.type';
 import { Recipe } from '@/app/utils/types/recipe.type';
-import { Delivery } from '@/app/utils/types/delivery.type';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 // Helper function to chunk arrays for Firebase 'in' operator (max 10 items)
 const chunkArray = <T>(array: T[], size: number): T[][] => {
@@ -46,7 +44,10 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
 
       // Fetch recipes data if recipeIds exist
       if (orderData.recipeIds && orderData.recipeIds.length > 0) {
-        const recipes = await getRecipesByIds(orderData.recipeIds);
+        const recipeIds = orderData.recipeIds.map(item =>
+          typeof item === 'string' ? item : item.recipeId
+        );
+        const recipes = await getRecipesByIds(recipeIds);
         orderData.recipes = recipes;
       }
 
@@ -116,7 +117,11 @@ export async function getPaginatedUserOrdersWithDetails(
     }
 
     // Extract unique IDs for batch fetching
-    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const allRecipeIds = orders.flatMap(order =>
+      (order.recipeIds || []).map(item =>
+        typeof item === 'string' ? item : item.recipeId
+      )
+    );
     const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
       ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
@@ -172,7 +177,10 @@ export async function getPaginatedUserOrdersWithDetails(
       ...order,
       recipes:
         order.recipeIds
-          ?.map(id => recipesMap.get(id))
+          ?.map(item => {
+            const recipeId = typeof item === 'string' ? item : item.recipeId;
+            return recipesMap.get(recipeId);
+          })
           .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
@@ -218,7 +226,11 @@ export async function getUserOrdersWithDetails(userId: string): Promise<
     }
 
     // Extract unique IDs for batch fetching
-    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const allRecipeIds = orders.flatMap(order =>
+      (order.recipeIds || []).map(item =>
+        typeof item === 'string' ? item : item.recipeId
+      )
+    );
     const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
       ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
@@ -274,7 +286,10 @@ export async function getUserOrdersWithDetails(userId: string): Promise<
       ...order,
       recipes:
         order.recipeIds
-          ?.map(id => recipesMap.get(id))
+          ?.map(item => {
+            const recipeId = typeof item === 'string' ? item : item.recipeId;
+            return recipesMap.get(recipeId);
+          })
           .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
@@ -302,7 +317,10 @@ export async function getOrderById(orderId: string): Promise<Order | null> {
 
     // Fetch recipes data if recipeIds exist
     if (orderData.recipeIds && orderData.recipeIds.length > 0) {
-      const recipes = await getRecipesByIds(orderData.recipeIds);
+      const recipeIds = orderData.recipeIds.map(item =>
+        typeof item === 'string' ? item : item.recipeId
+      );
+      const recipes = await getRecipesByIds(recipeIds);
       orderData.recipes = recipes;
     }
 

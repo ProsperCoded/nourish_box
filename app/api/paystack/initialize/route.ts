@@ -1,17 +1,17 @@
 import {
+  createDelivery,
+  hasCompleteDeliveryInfo,
+} from '@/app/api/adminUtils/delivery.admin';
+import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
+import { createTransaction } from '@/app/api/adminUtils/transaction.admin';
+import { getUserById } from '@/app/api/adminUtils/user.admin';
+import { ResponseDto } from '@/app/api/response.dto';
+import {
   Transaction,
   TransactionStatus,
 } from '@/app/utils/types/transaction.type';
-import { NextRequest, NextResponse } from 'next/server';
-import { getUserById } from '@/app/api/adminUtils/user.admin';
-import { createTransaction } from '@/app/api/adminUtils/transaction.admin';
-import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
-import {
-  hasCompleteDeliveryInfo,
-  createDelivery,
-} from '@/app/api/adminUtils/delivery.admin';
+import { NextRequest } from 'next/server';
 import { configService, ENV } from '../../utils/config.env';
-import { ResponseDto } from '@/app/api/response.dto';
 
 interface PaystackResponse {
   status: boolean;
@@ -62,15 +62,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate that all recipes exist
-    const recipeValidationPromises = recipes.map(async (recipeId: string) => {
-      const recipe = await getRecipeById(recipeId);
-      return { recipeId, exists: !!recipe };
-    });
+    // Validate that all recipes exist and have valid quantities
+    const recipeValidationPromises = recipes.map(
+      async (recipeItem: { recipeId: string; quantity: number }) => {
+        const recipe = await getRecipeById(recipeItem.recipeId);
+        return {
+          recipeId: recipeItem.recipeId,
+          quantity: recipeItem.quantity,
+          exists: !!recipe,
+        };
+      }
+    );
 
     const recipeValidationResults = await Promise.all(recipeValidationPromises);
     const invalidRecipes = recipeValidationResults.filter(
-      result => !result.exists
+      result => !result.exists || result.quantity <= 0
     );
 
     if (invalidRecipes.length > 0) {

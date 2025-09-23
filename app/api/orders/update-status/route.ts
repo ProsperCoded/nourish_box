@@ -68,10 +68,23 @@ export async function PUT(request: NextRequest) {
     await updateOrderDeliveryStatus(orderId, deliveryStatus);
 
     // Send email notification to customer
-    if (currentOrder.user && currentOrder.recipe && currentOrder.delivery) {
+    if (currentOrder.user && currentOrder.recipes && currentOrder.delivery) {
       const domain =
         process.env.NEXT_PUBLIC_DOMAIN || 'https://nourish-box.vercel.app';
       const trackingUrl = `${domain}/profile?tab=track`;
+
+      // Calculate per recipe prices with quantities
+      const recipesWithPrices = currentOrder.recipes.map((recipe, index) => {
+        const recipeItem = currentOrder.recipeIds[index];
+        const quantity =
+          typeof recipeItem === 'object' ? recipeItem.quantity : 1;
+        return {
+          name: recipe.name,
+          price: recipe.price,
+          quantity: quantity,
+          totalPrice: recipe.price * quantity,
+        };
+      });
 
       const emailData = {
         customerName: `${currentOrder.user.firstName} ${currentOrder.user.lastName}`,
@@ -79,12 +92,7 @@ export async function PUT(request: NextRequest) {
         customerPhone: currentOrder.user.phone || null, // Add customer phone from user data
         orderId: currentOrder.id,
         orderAmount: currentOrder.amount,
-        recipes: [
-          {
-            name: currentOrder.recipe.name,
-            price: currentOrder.amount,
-          },
-        ],
+        recipes: recipesWithPrices,
         deliveryAddress: currentOrder.delivery.deliveryAddress,
         deliveryCity: currentOrder.delivery.deliveryCity,
         deliveryState: currentOrder.delivery.deliveryState,

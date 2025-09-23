@@ -70,11 +70,11 @@ export async function GET(request: NextRequest) {
         paymentDate: paystackData.data.paid_at || new Date().toISOString(),
       });
 
-      // Calculate total amount from all recipes
+      // Calculate total amount from all recipes with quantities
       const recipePromises = transaction.recipes.map(
-        async (recipeId: string) => {
-          const recipe = await getRecipeById(recipeId);
-          return recipe ? recipe.price : 0;
+        async (recipeItem: { recipeId: string; quantity: number }) => {
+          const recipe = await getRecipeById(recipeItem.recipeId);
+          return recipe ? recipe.price * recipeItem.quantity : 0;
         }
       );
 
@@ -96,8 +96,13 @@ export async function GET(request: NextRequest) {
       let orderResult;
       try {
         orderResult = await createOrder(orderData);
+        const totalQuantity = transaction.recipes.reduce(
+          (sum: number, item: { recipeId: string; quantity: number }) =>
+            sum + item.quantity,
+          0
+        );
         console.log(
-          `Order created with ${transaction.recipes.length} recipes: ${orderResult.id}`
+          `Order created with ${transaction.recipes.length} unique recipes (${totalQuantity} total items): ${orderResult.id}`
         );
       } catch (error) {
         console.error('Error creating order:', error);
@@ -118,9 +123,16 @@ export async function GET(request: NextRequest) {
 
           // Get recipe details for email
           const recipePromises = transaction.recipes.map(
-            async (recipeId: string) => {
-              const recipe = await getRecipeById(recipeId);
-              return recipe ? { name: recipe.name, price: recipe.price } : null;
+            async (recipeItem: { recipeId: string; quantity: number }) => {
+              const recipe = await getRecipeById(recipeItem.recipeId);
+              return recipe
+                ? {
+                    name: recipe.name,
+                    price: recipe.price,
+                    quantity: recipeItem.quantity,
+                    totalPrice: recipe.price * recipeItem.quantity,
+                  }
+                : null;
             }
           );
 
