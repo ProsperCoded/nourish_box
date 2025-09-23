@@ -6,6 +6,7 @@ import { getRecipeById } from '@/app/api/adminUtils/recipie.admin';
 import { createTransaction } from '@/app/api/adminUtils/transaction.admin';
 import { getUserById } from '@/app/api/adminUtils/user.admin';
 import { ResponseDto } from '@/app/api/response.dto';
+import { getPrimaryAddress } from '@/app/utils/firebase/addresses.firebase';
 import {
   Transaction,
   TransactionStatus,
@@ -121,17 +122,21 @@ export async function POST(request: NextRequest) {
           deliveryState: delivery?.state,
           deliveryNote: delivery?.note,
         }
-      : {
-          deliveryName: `${user?.firstName || ''} ${
-            user?.lastName || ''
-          }`.trim(),
-          deliveryEmail: user?.email,
-          deliveryPhone: user?.phone,
-          deliveryAddress: user?.address,
-          deliveryCity: user?.city,
-          deliveryState: user?.state,
-          deliveryNote: '',
-        };
+      : (() => {
+          // Use primary address if available, otherwise empty (will cause validation error)
+          const primaryAddress = user ? getPrimaryAddress(user) : null;
+          return {
+            deliveryName:
+              primaryAddress?.name ||
+              `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+            deliveryEmail: user?.email,
+            deliveryPhone: user?.phone,
+            deliveryAddress: primaryAddress?.street || '',
+            deliveryCity: primaryAddress?.city || '',
+            deliveryState: primaryAddress?.state || '',
+            deliveryNote: '',
+          };
+        })();
 
     try {
       const deliveryResult = await createDelivery(deliveryData);

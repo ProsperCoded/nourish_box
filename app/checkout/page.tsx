@@ -16,7 +16,7 @@ import {
   calculateTotalWithDynamicDelivery,
   fetchDeliveryCostForLocation
 } from "../utils/checkout.utils";
-import { addUserAddress, getPrimaryAddress, migrateLegacyAddress } from "../utils/firebase/addresses.firebase";
+import { addUserAddress, getPrimaryAddress } from "../utils/firebase/addresses.firebase";
 import { getBusinessRules } from "../utils/firebase/business-rules.firebase";
 import { getAvailableLGAs, getAvailableStates } from "../utils/firebase/delivery-costs.firebase";
 import { contactInfoSchema, deliveryInfoSchema } from "../utils/schema/checkout.schema";
@@ -99,17 +99,6 @@ const CheckoutPage = () => {
     const loadUserData = async () => {
       // --- LOGGED-IN USER ---
       if (user) {
-        // Migrate legacy address if needed
-        if (user.address && (!user.addresses || user.addresses.length === 0)) {
-          try {
-            await migrateLegacyAddress(user.id);
-            await refreshAuth(); // This will re-trigger the effect, which is fine
-            return; // Exit early and let the effect re-run with fresh user data
-          } catch (error) {
-            console.error('Migration error:', error);
-          }
-        }
-
         const userAddresses = user.addresses || [];
         setAddresses(userAddresses);
 
@@ -200,10 +189,8 @@ const CheckoutPage = () => {
           setLoadingLocations(true);
           const lgasData = await getAvailableLGAs(deliveryInfo.deliveryState);
           setLgas(lgasData);
-          // Reset LGA if the state changed
-          if (user?.state !== deliveryInfo.deliveryState) {
-            setDeliveryInfo((prev) => ({ ...prev, deliveryLGA: "" }));
-          }
+          // Reset LGA when state changes
+          setDeliveryInfo((prev) => ({ ...prev, deliveryLGA: "" }));
         } catch (error) {
           console.error("Error loading LGAs:", error);
           setFormErrors((prev) => ({
@@ -219,7 +206,7 @@ const CheckoutPage = () => {
     };
 
     loadLGAs();
-  }, [deliveryInfo.deliveryState, user?.state]);
+  }, [deliveryInfo.deliveryState]);
 
   // Load LGAs for custom address when state changes
   useEffect(() => {

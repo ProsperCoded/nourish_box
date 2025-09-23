@@ -616,8 +616,13 @@ export async function getPaginatedUsersWithOrderCounts(
           user.lastName.toLowerCase().includes(searchLower) ||
           user.email.toLowerCase().includes(searchLower) ||
           user.phone.includes(searchTerm) ||
-          (user.city && user.city.toLowerCase().includes(searchLower)) ||
-          (user.state && user.state.toLowerCase().includes(searchLower))
+          (user.addresses &&
+            user.addresses.some(
+              addr =>
+                addr.city.toLowerCase().includes(searchLower) ||
+                addr.state.toLowerCase().includes(searchLower) ||
+                addr.street.toLowerCase().includes(searchLower)
+            ))
       );
     }
 
@@ -694,8 +699,13 @@ export async function searchUsers(
         user.lastName.toLowerCase().includes(searchLower) ||
         user.email.toLowerCase().includes(searchLower) ||
         user.phone.includes(searchTerm) ||
-        (user.city && user.city.toLowerCase().includes(searchLower)) ||
-        (user.state && user.state.toLowerCase().includes(searchLower))
+        (user.addresses &&
+          user.addresses.some(
+            addr =>
+              addr.city.toLowerCase().includes(searchLower) ||
+              addr.state.toLowerCase().includes(searchLower) ||
+              addr.street.toLowerCase().includes(searchLower)
+          ))
     );
 
     if (filteredUsers.length === 0) {

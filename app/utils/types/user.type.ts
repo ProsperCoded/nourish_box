@@ -6,12 +6,7 @@ export type User = {
   lastName: string;
   email: string;
   phone: string;
-  // Legacy address fields for backward compatibility
-  address?: string;
-  city?: string;
-  state?: string;
-  lga?: string;
-  // New addresses array for multiple address support
+  // Multiple address support
   addresses?: Address[];
   role: 'admin' | 'user';
   profilePicture?: string; // URL to the profile picture
