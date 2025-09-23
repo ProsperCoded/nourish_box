@@ -12,6 +12,7 @@ import { Recipe } from "@/app/utils/types/recipe.type";
 import {
   Calendar,
   ChevronRight,
+  Clock,
   DollarSign,
   Loader2,
   MapPin,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import OrderReviewManager from "../../components/OrderReviewManager";
+import Link from "next/link";
 
 type OrderWithDetails = Order & {
   recipes?: Recipe[];
@@ -249,10 +251,12 @@ const OrderHistory = ({ showHeader }) => {
                           {/* Recipe Image Preview */}
                           {order.recipes && order.recipes.length > 0 && (
                             <div className="relative">
+
+
                               <img
                                 src={order.recipes[0].displayMedia?.url || '/app/assets/food.png'}
                                 alt={order.recipes[0].name}
-                                className="w-12 h-12 rounded-lg object-cover border-2 border-orange-200"
+                                className="w-24 h-24 md:w-12 md:h-12 rounded-lg object-cover border-2 border-orange-200"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   target.src = '/app/assets/food.png';
@@ -265,44 +269,53 @@ const OrderHistory = ({ showHeader }) => {
                               )}
                             </div>
                           )}
-                          <div>
+                          <div className="flex flex-col">
+                            <div >
                             <h3 className="text-lg font-semibold text-gray-800">
                               Order #{order.id.slice(-8).toUpperCase()}
                             </h3>
-                            {order.recipes && order.recipes.length > 0 && (
-                              <p className="text-sm text-gray-600">
-                                {order.recipes.length === 1
-                                  ? order.recipes[0].name
-                                  : `${order.recipes.length} recipes`}
-                              </p>
-                            )}
+                              <div className="flex items-center my-2">
+                                {order.recipes && order.recipes.length > 0 && (
+                                  <p className="text-sm text-gray-600">
+                                    {order.recipes.length === 1
+                                      ? order.recipes[0].name
+                                      : `${order.recipes.length} recipes`}
+                                  </p>
+
+                                )}
+                                <div className="mx-2 ">
+                                  <span
+                                    className={`px-3 py-[2px] text-sm rounded-sm font-medium ${statusColorMap[order.deliveryStatus]
+                                      }`}
+                                  >
+                                    {statusDisplayMap[order.deliveryStatus]}
+                                  </span>
+                                </div>
+                              </div>
+
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>{formatDate(order.createdAt)}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-orange-600">
+                                  {formatCurrency(order.amount)}
+                                </span>
+                              </div>
+                              {order.deliveryDurationRange && (
+                                <div className="flex items-center gap-1">
+                                  <Package className="h-4 w-4" />
+                                  <span>{order.deliveryDurationRange}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <span
-                          className={`px-3 py-1 text-sm rounded-full font-medium ${statusColorMap[order.deliveryStatus]
-                            }`}
-                        >
-                          {statusDisplayMap[order.deliveryStatus]}
-                        </span>
+
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{formatDate(order.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          <span className="font-medium text-orange-600">
-                            {formatCurrency(order.amount)}
-                          </span>
-                        </div>
-                        {order.deliveryDurationRange && (
-                          <div className="flex items-center gap-1">
-                            <Package className="h-4 w-4" />
-                            <span>{order.deliveryDurationRange}</span>
-                          </div>
-                        )}
-                      </div>
+
                     </div>
                     <button
                       className="text-orange-500 hover:text-orange-600 text-sm font-medium md:hidden flex items-center gap-1"
@@ -347,7 +360,7 @@ const OrderHistory = ({ showHeader }) => {
                                   </span>
                                 </p>
                                 {recipe.description && (
-                                  <p className="text-sm text-gray-600 overflow-hidden" style={{
+                                  <p className="text-sm text-gray-500 overflow-hidden" style={{
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical' as any
@@ -358,7 +371,7 @@ const OrderHistory = ({ showHeader }) => {
                                 )}
                                 <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                                   {recipe.duration && (
-                                    <span>⏱️ {Math.floor(recipe.duration / 60)} min</span>
+                                    <span className="flex"><Clock className="w-4 mx-1 h-4"/> {Math.floor(recipe.duration / 60)} min</span>
                                   )}
                                   <span className="font-medium text-orange-600">
                                     ₦{recipe.price.toLocaleString()} each
@@ -373,7 +386,7 @@ const OrderHistory = ({ showHeader }) => {
                               </div>
                             </div>
                           ))}
-                          <div className="bg-orange-50 p-3 rounded-lg border-l-4 border-orange-400">
+                          <div className="bg-orange-50 p-3 rounded border-l-4 border-orange-400">
                             <div className="flex justify-between items-center text-sm">
                               <span className="font-medium text-gray-800">Total Recipe Value:</span>
                               <span className="font-bold text-orange-600">
@@ -545,12 +558,12 @@ const OrderHistory = ({ showHeader }) => {
 
                       {/* Mobile Action Buttons */}
                       <div className="flex gap-2 pt-2">
-                        <button className="flex-1 px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                        <Link href="/shop" className=" text-center flex-1 px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
                           Reorder
-                        </button>
-                        <button className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                        </Link>
+                        <Link href="/profile?tab=track" className="text-center flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
                           Track Order
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   )}
