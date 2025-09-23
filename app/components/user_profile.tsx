@@ -1,12 +1,12 @@
 "use client";
 import { useAuth } from "@/app/contexts/AuthContext";
-import { getAvailableLGAs, getAvailableStates } from "@/app/utils/firebase/delivery-costs.firebase";
 import { updateUserProfile } from "@/app/utils/firebase/users.firebase";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-import { getPrimaryAddress, migrateLegacyAddress, setPrimaryAddress } from "@/app/utils/firebase/addresses.firebase";
+import { getPrimaryAddress, setPrimaryAddress } from "@/app/utils/firebase/addresses.firebase";
 import { Address } from "@/app/utils/types/address.type";
-import { AlertTriangle, MapPin, Star } from "lucide-react";
+import { AlertTriangle, Edit3, MapPin, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import ProfilePictureUpload from "./ProfilePictureUpload";
 import { Badge } from "./ui/badge";
@@ -17,26 +17,17 @@ interface FormData {
   lastName: string;
   email: string;
   phone: string;
-  address: string;
-  city: string;
-  state: string;
-  lga: string;
 }
 
 const UserProfile = () => {
   const { user, refreshAuth } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
-    address: "",
-    city: "",
-    state: "",
-    lga: "",
   });
-  const [states, setStates] = useState<string[]>([]);
-  const [lgas, setLgas] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
@@ -55,67 +46,14 @@ const UserProfile = () => {
         lastName: user.lastName || "",
         email: user.email || "",
         phone: user.phone || "",
-        address: user.address || "",
-        city: user.city || "",
-        state: user.state || "",
-        lga: user.lga || "",
       });
 
       // Set addresses and primary address
       setAddresses(user.addresses || []);
       setPrimaryAddressState(getPrimaryAddress(user));
-
-      // Migrate legacy address if needed
-      if (user.address && (!user.addresses || user.addresses.length === 0)) {
-        migrateLegacyAddress(user.id).then(() => {
-          refreshAuth();
-        }).catch(error => {
-          console.error('Migration error:', error);
-        });
-      }
     }
-  }, [user, refreshAuth]);
+  }, [user]);
 
-  // Load states on component mount
-  useEffect(() => {
-    const loadStates = async () => {
-      try {
-        setLoading(true);
-        const statesData = await getAvailableStates();
-        setStates(statesData);
-      } catch (error) {
-        console.error("Error loading states:", error);
-        setMessage({ type: "error", text: "Failed to load states" });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStates();
-  }, []);
-
-  // Load LGAs when state changes
-  useEffect(() => {
-    const loadLGAs = async () => {
-      if (formData.state) {
-        try {
-          const lgasData = await getAvailableLGAs(formData.state);
-          setLgas(lgasData);
-          // Reset LGA if the state changed
-          if (user?.state !== formData.state) {
-            setFormData((prev) => ({ ...prev, lga: "" }));
-          }
-        } catch (error) {
-          console.error("Error loading LGAs:", error);
-          setMessage({ type: "error", text: "Failed to load LGAs" });
-        }
-      } else {
-        setLgas([]);
-      }
-    };
-
-    loadLGAs();
-  }, [formData.state, user?.state]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -151,6 +89,10 @@ const UserProfile = () => {
     }
   };
 
+  const handleManageAddresses = () => {
+    router.push('/profile?tab=address');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -163,16 +105,12 @@ const UserProfile = () => {
       setIsSubmitting(true);
       setMessage(null);
 
-      // Update user profile
+      // Update user profile (only personal info, no legacy address fields)
       await updateUserProfile(user.id, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        lga: formData.lga,
       });
 
       // Refresh auth context to get updated user data
@@ -292,10 +230,20 @@ const UserProfile = () => {
 
             {/* Primary Address Section */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-orange-600" />
-                Primary Address
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-orange-600" />
+                  Primary Address
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleManageAddresses}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-md transition-colors"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  Manage Addresses
+                </button>
+              </div>
 
               {primaryAddress ? (
                 <Card className="mb-4">
@@ -336,7 +284,7 @@ const UserProfile = () => {
                     value={primaryAddress?.id || ''}
                     onChange={(e) => handleChangePrimaryAddress(e.target.value)}
                     className="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    disabled={loading || !isEditing}
+                    disabled={loading}
                   >
                     {addresses.map((address) => (
                       <option key={address.id} value={address.id}>
@@ -348,83 +296,6 @@ const UserProfile = () => {
               )}
             </div>
 
-            {/* State & LGA */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-gray-700 mb-2 font-inter font-light">
-                  State *
-                </label>
-                <div className="relative">
-                  <select
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.state
-                      ? "border-yellow-500 bg-yellow-50"
-                      : "border-gray-500"
-                      } focus:border-orange-500 focus:outline-none`}
-                    required
-                    disabled={loading || !isEditing}
-                  >
-                    <option value="">Select State</option>
-                    {states.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                  {!formData.state && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 group">
-                      <AlertTriangle className="text-yellow-500" size={20} />
-                      <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        This information is needed for delivery
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-700 mb-2 font-inter font-light">
-                  LGA *
-                </label>
-                <div className="relative">
-                  <select
-                    name="lga"
-                    value={formData.lga}
-                    onChange={handleInputChange}
-                    className={`w-full rounded-md p-4 border-[1px] border-solid ${!formData.lga
-                      ? "border-yellow-500 bg-yellow-50"
-                      : "border-gray-500"
-                      } focus:border-orange-500 focus:outline-none`}
-                    required
-                    disabled={
-                      !formData.state || lgas.length === 0 || !isEditing
-                    }
-                  >
-                    <option value="">Select LGA</option>
-                    {lgas.map((lga) => (
-                      <option key={lga} value={lga}>
-                        {lga}
-                      </option>
-                    ))}
-                  </select>
-                  {!formData.lga && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 group">
-                      <AlertTriangle className="text-yellow-500" size={20} />
-                      <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        This information is needed for delivery
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* City & Address */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {renderField("city", "City")}
-              {renderField("address", "Address")}
-            </div>
 
             {/* Submit Button */}
             {isEditing && (

@@ -16,7 +16,6 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import {
   addUserAddress,
-  migrateLegacyAddress,
   removeUserAddress,
   setPrimaryAddress,
   updateUserAddress
@@ -51,15 +50,6 @@ const ManageAddress = () => {
       if (user) {
         setAddresses(user.addresses || []);
 
-        // Migrate legacy address if needed
-        if (user.address && (!user.addresses || user.addresses.length === 0)) {
-          try {
-            await migrateLegacyAddress(user.id);
-            await refreshAuth(); // Refresh to get updated user data
-          } catch (error) {
-            console.error('Migration error:', error);
-          }
-        }
       }
     };
 

@@ -9,12 +9,12 @@ import { useAuth } from "../contexts/AuthContext";
 // Pages / components
 import LogIn from "../auth/login/page";
 import Nav from "../components/nav";
+import Search_bar from "../components/Search_bar";
 import User_profile from "../components/user_profile";
-import ContactUs from "../contact_us/page"    // ← use component version
+import ContactUs from "../contact_us/page"; // ← use component version
 import FavoritesPage from "../favorites/page";
 import ManageAddress from "./manageAddress/page";
 import OrderHistory from "./orderHistory/page";
-import Search_bar from "../components/Search_bar";
 import OrderStatusPage from "./trackOrder/page";
 
 // Icons (images)
@@ -137,6 +137,8 @@ function ProfileContent() {
         <Search_bar
           PageTitle={activeHeaderTitle}
           showSearchBar={false}
+          setShowSearchBar={() => { }}
+          setSearchQuery={() => { }}
         />
       )}
 
