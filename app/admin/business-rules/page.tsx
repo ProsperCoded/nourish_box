@@ -646,43 +646,6 @@ const BusinessRulesPage = () => {
         </Card>
       </div>
 
-      {/* Preview Section */}
-      <Card className="shadow-sm border-green-200 bg-green-50">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-green-800">Pricing Preview</CardTitle>
-          <CardDescription>
-            See how these settings affect a sample ₦5,000 order
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-white p-4 rounded-lg border border-green-200">
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">₦5,000</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Delivery Fee:</span>
-                <span className="font-medium">₦{formData.deliveryFee.toLocaleString()}</span>
-              </div>
-              {formData.taxEnabled && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax ({formData.taxRate}%):</span>
-                  <span className="font-medium">₦{((5000 * formData.taxRate) / 100).toLocaleString()}</span>
-                </div>
-              )}
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between text-lg font-semibold">
-                  <span>Total:</span>
-                  <span className="text-orange-600">
-                    ₦{(5000 + formData.deliveryFee + (formData.taxEnabled ? (5000 * formData.taxRate) / 100 : 0)).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Save Button */}
       <div className="flex justify-end">
