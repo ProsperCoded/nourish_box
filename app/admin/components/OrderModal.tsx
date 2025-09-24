@@ -43,6 +43,25 @@ const OrderModal = ({
   );
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Helper function to get quantity for a specific recipe in an order
+  const getRecipeQuantity = (recipeId: string): number => {
+    if (!order.recipeIds) return 1;
+    const recipeItem = order.recipeIds.find(item => {
+      const itemRecipeId = typeof item === 'string' ? item : item.recipeId;
+      return itemRecipeId === recipeId;
+    });
+    return typeof recipeItem === 'object' ? recipeItem.quantity : 1;
+  };
+
+  // Helper function to calculate total value with quantities
+  const calculateOrderTotal = (): number => {
+    if (!order.recipes || !order.recipeIds) return order.amount;
+    return order.recipes.reduce((sum, recipe) => {
+      const quantity = getRecipeQuantity(recipe.id);
+      return sum + (recipe.price * quantity);
+    }, 0);
+  };
+
   const getStatusIcon = (status: DeliveryStatus) => {
     switch (status) {
       case DeliveryStatus.PENDING:
@@ -202,12 +221,14 @@ const OrderModal = ({
                           {order.user.phone}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">City:</span>
-                        <span className="text-gray-800">
-                          {order.user.city}, {order.user.state}
-                        </span>
-                      </div>
+                      {order.user.addresses && order.user.addresses.length > 0 && (
+                        <div className="flex justify-between">
+                          <span className="font-medium text-gray-600">Primary Address:</span>
+                          <span className="text-gray-800">
+                            {order.user.addresses.find(addr => addr.isPrimary)?.city || order.user.addresses[0]?.city}, {order.user.addresses.find(addr => addr.isPrimary)?.state || order.user.addresses[0]?.state}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -242,6 +263,12 @@ const OrderModal = ({
                               <span className="text-sm text-gray-500">
                                 Price: ₦{recipe.price.toLocaleString()}
                               </span>
+                              <span className="text-sm bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
+                                Qty: {getRecipeQuantity(recipe.id)}
+                              </span>
+                              <span className="text-sm font-bold text-green-600">
+                                Total: ₦{(recipe.price * getRecipeQuantity(recipe.id)).toLocaleString()}
+                              </span>
                               <span className="text-sm text-gray-500">
                                 Duration: {Math.floor(recipe.duration / 60)}min
                               </span>
@@ -263,7 +290,7 @@ const OrderModal = ({
                       <div className="flex justify-between items-center mt-1">
                         <span className="text-sm font-medium text-blue-700">Total Value:</span>
                         <span className="text-sm font-bold text-blue-800">
-                          ₦{order.recipes.reduce((sum, recipe) => sum + recipe.price, 0).toLocaleString()}
+                          ₦{calculateOrderTotal().toLocaleString()}
                         </span>
                       </div>
                     </div>

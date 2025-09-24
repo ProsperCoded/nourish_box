@@ -245,7 +245,11 @@ export async function getAllOrdersWithDetails(): Promise<
     const userIds = [
       ...new Set(orders.map(order => order.userId).filter(Boolean)),
     ];
-    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const allRecipeIds = orders.flatMap(order =>
+      (order.recipeIds || []).map(item =>
+        typeof item === 'string' ? item : item.recipeId
+      )
+    );
     const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
       ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
@@ -330,7 +334,10 @@ export async function getAllOrdersWithDetails(): Promise<
       user: order.userId ? usersMap.get(order.userId) : undefined,
       recipes:
         order.recipeIds
-          ?.map(id => recipesMap.get(id))
+          ?.map(item => {
+            const recipeId = typeof item === 'string' ? item : item.recipeId;
+            return recipesMap.get(recipeId);
+          })
           .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
@@ -399,7 +406,11 @@ export async function getPaginatedOrdersWithDetails(
     const userIds = [
       ...new Set(orders.map(order => order.userId).filter(Boolean)),
     ];
-    const allRecipeIds = orders.flatMap(order => order.recipeIds || []);
+    const allRecipeIds = orders.flatMap(order =>
+      (order.recipeIds || []).map(item =>
+        typeof item === 'string' ? item : item.recipeId
+      )
+    );
     const recipeIds = [...new Set(allRecipeIds)];
     const deliveryIds = [
       ...new Set(orders.map(order => order.deliveryId).filter(Boolean)),
@@ -484,7 +495,10 @@ export async function getPaginatedOrdersWithDetails(
       user: order.userId ? usersMap.get(order.userId) : undefined,
       recipes:
         order.recipeIds
-          ?.map(id => recipesMap.get(id))
+          ?.map(item => {
+            const recipeId = typeof item === 'string' ? item : item.recipeId;
+            return recipesMap.get(recipeId);
+          })
           .filter((recipe): recipe is Recipe => recipe !== undefined) || [],
       delivery: deliveriesMap.get(order.deliveryId),
     }));
