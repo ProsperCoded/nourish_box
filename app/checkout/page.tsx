@@ -81,6 +81,8 @@ const CheckoutPage = () => {
         setBusinessRulesLoading(true);
         const rules = await getBusinessRules();
         setBusinessRules(rules);
+        // Initialize delivery fee with business rules default when first loaded
+        setDynamicDeliveryFee(rules.deliveryFee);
       } catch (error) {
         console.error("Error loading business rules:", error);
         // Keep default rules on error
@@ -109,6 +111,7 @@ const CheckoutPage = () => {
 
           if (primaryAddress) {
             setSelectedAddressId(primaryAddress.id);
+            // Set delivery info which will trigger delivery cost calculation
             setDeliveryInfo({
               deliveryName: primaryAddress.name,
               deliveryEmail: user.email,
@@ -189,8 +192,13 @@ const CheckoutPage = () => {
           setLoadingLocations(true);
           const lgasData = await getAvailableLGAs(deliveryInfo.deliveryState);
           setLgas(lgasData);
-          // Reset LGA when state changes
-          setDeliveryInfo((prev) => ({ ...prev, deliveryLGA: "" }));
+          // Only reset LGA if the current LGA is not valid for the selected state
+          setDeliveryInfo((prev) => {
+            if (!prev.deliveryLGA || !lgasData.includes(prev.deliveryLGA)) {
+              return { ...prev, deliveryLGA: "" };
+            }
+            return prev;
+          });
         } catch (error) {
           console.error("Error loading LGAs:", error);
           setFormErrors((prev) => ({
@@ -247,17 +255,22 @@ const CheckoutPage = () => {
       } else {
         // Reset to default business rules delivery fee when no location is selected
         setDynamicDeliveryFee(businessRules.deliveryFee);
+        setDeliveryFeeLoading(false);
       }
     };
 
-    fetchDeliveryCost();
+    // Only fetch delivery cost if business rules are loaded
+    if (!businessRulesLoading) {
+      fetchDeliveryCost();
+    }
   }, [
     useCustomAddress,
     customAddressData.state,
     customAddressData.lga,
     deliveryInfo.deliveryState,
     deliveryInfo.deliveryLGA,
-    businessRules.deliveryFee
+    businessRules.deliveryFee,
+    businessRulesLoading // Add this dependency to ensure business rules are loaded first
   ]);
 
   const cartItems = cart?.items || [];
