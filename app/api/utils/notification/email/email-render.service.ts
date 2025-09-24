@@ -38,7 +38,7 @@ export class EmailRenderService {
         companyEmail:
           configService.get(ENV.COMPANY_EMAIL) || 'hello@nourishboxng.com.com',
         websiteUrl:
-          configService.get(ENV.NEXT_PUBLIC_APP_URL) ||
+          // configService.get(ENV.NEXT_PUBLIC_APP_URL) ||
           'https://nourishboxng.co',
       };
 
