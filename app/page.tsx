@@ -180,7 +180,7 @@ export default function Home({
                 </div>
                 <div className='font-inter absolute top-0 right-0 z-0 rounded-lg p-2 shadow-md bg-white flex flex-col w-56'>
                   <p className='bg-gray-100 text-sm rounded-lg p-2 m-1'>
-                    Excllent customer service experience.
+                    Excellent customer service experience.
                   </p>
                   <div className='flex  justify-between border-black p-2 items-center'>
                     <div className='flex items-center'>
