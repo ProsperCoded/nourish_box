@@ -1,6 +1,5 @@
 'use client';
 import { Modal } from '@mui/material';
-import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import LoginPrompt from './LoginPrompt';
@@ -162,10 +161,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             )}
           </>
         ) : (
-          <Image
+          <img
             src={recipe.displayMedia.url}
             alt={recipe.name}
-            fill
+            // fill
             loading='lazy'
             className='object-cover transition-transform duration-500 group-hover:scale-110'
           />
